@@ -16,15 +16,34 @@ function Invoke-Checked {
 
 function Initialize-LocalEnvironment {
     $envPath = Join-Path $projectRoot '.env'
-    if (Test-Path -LiteralPath $envPath) { return }
+    if (Test-Path -LiteralPath $envPath) {
+        # Phase 01 adds a signing secret without changing existing local credentials.
+        $existing = [IO.File]::ReadAllText($envPath)
+        if ($existing -notmatch '(?m)^AUTH_SIGNING_SECRET=') {
+            $secret = New-AuthSigningSecret
+            [IO.File]::AppendAllText($envPath, "`nAUTH_SIGNING_SECRET=$secret`n", [Text.UTF8Encoding]::new($false))
+            Write-Host 'Added the missing local AUTH_SIGNING_SECRET to .env.'
+        }
+        return
+    }
     $content = Get-Content -LiteralPath (Join-Path $projectRoot '.env.example') -Raw
     # Hex values work with both Docker Compose dotenv and Spring .properties parsing.
     $content = $content.Replace('POSTGRES_PASSWORD=replace-with-local-password',
         ('POSTGRES_PASSWORD=' + [guid]::NewGuid().ToString('N')))
     $content = $content.Replace('RABBITMQ_PASSWORD=replace-with-local-password',
         ('RABBITMQ_PASSWORD=' + [guid]::NewGuid().ToString('N')))
+    $content = $content.Replace('AUTH_SIGNING_SECRET=replace-with-random-64-character-secret',
+        ('AUTH_SIGNING_SECRET=' + (New-AuthSigningSecret)))
     [IO.File]::WriteAllText($envPath, $content, [Text.UTF8Encoding]::new($false))
     Write-Host 'Created .env with local credentials. Existing .env files are preserved.'
+}
+
+function New-AuthSigningSecret {
+    $bytes = New-Object byte[] 32
+    $generator = [Security.Cryptography.RandomNumberGenerator]::Create()
+    try { $generator.GetBytes($bytes) }
+    finally { $generator.Dispose() }
+    return ([BitConverter]::ToString($bytes)).Replace('-', '').ToLowerInvariant()
 }
 
 function Set-Java21 {
