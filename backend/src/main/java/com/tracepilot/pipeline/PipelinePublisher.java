@@ -10,23 +10,26 @@ import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import com.tracepilot.analysis.AiProperties;
 
 @Component
 public class PipelinePublisher {
     private final OutboxRepository outboxRepository;
     private final RabbitTemplate rabbitTemplate;
     private final PipelineProperties properties;
+    private final AiProperties aiProperties;
 
     public PipelinePublisher(OutboxRepository outboxRepository, RabbitTemplate rabbitTemplate,
-                             PipelineProperties properties) {
+                             PipelineProperties properties, AiProperties aiProperties) {
         this.outboxRepository = outboxRepository;
         this.rabbitTemplate = rabbitTemplate;
         this.properties = properties;
+        this.aiProperties = aiProperties;
     }
 
     @Scheduled(fixedDelayString = "${tracepilot.pipeline.dispatch-delay-ms:1000}")
     public void dispatch() {
-        if (!properties.enabled()) {
+        if (!properties.enabled() && !aiProperties.enabled()) {
             return;
         }
         outboxRepository.recoverExpired();
@@ -47,7 +50,11 @@ public class PipelinePublisher {
         var message = new Message(claim.id().toString().getBytes(StandardCharsets.UTF_8), messageProperties);
         var correlation = new CorrelationData(claim.token().toString());
         try {
-            var key = "INCIDENT_LOG_CAPTURE".equals(claim.eventType()) ? PipelineQueues.LOGS_KEY : PipelineQueues.SYNC_KEY;
+            var key = switch (claim.eventType()) {
+                case "INCIDENT_LOG_CAPTURE" -> PipelineQueues.LOGS_KEY;
+                case "AI_ANALYSIS" -> PipelineQueues.AI_KEY;
+                default -> PipelineQueues.SYNC_KEY;
+            };
             if (claim.deadLetter()) {
                 key = PipelineQueues.DEAD_KEY;
             }

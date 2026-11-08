@@ -54,7 +54,7 @@ import static org.awaitility.Awaitility.await;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
+    properties = {"AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
         "AUTH_SIGNING_SECRET=phase04-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase04IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();
@@ -374,6 +374,16 @@ class Phase04IntegrationTests {
             OTHER_WORKSPACE_ID, id)).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
         assertThatThrownBy(() -> jdbcTemplate.update("UPDATE notifications SET workspace_id = ? WHERE incident_id = ?",
             OTHER_WORKSPACE_ID, id)).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void disabledAiRejectsAnalysisWithoutCreatingHistoryOrUsage() throws Exception {
+        waitFor(requestSync(1), "SUCCEEDED");
+        var path = incidentPath(incidentId()) + "/analyses";
+        var response = call("POST", path, owner.accessToken(), Map.of("requestId", UUID.randomUUID()));
+        assertThat(response.statusCode()).isEqualTo(503);
+        assertThat(count("ai_analyses")).isZero();
+        assertThat(count("ai_usage_events")).isZero();
     }
 
     private UUID requestSync(int attempt) throws Exception {

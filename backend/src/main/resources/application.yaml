@@ -50,6 +50,17 @@ tracepilot:
     retry-delay: 2s
     processing-lease: 5m
     dispatch-delay-ms: 1000
+  ai:
+    enabled: ${AI_ENABLED:false}
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:}
+    base-url: https://api.openai.com/v1
+    timeout: 30s
+    max-input-characters: 16000
+    max-output-tokens: 2048
+    max-calls-per-day: 50
+    input-price-per-million: ${AI_INPUT_PRICE_PER_MILLION:}
+    output-price-per-million: ${AI_OUTPUT_PRICE_PER_MILLION:}
 
 server:
   address: ${SERVER_ADDRESS:127.0.0.1}

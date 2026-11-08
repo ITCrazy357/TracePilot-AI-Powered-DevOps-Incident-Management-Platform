@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error-container":"#ffdad6","surface-dim":"#c8dbf9","canvas-workspace":"#F5FAFE","status-warning":"#F59E0B","surface-bright":"#f8f9ff","on-secondary-container":"#630040","on-surface-variant":"#3f4850","on-tertiary-fixed":"#001e2f","surface":"#f8f9ff","secondary-container":"#fe59b4","secondary-fixed":"#ffd8e7","outline":"#6f7882","surface-card":"#FFFFFF","secondary-fixed-dim":"#ffafd2","primary-fixed":"#cbe6ff","tertiary-container":"#307ba9","on-secondary":"#ffffff","inverse-on-surface":"#eaf1ff","inverse-primary":"#8fcdff","on-secondary-fixed-variant":"#8b005b","on-tertiary-fixed-variant":"#004b70","status-success":"#10B981","on-background":"#071c32","outline-variant":"#bec7d2","border-subtle":"#DDE8F0","text-primary":"#10243A","surface-container-highest":"#d2e4ff","surface-variant":"#d2e4ff","gutter-error-pink":"#FDF2F8","primary-fixed-dim":"#8fcdff","on-primary-fixed":"#001e30","error":"#ba1a1a","text-secondary":"#475569","on-error-container":"#93000a","tertiary":"#02628f","on-primary":"#ffffff","surface-tint":"#006495","surface-container-high":"#dce9ff","surface-container-low":"#eff4ff","on-surface":"#071c32","on-error":"#ffffff","secondary":"#b21277","tertiary-fixed-dim":"#8ccdff","on-tertiary":"#ffffff","tertiary-fixed":"#cae6ff","on-primary-container":"#fcfcff","surface-container":"#e5eeff","contrast-blue-dark":"#00618E","primary":"#006191","on-tertiary-container":"#fcfcff","primary-container":"#007bb6","inverse-surface":"#1e3148","on-secondary-fixed":"#3d0025","contrast-pink-dark":"#9D2368","surface-container-lowest":"#ffffff","background":"#f8f9ff","on-primary-fixed-variant":"#004b71"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin-mobile":"1rem","gutter-compact":"1rem","margin":"2rem","space-xl":"2rem","space-lg":"1.5rem","space-xs":"0.25rem","space-sm":"0.5rem","space-md":"1rem","gutter":"1.5rem"},fontFamily:{"body-lg":["Be Vietnam Pro"],"headline-sm":["Be Vietnam Pro"],"headline-md":["Be Vietnam Pro"],"body-sm":["Be Vietnam Pro"],"code-md":["JetBrains Mono"],"headline-xl-mobile":["Be Vietnam Pro"],"label-md":["Be Vietnam Pro"],"code-lg":["JetBrains Mono"],"headline-lg":["Be Vietnam Pro"],"body-md":["Be Vietnam Pro"],"code-sm":["JetBrains Mono"],"headline-xl":["Be Vietnam Pro"],"label-sm":["Be Vietnam Pro"]},fontSize:{"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}],"headline-sm":["16px",{lineHeight:"24px",fontWeight:"600"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"code-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"headline-xl-mobile":["26px",{lineHeight:"34px",letterSpacing:"-0.015em",fontWeight:"700"}],"label-md":["13px",{lineHeight:"16px",fontWeight:"600"}],"code-lg":["14px",{lineHeight:"20px",fontWeight:"500"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"code-sm":["11px",{lineHeight:"16px",fontWeight:"400"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"700"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}]}}}};</script></head><body class="bg-canvas-workspace font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-[224px] bg-surface-card border-r border-border-subtle z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-14 px-space-md flex items-center gap-space-sm border-b border-border-subtle"><img alt="TracePilot Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDvT1xie6a5B_nSUO76gao5RWf8QSiRadrX74Xt3dtGe2F9-WlJoh6UpLp_-xenQGUYpKxej083sMb6PhHPoDosoS_Y3YbOEcJoq16E0sIh8NhBjjOQUkoAm3V6BBoHEdi_IVAi0hFDBrFtc2ZCeuVgOMqTrjc4DlCdL9jTInfZEpJVjZDOkE4r-j4v9nEyADmD5MNoBavwHkwMDM8EtAX_YQVquTDKq7sozSnB-9Rj"/><span class="font-headline-sm text-headline-sm text-text-primary tracking-tight">TracePilot</span></div><div class="p-space-sm"><button class="w-full flex items-center justify-between px-space-sm py-1.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container transition-colors text-left"><div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary text-[18px]">domain</span><span class="font-label-md text-label-md text-text-primary truncate">Release Lab</span><span class="material-symbols-outlined text-status-success text-[15px]">verified</span></div><span class="material-symbols-outlined text-outline text-[16px]">unfold_more</span></button></div><nav class="flex flex-col gap-0.5 px-space-sm pt-space-xs" data-active-classes="bg-surface-container-high text-contrast-blue-dark font-label-md"><a class="flex items-center px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="tong-quan" href="#">Tổng quan</a><a class="flex items-center px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-github" href="#">Kho GitHub</a><a class="flex items-center px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="lan-chay" href="#">Lần chạy</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="su-co" href="#"><span>Sự cố</span><span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded-full bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20">2</span></a><a class="flex items-center px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-tri-thuc" href="#">Kho tri thức</a><a class="flex items-center px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cai-dat" href="#">Cài đặt</a></nav></div><div class="p-space-sm flex flex-col gap-space-sm border-t border-border-subtle bg-surface-card"><div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low border border-border-subtle"><span class="w-2 h-2 rounded-full bg-status-success animate-pulse shrink-0"></span><span class="font-code-sm text-code-sm text-text-secondary truncate">GitHub App: Đã kết nối • 1 kho</span></div><a class="flex items-center px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" href="#">Tài liệu &amp; Trợ giúp</a></div></aside><div class="pl-[224px]"><header class="fixed top-0 left-[224px] right-0 h-14 bg-surface-card border-b border-border-subtle z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="font-label-md text-label-md text-text-secondary">Release Lab</span><span class="text-outline-variant">/</span><a class="font-label-md text-label-md text-text-secondary hover:text-primary transition-colors" href="#">Sự cố</a><span class="text-outline-variant">/</span><span class="font-code-md text-code-md text-contrast-pink-dark font-semibold bg-gutter-error-pink px-1.5 py-0.5 rounded border border-secondary/20">INC-014</span></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-canvas-workspace border border-border-subtle text-text-secondary font-code-sm text-code-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-success"></span><span>Live: 08:44 GMT+7</span></div><button aria-label="Thông báo" class="relative p-1.5 rounded-lg text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-card"></span></button><div class="flex items-center gap-2 pl-space-sm border-l border-border-subtle"><img alt="Minh Đạt" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYvvLeL7ZwcD_YKmS6U0d2fgP_dnGF4X9ra-dTo84S7SZVPU61UnZ084OIRyKsxNRjCN7WxNkTBiGf0TRI_9XFTebph9_4Mu0Fmv1IHiNFt5SbrK8qeflFG9dVZWaNBLAbdEa2vNAoTs00j1On7Pl4yTbQz4YHuYaqjRVcBct5M9e_eMGKsoeRtqdbHDN9N3fDNgEY8Eac6Gw9V9kToI1Z_KZymxBc1DNebObPX3f8"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary leading-none">Minh Đạt</span><span class="font-label-sm text-label-sm text-text-secondary leading-none mt-0.5">DevOps Lead</span></div></div></div></header><main class="w-full pt-14 bg-canvas-workspace min-h-screen px-margin py-margin"><div class="flex flex-col w-full">
+<!-- Top Navigation & Return Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md mb-space-md">
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-card hover:bg-surface-container text-text-primary font-label-md text-label-md transition-all shadow-sm" href="#">
+<span class="material-symbols-outlined text-[18px] text-text-secondary">arrow_back</span>
+<span>Quay lại sự cố</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-code-sm text-code-sm bg-gutter-error-pink text-contrast-pink-dark">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          INC-014
+        </span>
+</a>
+<span class="text-text-secondary/40 font-code-sm text-code-sm">•</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Tạo từ lượt chạy đã giải quyết #483</span>
+</div>
+<!-- Auto-save Live Indicator -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-card text-text-secondary font-code-sm text-code-sm shadow-sm" id="save-status-pill">
+<span class="w-2 h-2 rounded-full bg-status-success animate-pulse"></span>
+<span id="save-status-text">Đã lưu bản nháp tự động lúc 08:49 GMT+7 · Chưa có thay đổi chưa lưu</span>
+</div>
+</div>
+<!-- Page Header & Action Bar -->
+<div class="bg-surface-card rounded-xl p-space-lg mb-space-lg shadow-sm">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1.5">
+<div class="flex flex-wrap items-center gap-2">
+<span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-status-warning font-label-sm text-label-sm uppercase tracking-wide">Bản nháp KB-086</span>
+<span class="px-2.5 py-0.5 rounded-full bg-gutter-error-pink text-contrast-pink-dark font-code-sm text-code-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">link</span>
+            Tự động khởi tạo từ INC-014
+          </span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container text-text-secondary font-body-sm text-body-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span>
+            Tác giả: Minh Đạt (DevOps Lead)
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight">
+          Soạn bài viết tri thức · Bản nháp KB-086
+        </h1>
+<p class="font-body-sm text-body-sm text-text-secondary">
+          Tài liệu hóa nguyên nhân gốc và giải pháp kỹ thuật đã xác minh từ lỗi biên dịch Java bytecode trong workflow CI.
+        </p>
+</div>
+<!-- Action Button Group -->
+<div class="flex flex-wrap items-center gap-space-sm shrink-0">
+<button class="px-3.5 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-text-secondary font-label-md text-label-md transition-colors" id="btn-discard" type="button">
+          Hủy thay đổi
+        </button>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-surface-card hover:bg-surface-container text-contrast-blue-dark font-label-md text-label-md shadow-sm transition-all" id="btn-save-draft" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+          Lưu bản nháp
+        </button>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary hover:bg-contrast-blue-dark text-on-primary font-label-md text-label-md shadow-sm transition-all" id="btn-open-approval" type="button">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+          Duyệt &amp; Xuất bản tài liệu
+        </button>
+</div>
+</div>
+</div>
+<!-- Notification Banner when ready for vector index -->
+<div class="flex items-start gap-3 p-3.5 rounded-xl bg-surface-container-low text-text-primary mb-space-lg shadow-sm">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">auto_awesome</span>
+<div class="flex-1 text-body-sm">
+<span class="font-label-md text-label-md text-primary">Sẵn sàng lập chỉ mục:</span>
+      Nội dung sau khi được duyệt sẽ tự động vector hóa thành tri thức tham chiếu <code class="font-code-sm text-code-sm bg-surface-card px-1.5 py-0.5 rounded text-contrast-blue-dark font-medium">[KB-REF:086]</code> để AI Agent kích hoạt cho các sự cố Maven bytecode tương tự trong tổ chức.
+    </div>
+<span class="font-code-sm text-code-sm text-text-secondary/70">Quyền phê chuẩn: DevOps Lead</span>
+</div>
+<!-- Main Grid: 2-Column Responsive Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: Knowledge Article Editor (7 cols on lg, 8 on xl) -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-space-lg">
+<div class="bg-surface-card rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<!-- Field 1: Article Title -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-text-primary flex items-center gap-1.5" for="kb-title">
+<span>Tiêu đề bài viết</span>
+<span class="text-secondary font-label-sm">*</span>
+</label>
+<span class="font-code-sm text-code-sm text-text-secondary" id="title-counter">73 / 120 ký tự</span>
+</div>
+<div class="relative">
+<input class="w-full px-3.5 py-2.5 rounded-lg bg-surface font-body-md text-body-md text-text-primary placeholder:text-text-secondary focus:bg-surface-card focus:outline-none transition-all" id="kb-title" maxlength="120" type="text" value="Dùng JDK 21 cho CI của orders-api (Khắc phục javac target version mismatch)"/>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">
+            Nêu rõ hành động khắc phục và phạm vi repository/workflow để kỹ sư tìm kiếm tức thì.
+          </p>
+</div>
+<!-- Taxonomies & Metadata -->
+<div class="p-space-md rounded-xl bg-canvas-workspace flex flex-col gap-3">
+<div class="font-label-md text-label-md text-text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-contrast-blue-dark">sell</span>
+<span>Phân loại &amp; Liên kết ngữ cảnh</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div>
+<span class="font-label-sm text-label-sm text-text-secondary block mb-1">Kho lưu trữ liên quan</span>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-card text-text-primary font-code-sm text-code-sm shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-text-secondary">source</span>
+                release-lab/orders-api
+              </div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-text-secondary block mb-1">Mức độ ảnh hưởng</span>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gutter-error-pink text-contrast-pink-dark font-label-md text-label-md shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                Chặn build CI (P1)
+              </div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-text-secondary block mb-1">Nhãn tra cứu AI</span>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-card text-text-primary font-code-sm text-code-sm shadow-sm">Java 21</span>
+<span class="px-2 py-0.5 rounded bg-surface-card text-text-primary font-code-sm text-code-sm shadow-sm">GH Actions</span>
+<span class="px-2 py-0.5 rounded bg-surface-card text-text-primary font-code-sm text-code-sm shadow-sm">Maven</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Field 2: Confirmed Root Cause (Rich / Markdown Editor) -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-text-primary flex items-center gap-1.5" for="root-cause-editor">
+<span>Nguyên nhân đã xác nhận (Confirmed Root Cause)</span>
+<span class="text-secondary font-label-sm">*</span>
+</label>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-status-success text-[16px]">check_circle</span>
+<span class="font-body-sm text-body-sm text-status-success">Đã kiểm chứng tại #482</span>
+</div>
+</div>
+<!-- Minimalist Editor Container -->
+<div class="rounded-xl overflow-hidden bg-surface-card shadow-sm">
+<!-- Formatting Toolbar -->
+<div class="flex flex-wrap items-center justify-between px-3 py-2 bg-surface-container-low">
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-surface-card text-text-secondary hover:text-text-primary transition-colors" title="Bold" type="button">
+<span class="material-symbols-outlined text-[18px]">format_bold</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-card text-text-secondary hover:text-text-primary transition-colors" title="Italic" type="button">
+<span class="material-symbols-outlined text-[18px]">format_italic</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-card text-text-secondary hover:text-text-primary transition-colors" title="Inline Code" type="button">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</button>
+<span class="w-px h-4 bg-border-subtle mx-1"></span>
+<button class="p-1 rounded hover:bg-surface-card text-text-secondary hover:text-text-primary transition-colors" title="Bullet List" type="button">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-card text-text-secondary hover:text-text-primary transition-colors" title="Link" type="button">
+<span class="material-symbols-outlined text-[18px]">link</span>
+</button>
+<button class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-code-sm font-code-sm bg-gutter-error-pink text-contrast-pink-dark hover:bg-secondary-fixed transition-colors" title="Insert Log Evidence [1]" type="button">
+<span class="material-symbols-outlined text-[14px]">pin</span>
+                  Chèn Bằng chứng [1]
+                </button>
+</div>
+<span class="font-code-sm text-code-sm text-text-secondary/70">Markdown Supported</span>
+</div>
+<!-- Editor Textarea -->
+<textarea class="w-full p-space-md font-body-md text-body-md text-text-primary bg-transparent focus:outline-none resize-y leading-relaxed" id="root-cause-editor" rows="6">Khi nâng cấp target bytecode Java trong `pom.xml` lên 21 (`&lt;maven.compiler.release&gt;21&lt;/maven.compiler.release&gt;`), runner của GitHub Actions vẫn đang sử dụng action `actions/setup-java@v3` với cấu hình mặc định là `java-version: '17'`.
+
+Trình biên dịch `javac` của Temurin 17 từ chối biên dịch cờ release 21 với thông báo lỗi:
+`Fatal error compiling: error: release version 21 not supported` (tham chiếu bằng chứng log [1]).</textarea>
+</div>
+</div>
+<!-- Field 3: Verified Resolution with Code Block -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-text-primary flex items-center gap-1.5" for="resolution-editor">
+<span>Cách khắc phục đã kiểm chứng (Verified Resolution)</span>
+<span class="text-secondary font-label-sm">*</span>
+</label>
+<span class="font-code-sm text-code-sm text-text-secondary">Workflow `.github/workflows/ci.yml`</span>
+</div>
+<div class="rounded-xl overflow-hidden bg-surface-card shadow-sm">
+<div class="px-3 py-2 bg-surface-container-low flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-text-secondary">Hướng dẫn cấu hình &amp; Đoạn mã YAML chuẩn</span>
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 font-code-sm text-code-sm text-status-success bg-emerald-50 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                  Đã pass #483
+                </span>
+</div>
+</div>
+<textarea class="w-full p-space-md font-body-md text-body-md text-text-primary bg-transparent focus:outline-none resize-y leading-relaxed" id="resolution-editor" rows="4">Cập nhật workflow `.github/workflows/ci.yml` nâng phiên bản action setup-java lên `@v4` và đặt phiên bản JDK runner lên Java 21:</textarea>
+<!-- Embedded Interactive Code Preview Block -->
+<div class="mx-space-md mb-space-md rounded-lg overflow-hidden bg-[#10243A] text-on-primary shadow-inner">
+<div class="flex items-center justify-between px-3 py-1.5 bg-[#071c32] text-text-secondary font-code-sm text-code-sm">
+<span class="flex items-center gap-1.5 text-on-primary/80">
+<span class="material-symbols-outlined text-[14px] text-contrast-blue-dark">data_object</span>
+                  .github/workflows/ci.yml
+                </span>
+<span class="text-status-success font-code-sm">YAML</span>
+</div>
+<pre class="p-3 font-code-md text-code-md overflow-x-auto leading-relaxed text-blue-100"><code>      <span class="text-slate-400">- name:</span> Set up JDK
+        <span class="text-primary-fixed-dim">uses:</span> <span class="text-status-warning">actions/setup-java@v4</span>
+        <span class="text-primary-fixed-dim">with:</span>
+          <span class="text-slate-300">distribution:</span> <span class="text-emerald-300">'temurin'</span>
+          <span class="text-slate-300">java-version:</span> <span class="text-emerald-300">'21'</span>
+          <span class="text-slate-300">cache:</span> <span class="text-emerald-300">'maven'</span></code></pre>
+</div>
+<div class="px-space-md pb-space-md">
+<input class="w-full px-3 py-2 rounded-lg bg-surface font-body-sm text-body-sm text-text-primary focus:bg-surface-card focus:outline-none transition-colors" placeholder="Ghi chú kết quả sau triển khai..." type="text" value="Sau khi áp dụng commit vào nhánh main, workflow #483 đã biên dịch thành công và vượt qua toàn bộ 142 bài kiểm thử tích hợp."/>
+</div>
+</div>
+</div>
+<!-- Field 4: Conditions & Notes (Collapsible Section) -->
+<details class="group rounded-xl bg-surface-container-low transition-all">
+<summary class="list-none flex items-center justify-between p-space-md cursor-pointer select-none">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[18px]">info</span>
+<span class="font-label-md text-label-md text-text-primary">Điều kiện áp dụng &amp; Lưu ý thêm (Tùy chọn)</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-space-md pb-space-md pt-0 flex flex-col gap-2">
+<textarea class="w-full p-3 rounded-lg bg-surface-card font-body-sm text-body-sm text-text-primary focus:outline-none shadow-sm placeholder:text-text-secondary" placeholder="Ghi chú nếu repository sử dụng self-hosted runner, mirror Maven nội bộ hoặc plugin toolchains khác..." rows="3">Lưu ý: Nếu sử dụng self-hosted runner, cần đảm bảo gói Temurin JDK 21 đã được tải sẵn vào bộ nhớ cache `/opt/hostedtoolcache` của máy chủ để tránh nghẽn băng thông khi build song song nhiều PR.</textarea>
+</div>
+</details>
+<!-- Validation Error Panel (State simulation) -->
+<div class="hidden p-3.5 rounded-xl bg-error-container text-on-error-container text-body-sm flex items-start gap-2.5" id="validation-notice">
+<span class="material-symbols-outlined text-[18px] shrink-0 text-error">error</span>
+<div class="flex-1">
+<span class="font-label-md text-label-md">Vui lòng hoàn thiện các mục bắt buộc:</span>
+<ul class="list-disc list-inside mt-1 font-body-sm">
+<li>Tiêu đề bài viết không được để trống.</li>
+<li>Nội dung nguyên nhân phải chứa ít nhất 30 ký tự đối chiếu.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Incident Source Reference Panel (~35%) -->
+<div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-space-lg">
+<!-- Source Reference Card (Read-only Side by Side) -->
+<div class="bg-surface-card rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md sticky top-20">
+<div class="flex items-center justify-between pb-space-sm border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<h2 class="font-headline-sm text-headline-sm text-text-primary">Tham chiếu nguồn INC-014</h2>
+</div>
+<a class="inline-flex items-center gap-1 font-label-sm text-label-sm text-contrast-blue-dark hover:underline" href="#">
+<span>Mở tab điều tra</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface font-body-sm text-body-sm">
+<span class="text-text-secondary">Chế độ hiển thị:</span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-contrast-blue-dark font-medium">Chỉ đọc (Read-only)</span>
+</div>
+<!-- Incident Metadata Specs -->
+<div class="flex flex-col gap-2 font-body-sm text-body-sm">
+<div class="flex items-center justify-between py-1 border-b border-border-subtle/50">
+<span class="text-text-secondary">Mã sự cố:</span>
+<span class="font-code-md text-code-md text-contrast-pink-dark font-bold bg-gutter-error-pink px-2 py-0.5 rounded">INC-014</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-border-subtle/50">
+<span class="text-text-secondary">Trạng thái gốc:</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-status-success">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+              Đã xác nhận khắc phục
+            </span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-border-subtle/50">
+<span class="text-text-secondary">Job &amp; Bước:</span>
+<span class="font-code-sm text-code-sm text-text-primary truncate max-w-[190px]">build-backend &gt; Run maven</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-border-subtle/50">
+<span class="text-text-secondary">Lần chạy lỗi:</span>
+<span class="font-code-sm text-code-sm text-text-primary">#482 (Lượt 2)</span>
+</div>
+<div class="flex items-center justify-between py-1">
+<span class="text-text-secondary">Commit hash:</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-container text-text-primary">9f3a2bd</span>
+</div>
+</div>
+<!-- Log Evidence Mini Viewer with Gutter Highlight -->
+<div class="flex flex-col gap-1.5 pt-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-text-secondary flex items-center gap-1">
+<span class="font-code-sm text-code-sm px-1 rounded bg-gutter-error-pink text-contrast-pink-dark font-bold">[1]</span>
+              Bằng chứng log đối chiếu
+            </span>
+<span class="font-code-sm text-code-sm text-text-secondary/70">Dòng 50-54</span>
+</div>
+<div class="rounded-lg bg-[#10243A] text-on-primary font-code-sm text-code-sm overflow-hidden shadow-inner">
+<div class="flex items-stretch text-slate-400">
+<div class="w-9 py-2 bg-[#071c32] select-none text-right pr-2 text-slate-500 font-code-sm leading-5">
+                50<br/>51<br/>52<br/>53<br/>54
+              </div>
+<div class="flex-1 py-2 pl-2 overflow-x-auto leading-5 text-slate-300">
+<div>[INFO] Compiling 42 source files...</div>
+<!-- Highlighted Error Gutter in Pale Pink & Accent line -->
+<div class="bg-gutter-error-pink/15 text-rose-300 font-medium pl-1 -ml-1 border-l-2 border-secondary">
+                  [ERROR] Fatal error compiling: error:
+                </div>
+<div class="bg-gutter-error-pink/15 text-rose-300 font-medium pl-1 -ml-1 border-l-2 border-secondary">
+                  [ERROR] release version 21 not supported
+                </div>
+<div>[INFO] ----------------------------------</div>
+<div>[INFO] BUILD FAILURE</div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Suggested YAML Diff that resolved the issue -->
+<div class="flex flex-col gap-1.5 pt-1">
+<span class="font-label-sm text-label-sm text-text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-contrast-blue-dark">difference</span>
+            Diff kiểm chứng đã áp dụng thành công (#483)
+          </span>
+<div class="rounded-lg bg-surface font-code-sm text-code-sm p-3 text-text-primary flex flex-col gap-1">
+<div class="text-rose-700 bg-rose-50 px-2 py-0.5 rounded line-through">
+              - uses: actions/setup-java@v3
+            </div>
+<div class="text-rose-700 bg-rose-50 px-2 py-0.5 rounded line-through">
+              - java-version: '17'
+            </div>
+<div class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">
+              + uses: actions/setup-java@v4
+            </div>
+<div class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">
+              + java-version: '21'
+            </div>
+</div>
+</div>
+<!-- Approval Criteria Box -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex flex-col gap-2 mt-1">
+<div class="flex items-center gap-1.5 text-contrast-blue-dark font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Quy chuẩn kiểm duyệt tri thức</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+            Khi bấm <strong class="text-text-primary">Duyệt &amp; Xuất bản</strong>, tài liệu chuyển thành trạng thái <span class="font-semibold text-emerald-700">Chính thức</span>. Hệ thống sẽ tự động cập nhật Vector Store của workspace để gợi ý khắc phục tự động cho các sự cố tương lai.
+          </p>
+<div class="pt-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-status-success text-[16px]">task_alt</span>
+<span class="font-body-sm text-body-sm text-text-primary font-medium">Minh Đạt có quyền phê duyệt cấp Lead</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal / Drawer Backdrop: Approval Review Step (Hidden by default, triggered by JS) -->
+<div class="fixed inset-0 bg-[#071c32]/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4" id="approval-modal">
+<div class="bg-surface-card rounded-xl max-w-lg w-full p-space-lg shadow-2xl flex flex-col gap-space-md animate-in fade-in zoom-in duration-150">
+<div class="flex items-center justify-between pb-space-sm border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-emerald-50 text-status-success flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-text-primary">Xác nhận duyệt &amp; Xuất bản KB-086</h3>
+</div>
+<button class="p-1 rounded-lg text-text-secondary hover:bg-surface-container" id="btn-close-modal">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-3 font-body-md text-body-md text-text-secondary">
+<p>
+          Bạn đang xuất bản tài liệu tri thức kỹ thuật cho kho lưu trữ <code class="font-code-sm text-code-sm bg-surface-container px-1 py-0.5 rounded text-text-primary">orders-api</code>.
+        </p>
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2">
+<span class="font-label-md text-label-md text-text-primary">Tác động sau khi xuất bản:</span>
+<div class="flex items-start gap-2 text-body-sm">
+<span class="material-symbols-outlined text-status-success text-[18px] shrink-0">check</span>
+<span>Vector hóa thành tri thức tham chiếu AI <strong class="text-contrast-blue-dark">[KB-REF:086]</strong></span>
+</div>
+<div class="flex items-start gap-2 text-body-sm">
+<span class="material-symbols-outlined text-status-success text-[18px] shrink-0">check</span>
+<span>Tự động gán đề xuất khắc phục khi phát hiện lỗi <code class="font-code-sm text-code-sm bg-surface-card px-1 py-0.2 rounded text-contrast-pink-dark">release version 21 not supported</code></span>
+</div>
+<div class="flex items-start gap-2 text-body-sm">
+<span class="material-symbols-outlined text-status-success text-[18px] shrink-0">check</span>
+<span>Đồng bộ và công khai cho 14 kỹ sư trong nhóm Release Lab</span>
+</div>
+</div>
+<label class="flex items-center gap-2 pt-1 cursor-pointer">
+<input checked="" class="rounded text-primary focus:ring-primary w-4 h-4" id="chk-confirm-ai" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-text-primary">Cho phép AI Agent tự động trích dẫn nội dung này trong PR Fixes</span>
+</label>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-sm border-t border-border-subtle">
+<button class="px-4 py-2 rounded-lg bg-surface-container text-text-primary font-label-md text-label-md hover:bg-surface-container-high transition-colors" id="btn-cancel-modal">
+          Quay lại chỉnh sửa
+        </button>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary hover:bg-contrast-blue-dark text-on-primary font-label-md text-label-md shadow-sm transition-all" id="btn-confirm-publish">
+<span class="material-symbols-outlined text-[18px]">publish</span>
+          Phê duyệt và Kích hoạt
+        </button>
+</div>
+</div>
+</div>
+<!-- Unsaved Changes Prompt Modal -->
+<div class="fixed inset-0 bg-[#071c32]/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4" id="unsaved-modal">
+<div class="bg-surface-card rounded-xl max-w-md w-full p-space-lg shadow-2xl flex flex-col gap-space-md">
+<div class="flex items-center gap-2 text-status-warning">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Bản nháp có thay đổi chưa lưu</h3>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+        Bạn đã sửa đổi nội dung bài viết nhưng chưa lưu lại. Bạn có chắc chắn muốn hủy bỏ các thay đổi này và quay về trạng thái đã lưu trước đó không?
+      </p>
+<div class="flex items-center justify-end gap-2 pt-2">
+<button class="px-3.5 py-1.5 rounded-lg bg-surface-container text-text-primary font-label-md text-label-md hover:bg-surface-container-high" id="btn-unsaved-cancel">
+          Tiếp tục sửa
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg bg-error text-on-error font-label-md text-label-md hover:bg-red-700" id="btn-unsaved-confirm">
+          Xóa thay đổi
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function initKnowledgeEditor() {
+    let hasUnsavedChanges = false;
+    const titleInput = document.getElementById('kb-title');
+    const titleCounter = document.getElementById('title-counter');
+    const rootCauseEditor = document.getElementById('root-cause-editor');
+    const resolutionEditor = document.getElementById('resolution-editor');
+    const saveStatusPill = document.getElementById('save-status-pill');
+    const saveStatusText = document.getElementById('save-status-text');
+    const btnSaveDraft = document.getElementById('btn-save-draft');
+    const btnDiscard = document.getElementById('btn-discard');
+    const btnOpenApproval = document.getElementById('btn-open-approval');
+    const approvalModal = document.getElementById('approval-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnCancelModal = document.getElementById('btn-cancel-modal');
+    const btnConfirmPublish = document.getElementById('btn-confirm-publish');
+    const unsavedModal = document.getElementById('unsaved-modal');
+    const btnUnsavedCancel = document.getElementById('btn-unsaved-cancel');
+    const btnUnsavedConfirm = document.getElementById('btn-unsaved-confirm');
+
+    // Title counter and change listener
+    titleInput.addEventListener('input', (e) => {
+      const len = e.target.value.length;
+      titleCounter.textContent = `${len} / 120 ký tự`;
+      markDirty();
+    });
+
+    [rootCauseEditor, resolutionEditor].forEach(el => {
+      el.addEventListener('input', markDirty);
+    });
+
+    function markDirty() {
+      if (!hasUnsavedChanges) {
+        hasUnsavedChanges = true;
+        saveStatusText.textContent = 'Có thay đổi chưa lưu...';
+        saveStatusPill.classList.remove('text-text-secondary');
+        saveStatusPill.classList.add('text-status-warning');
+      }
+    }
+
+    function markSaved() {
+      hasUnsavedChanges = false;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      saveStatusText.textContent = `Đã lưu bản nháp lúc ${timeStr} GMT+7 · Chưa có thay đổi`;
+      saveStatusPill.classList.remove('text-status-warning');
+      saveStatusPill.classList.add('text-text-secondary');
+    }
+
+    // Manual Save Draft Trigger
+    btnSaveDraft.addEventListener('click', () => {
+      btnSaveDraft.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Đang lưu...`;
+      setTimeout(() => {
+        btnSaveDraft.innerHTML = `<span class="material-symbols-outlined text-[18px]">bookmark</span> Lưu bản nháp`;
+        markSaved();
+      }, 500);
+    });
+
+    // Discard logic
+    btnDiscard.addEventListener('click', () => {
+      if (hasUnsavedChanges) {
+        unsavedModal.classList.remove('hidden');
+        unsavedModal.classList.add('flex');
+      } else {
+        alert('Không có thay đổi nào cần hủy.');
+      }
+    });
+
+    btnUnsavedCancel.addEventListener('click', () => {
+      unsavedModal.classList.add('hidden');
+      unsavedModal.classList.remove('flex');
+    });
+
+    btnUnsavedConfirm.addEventListener('click', () => {
+      titleInput.value = "Dùng JDK 21 cho CI của orders-api (Khắc phục javac target version mismatch)";
+      titleCounter.textContent = `${titleInput.value.length} / 120 ký tự`;
+      unsavedModal.classList.add('hidden');
+      unsavedModal.classList.remove('flex');
+      markSaved();
+    });
+
+    // Approval Modal interactions
+    btnOpenApproval.addEventListener('click', () => {
+      approvalModal.classList.remove('hidden');
+      approvalModal.classList.add('flex');
+    });
+
+    [btnCloseModal, btnCancelModal].forEach(b => {
+      b.addEventListener('click', () => {
+        approvalModal.classList.add('hidden');
+        approvalModal.classList.remove('flex');
+      });
+    });
+
+    btnConfirmPublish.addEventListener('click', () => {
+      btnConfirmPublish.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> Đang lập chỉ mục AI...`;
+      setTimeout(() => {
+        approvalModal.classList.add('hidden');
+        approvalModal.classList.remove('flex');
+        btnConfirmPublish.innerHTML = `<span class="material-symbols-outlined text-[18px]">publish</span> Phê duyệt và Kích hoạt`;
+        btnOpenApproval.className = "inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 text-on-primary font-label-md text-label-md shadow-sm cursor-default";
+        btnOpenApproval.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span> Đã xuất bản chính thức`;
+        markSaved();
+      }, 900);
+    });
+  })();
+</script></main></div></body></html>

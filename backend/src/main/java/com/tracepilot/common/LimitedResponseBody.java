@@ -1,4 +1,4 @@
-package com.tracepilot.github;
+package com.tracepilot.common;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -9,13 +9,13 @@ import java.util.concurrent.Flow;
 
 // Bound memory even without Content-Length. Completing after the full body lets
 // the API client apply one deadline to the complete HTTP exchange.
-final class LimitedResponseBody implements HttpResponse.BodySubscriber<byte[]> {
+public final class LimitedResponseBody implements HttpResponse.BodySubscriber<byte[]> {
     private final HttpResponse.BodySubscriber<byte[]> delegate = HttpResponse.BodySubscribers.ofByteArray();
     private final int maxBytes;
     private Flow.Subscription subscription;
     private long receivedBytes;
 
-    LimitedResponseBody(int maxBytes) {
+    public LimitedResponseBody(int maxBytes) {
         this.maxBytes = maxBytes;
     }
 
@@ -37,7 +37,7 @@ final class LimitedResponseBody implements HttpResponse.BodySubscriber<byte[]> {
         }
         if (receivedBytes > maxBytes) {
             subscription.cancel();
-            delegate.onError(new IOException("GitHub response exceeds the configured limit."));
+            delegate.onError(new IOException("Upstream response exceeds the configured limit."));
             return;
         }
         delegate.onNext(buffers);

@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import(TestcontainersConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "PIPELINE_ENABLED=false",
+    properties = {"AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "PIPELINE_ENABLED=false",
         "AUTH_SIGNING_SECRET=phase02-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase02IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();

@@ -1,5 +1,7 @@
 package com.tracepilot.github;
 
+import com.tracepilot.common.LimitedResponseBody;
+
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import com.tracepilot.analysis.AiProperties;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,11 +20,13 @@ public class OutboxRepository {
     private final JdbcTemplate jdbcTemplate;
     private final Clock clock;
     private final PipelineProperties properties;
+    private final AiProperties aiProperties;
 
-    public OutboxRepository(JdbcTemplate jdbcTemplate, Clock clock, PipelineProperties properties) {
+    public OutboxRepository(JdbcTemplate jdbcTemplate, Clock clock, PipelineProperties properties, AiProperties aiProperties) {
         this.jdbcTemplate = jdbcTemplate;
         this.clock = clock;
         this.properties = properties;
+        this.aiProperties = aiProperties;
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -57,6 +60,41 @@ public class OutboxRepository {
             """, UUID.class, claim.id(), claim.token());
     }
 
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void enqueueAnalysis(UUID repositoryId, UUID analysisId) {
+        var now = timestamp(clock.instant());
+        jdbcTemplate.update("""
+            INSERT INTO outbox_events (id, aggregate_type, aggregate_id, event_type, payload, available_at, created_at)
+            SELECT ?, 'REPOSITORY', ?, 'AI_ANALYSIS',
+                jsonb_build_object('runId', r.github_run_id, 'runAttempt', r.run_attempt, 'analysisId', a.id::text), ?, ?
+            FROM ai_analyses a JOIN incidents i ON i.id = a.incident_id JOIN workflow_runs r ON r.id = i.workflow_run_id
+            WHERE a.id = ? AND i.repository_id = ?
+            """, UUID.randomUUID(), repositoryId, now, now, analysisId, repositoryId);
+    }
+
+    public UUID analysisId(ProcessingClaim claim) {
+        return jdbcTemplate.queryForObject("""
+            SELECT CAST(payload->>'analysisId' AS uuid) FROM outbox_events
+            WHERE id = ? AND event_type = 'AI_ANALYSIS' AND processing_token = ?
+            """, UUID.class, claim.id(), claim.token());
+    }
+
+    public boolean analysisFailed(UUID analysisId) {
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject("""
+            SELECT EXISTS (SELECT 1 FROM outbox_events WHERE event_type = 'AI_ANALYSIS'
+                AND payload->>'analysisId' = ? AND processing_status = 'FAILED')
+            """, Boolean.class, analysisId.toString()));
+    }
+
+    public void failPermanently(ProcessingClaim claim, String code) {
+        jdbcTemplate.update("""
+            UPDATE outbox_events SET processing_status = 'FAILED', processed_at = ?, status = 'PENDING', available_at = ?,
+                last_error_code = ?, processing_token = NULL, processing_lease_until = NULL,
+                publish_token = NULL, publish_lease_until = NULL
+            WHERE id = ? AND processing_status = 'RUNNING' AND processing_token = ?
+            """, timestamp(clock.instant()), timestamp(clock.instant()), code, claim.id(), claim.token());
+    }
+
     @Transactional
     public Optional<PublicationClaim> claimPublication() {
         var token = UUID.randomUUID();
@@ -66,7 +104,8 @@ public class OutboxRepository {
                     attempts = attempts + 1
                 WHERE id = (
                     SELECT id FROM outbox_events
-                    WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE')
+                    WHERE ((event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE') AND ?)
+                        OR (event_type = 'AI_ANALYSIS' AND ?))
                         AND processing_status IN ('PENDING', 'RETRY', 'FAILED')
                         AND available_at <= ?
                         AND (status = 'PENDING' OR (status = 'PUBLISHING' AND publish_lease_until <= ?))
@@ -76,7 +115,8 @@ public class OutboxRepository {
                 """, (row, number) -> new PublicationClaim(row.getObject("id", UUID.class),
                 row.getObject("publish_token", UUID.class), row.getInt("attempts"),
                 "FAILED".equals(row.getString("processing_status")), row.getString("event_type")),
-            token, timestamp(now.plusSeconds(30)), timestamp(now), timestamp(now)).stream().findFirst();
+            token, timestamp(now.plusSeconds(30)), properties.enabled(), aiProperties.enabled(),
+            timestamp(now), timestamp(now)).stream().findFirst();
     }
 
     public void published(PublicationClaim claim) {
@@ -161,12 +201,12 @@ public class OutboxRepository {
                 status = 'PENDING', available_at = ?, last_error_code = 'WORKER_LEASE_EXPIRED',
                 processed_at = CASE WHEN processing_attempts >= ? THEN CAST(? AS timestamptz) ELSE NULL END,
                 processing_token = NULL, processing_lease_until = NULL, publish_token = NULL, publish_lease_until = NULL
-            WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE')
+            WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE', 'AI_ANALYSIS')
                 AND processing_status = 'RUNNING' AND processing_lease_until <= ?
             """, properties.maxAttempts(), now, properties.maxAttempts(), now, now);
         jdbcTemplate.update("""
             UPDATE outbox_events SET status = 'PENDING', available_at = ?
-            WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE') AND status = 'PUBLISHED'
+            WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE', 'AI_ANALYSIS') AND status = 'PUBLISHED'
                 AND processing_status IN ('PENDING', 'RETRY') AND published_at <= ?
             """, now, timestamp(clock.instant().minus(properties.processingLease())));
     }

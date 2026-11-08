@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"tertiary-fixed-dim":"#8ccdff","on-surface":"#071c32","tertiary":"#02628f","secondary-fixed-dim":"#ffafd2","inverse-on-surface":"#eaf1ff","on-secondary-container":"#630040","primary-fixed-dim":"#8fcdff","text-primary":"#10243A","primary-container":"#007bb6","gutter-error-pink":"#FDF2F8","surface-tint":"#006495","surface":"#f8f9ff","surface-variant":"#d2e4ff","error":"#ba1a1a","status-success":"#10B981","primary-fixed":"#cbe6ff","secondary-fixed":"#ffd8e7","surface-container":"#e5eeff","inverse-primary":"#8fcdff","error-container":"#ffdad6","on-secondary":"#ffffff","on-tertiary-fixed":"#001e2f","on-secondary-fixed-variant":"#8b005b","on-tertiary-container":"#fcfcff","surface-card":"#FFFFFF","border-subtle":"#DDE8F0","outline":"#6f7882","outline-variant":"#bec7d2","surface-container-highest":"#d2e4ff","contrast-pink-dark":"#9D2368","contrast-blue-dark":"#00618E","on-surface-variant":"#3f4850","on-tertiary":"#ffffff","text-secondary":"#475569","surface-bright":"#f8f9ff","on-primary-container":"#fcfcff","secondary-container":"#fe59b4","on-tertiary-fixed-variant":"#004b70","surface-container-low":"#eff4ff","inverse-surface":"#1e3148","on-secondary-fixed":"#3d0025","on-background":"#071c32","on-primary-fixed-variant":"#004b71","tertiary-fixed":"#cae6ff","on-primary":"#ffffff","surface-dim":"#c8dbf9","status-warning":"#F59E0B","surface-container-lowest":"#ffffff","primary":"#006191","surface-container-high":"#dce9ff","background":"#f8f9ff","tertiary-container":"#307ba9","secondary":"#b21277","on-error":"#ffffff","on-error-container":"#93000a","on-primary-fixed":"#001e30","canvas-workspace":"#F5FAFE"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter-compact":"1rem","space-lg":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter":"1.5rem","space-xl":"2rem","margin":"2rem","margin-mobile":"1rem","space-md":"1rem"},fontFamily:{"body-md":["Be Vietnam Pro"],"label-md":["Be Vietnam Pro"],"headline-xl":["Be Vietnam Pro"],"headline-md":["Be Vietnam Pro"],"headline-xl-mobile":["Be Vietnam Pro"],"body-sm":["Be Vietnam Pro"],"headline-sm":["Be Vietnam Pro"],"headline-lg":["Be Vietnam Pro"],"code-sm":["JetBrains Mono"],"code-md":["JetBrains Mono"],"body-lg":["Be Vietnam Pro"],"code-lg":["JetBrains Mono"],"label-sm":["Be Vietnam Pro"]},fontSize:{"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"label-md":["13px",{lineHeight:"16px",fontWeight:"600"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-xl-mobile":["26px",{lineHeight:"34px",letterSpacing:"-0.015em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"headline-sm":["16px",{lineHeight:"24px",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"600"}],"code-sm":["11px",{lineHeight:"16px",fontWeight:"400"}],"code-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}],"code-lg":["14px",{lineHeight:"20px",fontWeight:"500"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}]}}}};</script></head><body class="bg-canvas-workspace font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-[224px] bg-surface-card border-r border-border-subtle z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-14 px-space-md flex items-center gap-space-sm border-b border-border-subtle"><img alt="TracePilot Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDvT1xie6a5B_nSUO76gao5RWf8QSiRadrX74Xt3dtGe2F9-WlJoh6UpLp_-xenQGUYpKxej083sMb6PhHPoDosoS_Y3YbOEcJoq16E0sIh8NhBjjOQUkoAm3V6BBoHEdi_IVAi0hFDBrFtc2ZCeuVgOMqTrjc4DlCdL9jTInfZEpJVjZDOkE4r-j4v9nEyADmD5MNoBavwHkwMDM8EtAX_YQVquTDKq7sozSnB-9Rj"/><span class="font-headline-sm text-headline-sm text-text-primary tracking-tight">TracePilot</span></div><div class="p-space-sm"><button class="w-full flex items-center justify-between px-space-sm py-1.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container transition-colors text-left"><div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary text-[18px]">domain</span><span class="font-label-md text-label-md text-text-primary truncate">Release Lab</span><span class="material-symbols-outlined text-status-success text-[15px]">verified</span></div><span class="material-symbols-outlined text-outline text-[16px]">unfold_more</span></button></div><nav class="flex flex-col gap-0.5 px-space-sm pt-space-xs" data-active-classes="bg-surface-container-high text-contrast-blue-dark font-label-md"><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="tong-quan" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span>Tổng quan</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-github" href="#"><span class="material-symbols-outlined text-[18px]">folder_code</span><span>Kho GitHub</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="lan-chay" href="#"><span class="material-symbols-outlined text-[18px]">play_circle</span><span>Lần chạy</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="su-co" href="#"><div class="flex items-center gap-2.5"><span class="material-symbols-outlined text-[18px]">warning</span><span>Sự cố</span></div><span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded-full bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20">2</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-tri-thuc" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Kho tri thức</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cai-dat" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Cài đặt</span></a></nav></div><div class="p-space-sm flex flex-col gap-space-sm border-t border-border-subtle bg-surface-card"><div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low border border-border-subtle"><span class="w-2 h-2 rounded-full bg-status-success animate-pulse shrink-0"></span><span class="font-code-sm text-code-sm text-text-secondary truncate">GitHub App: Đã kết nối • 1 kho</span></div><a class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">help_outline</span><span>Tài liệu &amp; Trợ giúp</span></a></div></aside><div class="pl-[224px]"><header class="fixed top-0 left-[224px] right-0 h-14 bg-surface-card border-b border-border-subtle z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="font-label-md text-label-md text-text-secondary">Release Lab</span><span class="text-outline-variant">/</span><span class="font-label-md text-label-md text-text-primary">Tổng quan</span></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-canvas-workspace border border-border-subtle text-text-secondary font-code-sm text-code-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-success"></span><span>Live: 08:44 GMT+7</span></div><button aria-label="Thông báo" class="relative p-1.5 rounded-lg text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-card"></span></button><div class="flex items-center gap-2 pl-space-sm border-l border-border-subtle"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYvvLeL7ZwcD_YKmS6U0d2fgP_dnGF4X9ra-dTo84S7SZVPU61UnZ084OIRyKsxNRjCN7WxNkTBiGf0TRI_9XFTebph9_4Mu0Fmv1IHiNFt5SbrK8qeflFG9dVZWaNBLAbdEa2vNAoTs00j1On7Pl4yTbQz4YHuYaqjRVcBct5M9e_eMGKsoeRtqdbHDN9N3fDNgEY8Eac6Gw9V9kToI1Z_KZymxBc1DNebObPX3f8"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary leading-none">Minh Đạt</span><span class="font-label-sm text-label-sm text-text-secondary leading-none mt-0.5">DevOps Lead</span></div></div></div></header><main class="w-full pt-14 bg-canvas-workspace min-h-screen px-margin py-margin"><div class="flex flex-col w-full">
+<!-- Client script to switch active nav indicator in shell and local interactivity -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Synchronize Sidebar Active Tab
+      const navLinks = document.querySelectorAll('aside nav a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('data-path') === 'cai-dat') {
+          link.className = "flex items-center gap-2.5 px-space-sm py-2 rounded-lg bg-surface-container-high text-contrast-blue-dark font-label-md transition-colors";
+        } else {
+          link.classList.remove('bg-surface-container-high', 'text-contrast-blue-dark', 'font-label-md');
+          link.classList.add('text-text-secondary', 'font-body-md');
+        }
+      });
+
+      // Synchronize Shell Breadcrumbs
+      const breadcrumb = document.querySelector('header .font-body-sm');
+      if (breadcrumb) {
+        breadcrumb.innerHTML = `
+          <span class="font-label-md text-label-md text-text-secondary">Release Lab</span>
+          <span class="text-outline-variant">/</span>
+          <span class="font-label-md text-label-md text-text-secondary">Cài đặt</span>
+          <span class="text-outline-variant">/</span>
+          <span class="font-label-md text-label-md text-text-primary">Workspace &amp; Thành viên</span>
+        `;
+      }
+    });
+
+    function toggleInviteModal(open) {
+      const modal = document.getElementById('invite-modal');
+      if (!modal) return;
+      if (open) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+  </script>
+<!-- Workspace Top Section / Context Bar -->
+<div class="flex flex-col gap-space-md mb-space-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-code-sm text-code-sm uppercase tracking-wider text-contrast-blue-dark font-medium bg-surface-container px-2 py-0.5 rounded">Workspace Administration</span>
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+<span class="font-code-sm text-code-sm text-text-secondary">Environment: Production</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight">Cài đặt Workspace &amp; Thành viên</h1>
+<p class="font-body-md text-body-md text-text-secondary mt-1">Cấu hình định danh không gian làm việc, chính sách kiểm soát thành viên và hạn ngạch điều tra.</p>
+</div>
+<!-- Navigation Segment Tabs -->
+<div class="flex items-center p-1 bg-surface-container-low rounded-lg border border-border-subtle self-start md:self-auto overflow-x-auto">
+<button class="flex items-center gap-2 px-space-md py-1.5 rounded-md bg-surface-card text-text-primary font-label-md text-label-md shadow-sm border border-border-subtle">
+<span class="material-symbols-outlined text-[17px] text-primary">groups</span>
+<span>Chung &amp; Thành viên</span>
+</button>
+<button class="flex items-center gap-2 px-space-md py-1.5 rounded-md text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[17px]">hub</span>
+<span>Kết nối GitHub</span>
+</button>
+<button class="flex items-center gap-2 px-space-md py-1.5 rounded-md text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[17px]">notifications_active</span>
+<span>Thông báo &amp; Tích hợp</span>
+</button>
+<button class="flex items-center gap-2 px-space-md py-1.5 rounded-md text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[17px]">shield</span>
+<span>Bảo mật &amp; Quyền</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Content Grid -->
+<div class="flex flex-col gap-space-lg">
+<!-- Section 1: Thông tin Workspace (General Info) -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-lg relative overflow-hidden">
+<!-- Decorative trace indicator strip -->
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-primary-container to-secondary-container"></div>
+<div class="flex items-start justify-between pb-space-md border-b border-border-subtle">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low border border-border-subtle flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">corporate_fare</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-primary">Thông tin Workspace</h2>
+<p class="font-body-sm text-body-sm text-text-secondary">Quản lý định danh và thông tin hiển thị cơ bản của không gian làm việc này.</p>
+</div>
+</div>
+<div class="hidden sm:flex items-center gap-2">
+<span class="font-code-sm text-code-sm text-text-secondary">Tạo ngày: <strong class="text-text-primary font-medium">12/03/2024</strong></span>
+<span class="text-outline-variant">•</span>
+<span class="font-code-sm text-code-sm text-text-secondary">Bởi: <strong class="text-text-primary font-medium">Minh Đạt</strong></span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg pt-space-lg items-center">
+<!-- Logo Display & Uploader -->
+<div class="lg:col-span-3 flex flex-col items-center sm:items-start text-center sm:text-left">
+<label class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider mb-2">Biểu tượng tổ chức</label>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<div class="w-20 h-20 rounded-xl bg-surface-container flex items-center justify-center text-primary border border-border-subtle font-headline-lg text-headline-lg font-bold tracking-tight shadow-sm select-none">
+                RL
+              </div>
+<button class="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-surface-card border border-border-subtle text-text-secondary hover:text-primary shadow-sm hover:bg-surface-container transition-colors" title="Đổi biểu tượng">
+<span class="material-symbols-outlined text-[15px]">photo_camera</span>
+</button>
+</div>
+<div class="flex flex-col gap-1">
+<button class="px-3 py-1.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container text-text-primary font-label-md text-label-md transition-colors text-left flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-text-secondary">upload</span>
+                Tải lên icon mới
+              </button>
+<span class="font-body-sm text-body-sm text-text-secondary">Khuyên dùng PNG hoặc SVG 256x256</span>
+</div>
+</div>
+</div>
+<!-- Name & Slug Inputs -->
+<div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Name Field -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-text-primary" for="ws-name">Tên Workspace</label>
+<span class="font-label-sm text-label-sm text-text-secondary">Tối đa 48 ký tự</span>
+</div>
+<div class="relative">
+<input class="w-full h-10 px-3 bg-surface-card border border-border-subtle rounded-lg font-body-md text-body-md text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" id="ws-name" type="text" value="Release Lab"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-[18px] text-status-success">verified</span>
+</div>
+</div>
+<!-- Slug Field (Fixed ID) -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-text-primary" for="ws-slug">Định danh Workspace (Slug)</label>
+<span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-container-low text-text-secondary border border-border-subtle">Định danh cố định</span>
+</div>
+<div class="flex items-center rounded-lg border border-border-subtle bg-surface-container-low px-3 h-10 overflow-hidden">
+<span class="font-code-sm text-code-sm text-text-secondary select-none">app.tracepilot.dev/</span>
+<input class="flex-1 bg-transparent border-0 font-code-sm text-code-sm text-text-primary font-medium focus:outline-none select-all cursor-default" id="ws-slug" readonly="" type="text" value="release-lab"/>
+<button class="text-text-secondary hover:text-primary transition-colors ml-1 p-1" title="Sao chép đường dẫn">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center justify-between mt-space-lg pt-space-md border-t border-border-subtle">
+<div class="flex items-center gap-2 text-text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">info</span>
+<span>Chỉ chủ workspace và quản trị viên mới có thể chỉnh sửa thông tin thương hiệu.</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-2 rounded-lg font-label-md text-label-md text-text-secondary hover:bg-surface-container transition-colors">Hủy</button>
+<button class="px-space-md py-2 rounded-lg font-label-md text-label-md bg-primary hover:bg-contrast-blue-dark text-on-primary transition-colors shadow-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Lưu thay đổi</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section 2: Thành viên & Phân quyền (Members Table) -->
+<div class="bg-surface-card rounded-xl border border-border-subtle overflow-hidden">
+<!-- Section Header -->
+<div class="p-space-lg border-b border-border-subtle flex flex-col md:flex-row md:items-center justify-between gap-space-md bg-surface-card">
+<div>
+<div class="flex items-center gap-2.5">
+<h2 class="font-headline-sm text-headline-sm text-text-primary">Thành viên trong workspace</h2>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded-full bg-surface-container-high text-contrast-blue-dark font-medium border border-primary/20">5 thành viên</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mt-1">Quản lý quyền truy cập của các kỹ sư vào kho mã nguồn, phân tích sự cố và tài liệu tri thức.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<button class="px-3 py-2 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-container text-text-primary font-label-md text-label-md transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[17px] text-text-secondary">file_download</span>
+<span>Xuất CSV</span>
+</button>
+<button class="px-space-md py-2 rounded-lg bg-primary hover:bg-contrast-blue-dark text-on-primary font-label-md text-label-md transition-colors shadow-sm flex items-center gap-1.5" onclick="toggleInviteModal(true)">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>+ Thêm thành viên</span>
+</button>
+</div>
+</div>
+<!-- Filter / Search Control Row -->
+<div class="p-space-md bg-surface-container-low border-b border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="relative w-full sm:w-80">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-[18px] text-text-secondary">search</span>
+<input class="w-full h-9 pl-9 pr-3 bg-surface-card border border-border-subtle rounded-lg font-body-sm text-body-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-primary transition-all" placeholder="Tìm kiếm theo tên hoặc email..." type="text"/>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<!-- Role Filter -->
+<div class="flex items-center gap-1.5 bg-surface-card border border-border-subtle rounded-lg px-2.5 h-9 text-text-secondary">
+<span class="font-label-sm text-label-sm text-text-secondary">Vai trò:</span>
+<select class="bg-transparent font-label-md text-label-md text-text-primary border-none focus:outline-none cursor-pointer pr-1">
+<option>Tất cả vai trò</option>
+<option>Chủ workspace</option>
+<option>Quản trị viên</option>
+<option>Thành viên</option>
+<option>Chỉ đọc</option>
+</select>
+</div>
+<!-- Status Filter -->
+<div class="flex items-center gap-1.5 bg-surface-card border border-border-subtle rounded-lg px-2.5 h-9 text-text-secondary">
+<span class="font-label-sm text-label-sm text-text-secondary">Trạng thái:</span>
+<select class="bg-transparent font-label-md text-label-md text-text-primary border-none focus:outline-none cursor-pointer pr-1">
+<option>Tất cả trạng thái</option>
+<option>Đang hoạt động</option>
+<option>Lời mời đang chờ</option>
+</select>
+</div>
+<button class="p-2 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface text-text-secondary" title="Xóa bộ lọc">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Table View -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-border-subtle bg-surface text-text-secondary font-label-sm text-label-sm uppercase tracking-wider select-none">
+<th class="py-3 px-space-lg font-semibold">Thành viên</th>
+<th class="py-3 px-space-md font-semibold">Vai trò</th>
+<th class="py-3 px-space-md font-semibold">Trạng thái</th>
+<th class="py-3 px-space-md font-semibold">Ngày tham gia</th>
+<th class="py-3 px-space-lg text-right font-semibold">Thao tác</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle font-body-md text-body-md">
+<!-- Member 1: Minh Đạt (You) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-3.5 px-space-lg">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-9 h-9 rounded-full object-cover ring-1 ring-border-subtle" data-alt="Close-up portrait of Minh Đạt, male Vietnamese DevOps lead engineer wearing round glasses in a modern high-tech office with cool blue ambient monitor lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRF3HM9-bKZvuMfXwf1WhsYdpJDhUuJnOIQIo0-FMZvemCe2EOJFY4bR8KyyYFot3a0eToBs6j_ElRTwfNsap6ct92PhZgj5VC4zRYjbt86JRWk6w8XAY9-pgm1zFWkcX2v2-X-m46P5JmVoBwpGV_8Zo-QleZfJfqFUlsRqn2fA5hAWZrLD-kDeaGsnqE4QiMMgQ_zG8iljQqsnSCjt9sSPvdIodaeHDc9sRWdRwD"/>
+<span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success ring-2 ring-surface-card"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-[14px] text-text-primary truncate">Minh Đạt</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.2 rounded bg-surface-container text-contrast-blue-dark font-medium">Bạn</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">dat.minh@releaselab.io</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-contrast-blue-dark font-label-md text-label-md border border-primary/20">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                  Chủ workspace
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-label-sm text-label-sm border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                  Đang hoạt động
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="font-code-sm text-code-sm text-text-secondary">12/03/2024</span>
+</td>
+<td class="py-3.5 px-space-lg text-right whitespace-nowrap">
+<span class="font-body-sm text-body-sm text-text-secondary italic">Tài khoản chính</span>
+</td>
+</tr>
+<!-- Member 2: Bảo Trâm -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-3.5 px-space-lg">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-9 h-9 rounded-full object-cover ring-1 ring-border-subtle" data-alt="Headshot of Bảo Trâm, female Asian Tech Lead with stylish short hair, smiling warmly in a minimalist software studio, clean corporate natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMM4AkVcOIdmJTy0VZ8PYk634JbhOwCJTW2dnqsJLZgnG0RZ3vqW-gIwpyt6oXe8PdSnZZok3xm-8rRqHBtBenc7QBGKGhwPzHUBX5QnT7Nqxxi-btX7KxgaD6g7a6yPue5lEbkc-s51-8FVgv82GLtUJuHe39WOcdH0K5b_i6avYR7CvRD0PZ6mf5vyw-Lr_Q3mh6SaL6esLLQ56JEwUqDjVYaPNwCbRS21uhwF4m"/>
+<span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success ring-2 ring-surface-card"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-text-primary truncate">Bảo Trâm</span>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">tram.bao@releaselab.io</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container text-text-primary font-label-md text-label-md border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-primary">admin_panel_settings</span>
+                  Quản trị viên
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-label-sm text-label-sm border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                  Đang hoạt động
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="font-code-sm text-code-sm text-text-secondary">14/03/2024</span>
+</td>
+<td class="py-3.5 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded hover:bg-surface-container text-text-secondary hover:text-text-primary transition-colors" title="Chỉnh sửa quyền">
+<span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-text-secondary hover:text-text-primary transition-colors" title="Thao tác khác">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Member 3: Hoàng Nam -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-3.5 px-space-lg">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-9 h-9 rounded-full object-cover ring-1 ring-border-subtle" data-alt="Portrait of Hoàng Nam, senior backend developer in his late twenties, concentrated expression with technical hoodie, modern clean office backdrop with faint tech displays." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYdvoGp5qjuPQ9QNeFbBgpiG9spVg4-we2vWmjy_Oq4U9-ZQ3GTjt6jgXUnR3BJH4PfYlWDyXwqI-uKueG6QypR7q9G6eSvlaWfYVUJ7zNrAdEx6tiigK1GI47vaJgKvAkeYOlVcSRQ0I80-sPGYX4Pk5oySP30D1cwUnZw19Fsx1pjMoXQbhl6l0DjynmLfaPmfY4P2yzrV1mDalaokMj3XehcNl8krsnXHHkrgPG"/>
+<span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success ring-2 ring-surface-card"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-text-primary truncate">Hoàng Nam</span>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">nam.hoang@releaselab.io</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface text-text-secondary font-label-md text-label-md border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-outline">code</span>
+                  Thành viên
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-label-sm text-label-sm border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                  Đang hoạt động
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="font-code-sm text-code-sm text-text-secondary">22/03/2024</span>
+</td>
+<td class="py-3.5 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded hover:bg-surface-container text-text-secondary hover:text-text-primary transition-colors" title="Chỉnh sửa quyền">
+<span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-text-secondary hover:text-text-primary transition-colors" title="Thao tác khác">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Member 4: Tuấn Anh -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-3.5 px-space-lg">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-9 h-9 rounded-full bg-primary/10 text-primary font-headline-sm text-headline-sm flex items-center justify-center font-semibold ring-1 ring-border-subtle">
+                      TA
+                    </div>
+<span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success ring-2 ring-surface-card"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-text-primary truncate">Tuấn Anh</span>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">tuananh.ci@releaselab.io</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface text-text-secondary font-label-md text-label-md border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-outline">tune</span>
+                  Thành viên
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-label-sm text-label-sm border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                  Đang hoạt động
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="font-code-sm text-code-sm text-text-secondary">05/04/2024</span>
+</td>
+<td class="py-3.5 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded hover:bg-surface-container text-text-secondary hover:text-text-primary transition-colors" title="Chỉnh sửa quyền">
+<span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-text-secondary hover:text-text-primary transition-colors" title="Thao tác khác">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Member 5: quynh.le@partner.dev (Pending Invitation) -->
+<tr class="bg-amber-50/25 hover:bg-amber-50/50 transition-colors group">
+<td class="py-3.5 px-space-lg">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-9 h-9 rounded-full bg-amber-100 text-amber-800 font-code-sm text-code-sm flex items-center justify-center font-medium ring-1 ring-amber-200">
+                      QL
+                    </div>
+<span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-warning ring-2 ring-surface-card"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-code-sm text-code-sm text-text-primary font-medium truncate">quynh.le@partner.dev</span>
+<span class="font-code-sm text-[10px] uppercase px-1 rounded bg-amber-100 text-amber-900 border border-amber-300">Auditor</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">External Security Partner</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface text-text-secondary font-label-md text-label-md border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-outline">visibility</span>
+                  Chỉ đọc
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100/70 text-amber-800 font-label-sm text-label-sm border border-amber-300">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+                  Lời mời đang chờ
+                </span>
+</td>
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<span class="font-code-sm text-code-sm text-text-secondary">Gửi 2 ngày trước</span>
+</td>
+<td class="py-3.5 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-2">
+<button class="px-2 py-1 rounded text-primary hover:bg-surface-container font-label-sm text-label-sm transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">send</span>
+<span>Gửi lại</span>
+</button>
+<button class="px-2 py-1 rounded text-error hover:bg-error-container/30 font-label-sm text-label-sm transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">close</span>
+<span>Thu hồi</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Quota Indicator -->
+<div class="p-space-md bg-surface border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-space-sm font-body-sm text-body-sm text-text-secondary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">analytics</span>
+<span>Gói Pro: Đã dùng <strong class="text-text-primary">5 / 15 ghế thành viên</strong>.</span>
+<a class="text-contrast-blue-dark hover:underline font-label-sm text-label-sm ml-1" href="#">Nâng cấp gói</a>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-code-sm text-code-sm">Hiển thị 1 - 5 của 5 thành viên</span>
+</div>
+</div>
+</div>
+<!-- Section 3: Role Glossary Cards (Giải thích phân quyền) -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<h3 class="font-label-md text-label-md text-text-secondary uppercase tracking-wider">Cấu trúc phân quyền TracePilot (Role Matrix)</h3>
+<span class="font-code-sm text-code-sm text-text-secondary">Chính sách RBAC v2.4</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Card 1: Chủ workspace -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-high text-contrast-blue-dark font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px]">workspace_premium</span>
+                Chủ workspace
+              </span>
+<span class="font-code-sm text-code-sm text-text-secondary">Admin cao nhất</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+              Toàn quyền quản trị vòng đời workspace, xóa không gian làm việc, quản lý thông tin thanh toán gói Pro, và kiểm soát tuyệt đối toàn bộ thành viên.
+            </p>
+</div>
+<div class="mt-4 pt-3 border-t border-border-subtle flex items-center gap-1.5 text-text-primary font-code-sm text-code-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Giới hạn: 1 tài khoản duy nhất</span>
+</div>
+</div>
+<!-- Card 2: Quản trị viên -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container text-text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px] text-primary">admin_panel_settings</span>
+                Quản trị viên
+              </span>
+<span class="font-code-sm text-code-sm text-text-secondary">Quản lý kỹ thuật</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+              Cấu hình GitHub App, tích hợp Webhooks, gửi lời mời thành viên mới, duyệt tài liệu tri thức (KB Approval) và quản lý quy tắc tự động hóa.
+            </p>
+</div>
+<div class="mt-4 pt-3 border-t border-border-subtle flex items-center gap-1.5 text-text-primary font-code-sm text-code-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+<span>Khuyên dùng: Tech Lead, DevOps Lead</span>
+</div>
+</div>
+<!-- Card 3: Thành viên -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface text-text-secondary font-label-md text-label-md border border-border-subtle">
+<span class="material-symbols-outlined text-[15px]">engineering</span>
+                Thành viên
+              </span>
+<span class="font-code-sm text-code-sm text-text-secondary">Kỹ sư điều tra</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+              Xem và mổ xẻ lỗi log GitHub Actions, kích hoạt AI Root Cause Analysis, áp dụng giải pháp khắc phục sự cố và tạo bản nháp bài học kinh nghiệm.
+            </p>
+</div>
+<div class="mt-4 pt-3 border-t border-border-subtle flex items-center gap-1.5 text-text-primary font-code-sm text-code-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span>Dành cho: Software Engineers</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 4: Khu vực nguy hiểm (Danger Zone) -->
+<div class="rounded-xl border border-error/30 bg-surface-card overflow-hidden">
+<div class="px-space-lg py-space-md bg-gutter-error-pink/60 border-b border-error/20 flex items-center justify-between">
+<div class="flex items-center gap-2 text-contrast-pink-dark">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+<h3 class="font-headline-sm text-headline-sm text-contrast-pink-dark">Khu vực nguy hiểm (Danger Zone)</h3>
+</div>
+<span class="font-code-sm text-code-sm text-contrast-pink-dark uppercase tracking-wider font-semibold">Cần quyền Chủ sở hữu</span>
+</div>
+<div class="p-space-lg flex flex-col gap-space-md divide-y divide-border-subtle">
+<!-- Sub-action 1: Transfer Ownership -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+<div>
+<h4 class="font-headline-sm text-[15px] text-text-primary">Chuyển quyền sở hữu Workspace</h4>
+<p class="font-body-sm text-body-sm text-text-secondary mt-0.5">
+              Chuyển toàn quyền kiểm soát "Release Lab" cho một Quản trị viên khác trong danh sách.
+            </p>
+</div>
+<button class="px-space-md py-2 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface text-text-primary font-label-md text-label-md transition-colors self-start sm:self-auto shrink-0">
+            Chuyển quyền sở hữu
+          </button>
+</div>
+<!-- Sub-action 2: Delete Workspace -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-space-md">
+<div>
+<h4 class="font-headline-sm text-[15px] text-error">Xóa workspace Release Lab vĩnh viễn</h4>
+<p class="font-body-sm text-body-sm text-text-secondary mt-0.5">
+              Hành động này sẽ ngắt toàn bộ liên kết GitHub App, xóa tất cả dấu vết sự cố, lịch sử log và kho tri thức hiện hành. Không thể khôi phục.
+            </p>
+</div>
+<button class="px-space-md py-2 rounded-lg bg-error hover:bg-on-error-container text-on-error font-label-md text-label-md transition-colors shadow-sm self-start sm:self-auto shrink-0 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[17px]">delete_forever</span>
+<span>Xóa workspace này</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal: Mời thành viên mới (Hidden by default, toggled via JS) -->
+<div class="hidden fixed inset-0 z-50 items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-4" id="invite-modal">
+<div class="bg-surface-card w-full max-w-lg rounded-xl border border-border-subtle shadow-xl overflow-hidden flex flex-col">
+<!-- Modal Header -->
+<div class="p-space-md border-b border-border-subtle flex items-center justify-between bg-surface">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">person_add</span>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Mời thành viên vào Release Lab</h3>
+</div>
+<button class="p-1 rounded text-text-secondary hover:text-text-primary hover:bg-surface-container transition-colors" onclick="toggleInviteModal(false)">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-text-primary">Địa chỉ Email kỹ sư</label>
+<input class="w-full h-10 px-3 bg-surface-card border border-border-subtle rounded-lg font-code-sm text-code-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-primary transition-all" placeholder="ví dụ: engineer@company.com" type="email"/>
+<span class="font-body-sm text-body-sm text-text-secondary">Có thể nhập nhiều email phân tách bởi dấu phẩy.</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-text-primary">Gán vai trò mặc định</label>
+<div class="grid grid-cols-3 gap-2">
+<label class="flex flex-col p-2.5 rounded-lg border border-primary bg-surface-container-low cursor-pointer">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-contrast-blue-dark">Thành viên</span>
+<input checked="" class="text-primary" name="modal-role" type="radio"/>
+</div>
+<span class="font-body-sm text-[11px] text-text-secondary mt-1">Điều tra &amp; sửa sự cố</span>
+</label>
+<label class="flex flex-col p-2.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-primary">Quản trị viên</span>
+<input class="text-primary" name="modal-role" type="radio"/>
+</div>
+<span class="font-body-sm text-[11px] text-text-secondary mt-1">Duyệt KB &amp; cấu hình</span>
+</label>
+<label class="flex flex-col p-2.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-primary">Chỉ đọc</span>
+<input class="text-primary" name="modal-role" type="radio"/>
+</div>
+<span class="font-body-sm text-[11px] text-text-secondary mt-1">Kiểm toán &amp; giám sát</span>
+</label>
+</div>
+</div>
+<div class="flex items-start gap-2 p-2.5 rounded-lg bg-surface-container-low border border-border-subtle text-text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">mail</span>
+<span>Một liên kết tham gia có hiệu lực trong 7 ngày sẽ được gửi trực tiếp tới hòm thư người nhận.</span>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-space-md border-t border-border-subtle bg-surface flex items-center justify-end gap-space-sm">
+<button class="px-space-md py-2 rounded-lg font-label-md text-label-md text-text-secondary hover:bg-surface-container transition-colors" onclick="toggleInviteModal(false)">
+          Hủy bỏ
+        </button>
+<button class="px-space-md py-2 rounded-lg bg-primary hover:bg-contrast-blue-dark text-on-primary font-label-md text-label-md transition-colors shadow-sm flex items-center gap-1.5" onclick="toggleInviteModal(false)">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Gửi lời mời</span>
+</button>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

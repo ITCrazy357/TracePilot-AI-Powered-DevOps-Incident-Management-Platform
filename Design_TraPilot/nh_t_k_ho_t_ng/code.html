@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"tertiary-fixed-dim":"#8ccdff","on-surface":"#071c32","tertiary":"#02628f","secondary-fixed-dim":"#ffafd2","inverse-on-surface":"#eaf1ff","on-secondary-container":"#630040","primary-fixed-dim":"#8fcdff","text-primary":"#10243A","primary-container":"#007bb6","gutter-error-pink":"#FDF2F8","surface-tint":"#006495","surface":"#f8f9ff","surface-variant":"#d2e4ff","error":"#ba1a1a","status-success":"#10B981","primary-fixed":"#cbe6ff","secondary-fixed":"#ffd8e7","surface-container":"#e5eeff","inverse-primary":"#8fcdff","error-container":"#ffdad6","on-secondary":"#ffffff","on-tertiary-fixed":"#001e2f","on-secondary-fixed-variant":"#8b005b","on-tertiary-container":"#fcfcff","surface-card":"#FFFFFF","border-subtle":"#DDE8F0","outline":"#6f7882","outline-variant":"#bec7d2","surface-container-highest":"#d2e4ff","contrast-pink-dark":"#9D2368","contrast-blue-dark":"#00618E","on-surface-variant":"#3f4850","on-tertiary":"#ffffff","text-secondary":"#475569","surface-bright":"#f8f9ff","on-primary-container":"#fcfcff","secondary-container":"#fe59b4","on-tertiary-fixed-variant":"#004b70","surface-container-low":"#eff4ff","inverse-surface":"#1e3148","on-secondary-fixed":"#3d0025","on-background":"#071c32","on-primary-fixed-variant":"#004b71","tertiary-fixed":"#cae6ff","on-primary":"#ffffff","surface-dim":"#c8dbf9","status-warning":"#F59E0B","surface-container-lowest":"#ffffff","primary":"#006191","surface-container-high":"#dce9ff","background":"#f8f9ff","tertiary-container":"#307ba9","secondary":"#b21277","on-error":"#ffffff","on-error-container":"#93000a","on-primary-fixed":"#001e30","canvas-workspace":"#F5FAFE"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter-compact":"1rem","space-lg":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter":"1.5rem","space-xl":"2rem","margin":"2rem","margin-mobile":"1rem","space-md":"1rem"},fontFamily:{"body-md":["Be Vietnam Pro"],"label-md":["Be Vietnam Pro"],"headline-xl":["Be Vietnam Pro"],"headline-md":["Be Vietnam Pro"],"headline-xl-mobile":["Be Vietnam Pro"],"body-sm":["Be Vietnam Pro"],"headline-sm":["Be Vietnam Pro"],"headline-lg":["Be Vietnam Pro"],"code-sm":["JetBrains Mono"],"code-md":["JetBrains Mono"],"body-lg":["Be Vietnam Pro"],"code-lg":["JetBrains Mono"],"label-sm":["Be Vietnam Pro"]},fontSize:{"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"label-md":["13px",{lineHeight:"16px",fontWeight:"600"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-xl-mobile":["26px",{lineHeight:"34px",letterSpacing:"-0.015em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"headline-sm":["16px",{lineHeight:"24px",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"600"}],"code-sm":["11px",{lineHeight:"16px",fontWeight:"400"}],"code-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}],"code-lg":["14px",{lineHeight:"20px",fontWeight:"500"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}]}}}};</script></head><body class="bg-canvas-workspace font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-[224px] bg-surface-card border-r border-border-subtle z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-14 px-space-md flex items-center gap-space-sm border-b border-border-subtle"><img alt="TracePilot Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDvT1xie6a5B_nSUO76gao5RWf8QSiRadrX74Xt3dtGe2F9-WlJoh6UpLp_-xenQGUYpKxej083sMb6PhHPoDosoS_Y3YbOEcJoq16E0sIh8NhBjjOQUkoAm3V6BBoHEdi_IVAi0hFDBrFtc2ZCeuVgOMqTrjc4DlCdL9jTInfZEpJVjZDOkE4r-j4v9nEyADmD5MNoBavwHkwMDM8EtAX_YQVquTDKq7sozSnB-9Rj"/><span class="font-headline-sm text-headline-sm text-text-primary tracking-tight">TracePilot</span></div><div class="p-space-sm"><button class="w-full flex items-center justify-between px-space-sm py-1.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container transition-colors text-left"><div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary text-[18px]">domain</span><span class="font-label-md text-label-md text-text-primary truncate">Release Lab</span><span class="material-symbols-outlined text-status-success text-[15px]">verified</span></div><span class="material-symbols-outlined text-outline text-[16px]">unfold_more</span></button></div><nav class="flex flex-col gap-0.5 px-space-sm pt-space-xs" data-active-classes="bg-surface-container-high text-contrast-blue-dark font-label-md"><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="tong-quan" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span>Tổng quan</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-github" href="#"><span class="material-symbols-outlined text-[18px]">folder_code</span><span>Kho GitHub</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="lan-chay" href="#"><span class="material-symbols-outlined text-[18px]">play_circle</span><span>Lần chạy</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="su-co" href="#"><div class="flex items-center gap-2.5"><span class="material-symbols-outlined text-[18px]">warning</span><span>Sự cố</span></div><span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded-full bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20">2</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-tri-thuc" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Kho tri thức</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cai-dat" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Cài đặt</span></a></nav></div><div class="p-space-sm flex flex-col gap-space-sm border-t border-border-subtle bg-surface-card"><div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low border border-border-subtle"><span class="w-2 h-2 rounded-full bg-status-success animate-pulse shrink-0"></span><span class="font-code-sm text-code-sm text-text-secondary truncate">GitHub App: Đã kết nối • 1 kho</span></div><a class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">help_outline</span><span>Tài liệu &amp; Trợ giúp</span></a></div></aside><div class="pl-[224px]"><header class="fixed top-0 left-[224px] right-0 h-14 bg-surface-card border-b border-border-subtle z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="font-label-md text-label-md text-text-secondary">Release Lab</span><span class="text-outline-variant">/</span><span class="font-label-md text-label-md text-text-primary">Tổng quan</span></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-canvas-workspace border border-border-subtle text-text-secondary font-code-sm text-code-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-success"></span><span>Live: 08:44 GMT+7</span></div><button aria-label="Thông báo" class="relative p-1.5 rounded-lg text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-card"></span></button><div class="flex items-center gap-2 pl-space-sm border-l border-border-subtle"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYvvLeL7ZwcD_YKmS6U0d2fgP_dnGF4X9ra-dTo84S7SZVPU61UnZ084OIRyKsxNRjCN7WxNkTBiGf0TRI_9XFTebph9_4Mu0Fmv1IHiNFt5SbrK8qeflFG9dVZWaNBLAbdEa2vNAoTs00j1On7Pl4yTbQz4YHuYaqjRVcBct5M9e_eMGKsoeRtqdbHDN9N3fDNgEY8Eac6Gw9V9kToI1Z_KZymxBc1DNebObPX3f8"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary leading-none">Minh Đạt</span><span class="font-label-sm text-label-sm text-text-secondary leading-none mt-0.5">DevOps Lead</span></div></div></div></header><main class="w-full pt-14 bg-canvas-workspace min-h-screen px-margin py-margin"><div class="flex flex-col w-full">
+<!-- Sub-navigation Tabs: Settings Context -->
+<div class="flex items-center justify-between pb-space-lg">
+<div class="flex items-center gap-space-sm bg-surface-container-low p-1 rounded-xl">
+<a class="px-space-md py-1.5 rounded-lg font-body-md text-body-md text-text-secondary hover:text-text-primary hover:bg-surface-card transition-all" href="#">Thông tin Workspace</a>
+<a class="px-space-md py-1.5 rounded-lg font-body-md text-body-md text-text-secondary hover:text-text-primary hover:bg-surface-card transition-all" href="#">Thành viên &amp; Phân quyền</a>
+<a class="px-space-md py-1.5 rounded-lg font-body-md text-body-md text-text-secondary hover:text-text-primary hover:bg-surface-card transition-all" href="#">GitHub App &amp; Webhook</a>
+<a class="px-space-md py-1.5 rounded-lg font-label-md text-label-md text-contrast-blue-dark bg-surface-card shadow-sm transition-all flex items-center gap-1.5" href="#">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+<span>Nhật ký hoạt động</span>
+</a>
+<a class="px-space-md py-1.5 rounded-lg font-body-md text-body-md text-text-secondary hover:text-text-primary hover:bg-surface-card transition-all" href="#">Chính sách bảo mật</a>
+</div>
+<div class="flex items-center gap-2 text-text-secondary font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">verified_user</span>
+<span>Tuân thủ SOC 2 Type II &amp; ISO 27001</span>
+</div>
+</div>
+<!-- Header Section with Metatiles -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pb-space-xl">
+<div class="flex flex-col gap-1 max-w-2xl">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary bg-primary-fixed/40 px-2 py-0.5 rounded">Security &amp; Audit Trail</span>
+<span class="inline-flex items-center gap-1 font-code-sm text-code-sm text-status-success bg-status-success/10 px-2 py-0.5 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+          Đồng bộ thời gian thực · GMT+7
+        </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-text-primary tracking-tight">Nhật ký hoạt động</h1>
+<p class="font-body-md text-body-md text-text-secondary">
+        Lịch sử kiểm toán và theo dõi thay đổi phân quyền, trạng thái sự cố và phê duyệt tri thức trong workspace Release Lab.
+      </p>
+</div>
+<!-- Top Action Buttons -->
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="h-10 px-space-md rounded-lg font-label-md text-label-md text-text-primary bg-surface-card hover:bg-surface-container border border-border-subtle transition-all flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-text-secondary">tune</span>
+<span>Tùy chỉnh cột</span>
+</button>
+<button class="h-10 px-space-md rounded-lg font-label-md text-label-md text-on-primary bg-primary hover:bg-contrast-blue-dark active:bg-contrast-blue-dark transition-all flex items-center gap-2 shadow-sm" id="exportDropdownBtn">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Xuất file kiểm toán (.CSV / JSON)</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Metric Quick Ribbon -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md pb-space-xl">
+<div class="p-space-md bg-surface-card rounded-xl border border-border-subtle flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between text-text-secondary font-label-sm text-label-sm">
+<span>SỰ KIỆN 24H QUA</span>
+<span class="material-symbols-outlined text-[18px] text-primary">history</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-text-primary">142</span>
+<span class="font-code-sm text-code-sm text-status-success">+18% so với hôm qua</span>
+</div>
+</div>
+<div class="p-space-md bg-surface-card rounded-xl border border-border-subtle flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between text-text-secondary font-label-sm text-label-sm">
+<span>AI TRIAGE &amp; TỰ ĐỘNG</span>
+<span class="material-symbols-outlined text-[18px] text-contrast-pink-dark">smart_toy</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-text-primary">64</span>
+<span class="font-code-sm text-code-sm text-text-secondary">45.1% tổng lưu lượng</span>
+</div>
+</div>
+<div class="p-space-md bg-surface-card rounded-xl border border-border-subtle flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between text-text-secondary font-label-sm text-label-sm">
+<span>LOG SANITIZED (ĐÃ CHE)</span>
+<span class="material-symbols-outlined text-[18px] text-status-success">security</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-text-primary">28 chuỗi</span>
+<span class="font-code-sm text-code-sm text-contrast-pink-dark bg-gutter-error-pink px-1 rounded">0 rò rỉ</span>
+</div>
+</div>
+<div class="p-space-md bg-surface-card rounded-xl border border-border-subtle flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between text-text-secondary font-label-sm text-label-sm">
+<span>THÀNH VIÊN VẬN HÀNH</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">groups</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-text-primary">4 tài khoản</span>
+<span class="font-code-sm text-code-sm text-text-secondary">2 Admin · 2 DevOps</span>
+</div>
+</div>
+</div>
+<!-- Filter & Search Toolbar -->
+<div class="p-space-md bg-surface-card rounded-xl border border-border-subtle mb-space-lg flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md shadow-sm">
+<div class="flex flex-wrap items-center gap-space-sm flex-1">
+<!-- Search Input -->
+<div class="relative min-w-[260px] flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+<input class="w-full h-10 pl-9 pr-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container-low focus:bg-surface-card focus:border-primary text-text-primary placeholder:text-text-secondary font-body-md text-body-md outline-none transition-all" placeholder="Tìm theo từ khóa, mã INC-..., SHA commit..." type="text"/>
+</div>
+<!-- Date Range Filter -->
+<div class="relative">
+<button class="h-10 px-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container text-text-primary font-body-md text-body-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px] text-text-secondary">calendar_today</span>
+<span>7 ngày qua (18/10 - 24/10/2024)</span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</button>
+</div>
+<!-- Actor Filter -->
+<div class="relative">
+<button class="h-10 px-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container text-text-primary font-body-md text-body-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px] text-text-secondary">person</span>
+<span>Người thực hiện: <strong class="font-label-md">Tất cả</strong></span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</button>
+</div>
+<!-- Action Category Filter -->
+<div class="relative">
+<button class="h-10 px-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container text-text-primary font-body-md text-body-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px] text-text-secondary">category</span>
+<span>Phân loại: <strong class="font-label-md">Tất cả</strong></span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Reset / Quick State -->
+<div class="flex items-center justify-end gap-space-sm shrink-0 border-t lg:border-t-0 pt-space-sm lg:pt-0 border-border-subtle">
+<button class="h-10 px-3 rounded-lg text-text-secondary hover:text-contrast-pink-dark hover:bg-gutter-error-pink font-label-md text-label-md transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
+<span>Xóa bộ lọc</span>
+</button>
+</div>
+</div>
+<!-- Audit Trail Table Card -->
+<div class="bg-surface-card rounded-xl border border-border-subtle overflow-hidden shadow-sm">
+<!-- Table Header Summary -->
+<div class="px-space-lg py-3 bg-surface-container-low border-b border-border-subtle flex items-center justify-between text-text-secondary font-label-sm text-label-sm">
+<div class="flex items-center gap-4">
+<span>HIỂN THỊ DẤU VẾT THEO THỜI GIAN THỰC</span>
+<span class="text-border-subtle">|</span>
+<span class="font-code-sm text-code-sm">SHA-256 Verifiable Logs</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="font-code-sm text-code-sm">Immutable Store Locked</span>
+</div>
+</div>
+<!-- Audit Event Rows -->
+<div class="divide-y divide-border-subtle">
+<!-- ROW 1 (08:49 Hôm nay - Minh Đạt) -->
+<div class="p-space-lg hover:bg-surface transition-colors flex flex-col gap-3">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Actor Identity -->
+<div class="flex items-start gap-3 min-w-[240px]">
+<img alt="Minh Đạt" class="w-9 h-9 rounded-full object-cover ring-1 ring-border-subtle shrink-0 mt-0.5" data-alt="Close-up professional portrait of a Vietnamese DevOps team lead in a modern office setup with soft ambient lighting and clean engineering attire." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCex_wHPueyARzbiXtyaiDyFzFed9XMZ3wh8zUhYgTWXLo6sQpRqVxOCXZsrHSXROhvgDiyxB1zWlwAilGvaa9v3a4zLsEvCzsg8xUVR2J2RLG8ywo3BDLX7Eugb6K0mpPM8iBHWd2q934jaqR47yNrVM_x6MgFMbhqpD27jSeXXzSXR7y4IPlQ6Z8K3_10fuMvvfu5yFHai2TUhn2ixggoGmgRIYjQ6ycBR6y32ABN"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-text-primary">Minh Đạt</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.2 rounded bg-surface-container text-text-secondary">Lead</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary">dat.minh@releaselab.io</span>
+</div>
+</div>
+<!-- Action & Scope Badges -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<span class="px-2.5 py-1 rounded-md bg-surface-container text-contrast-blue-dark font-label-md text-label-md inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">edit_note</span>
+              Tạo bản nháp tri thức
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-tertiary">
+              Tag: Tri thức
+            </span>
+<a class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20 inline-flex items-center gap-1 hover:underline" href="#">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+              INC-014
+            </a>
+</div>
+<!-- Timestamp & IP Origin -->
+<div class="flex flex-col lg:items-end text-left lg:text-right shrink-0">
+<span class="font-label-md text-label-md text-text-primary">08:49 GMT+7 <span class="font-body-sm text-body-sm text-primary font-medium">(Hôm nay)</span></span>
+<div class="flex items-center gap-1 font-code-sm text-code-sm text-text-secondary">
+<span class="material-symbols-outlined text-[13px]">my_location</span>
+<span>118.69.182.44 · Ho Chi Minh, VN</span>
+</div>
+</div>
+</div>
+<!-- Target & Diff Content -->
+<div class="ml-0 lg:ml-12 pl-3 border-l-2 border-primary/40 flex flex-col gap-1.5 bg-surface-container-low/60 p-3 rounded-r-lg">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-text-secondary">Mục tiêu:</span>
+<a class="font-code-md text-code-md text-primary hover:underline font-medium inline-flex items-center gap-1" href="#">
+              Bản nháp KB-086: Dùng JDK 21 cho CI của orders-api
+              <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+<!-- Safe Diff -->
+<div class="font-code-sm text-code-sm text-text-primary bg-surface-card p-2 rounded border border-border-subtle flex items-start gap-2">
+<span class="text-status-success font-semibold shrink-0">+</span>
+<span class="text-text-secondary">Tạo mới bản nháp tài liệu phục hồi tự động từ phiên khắc phục lần chạy CI <span class="text-primary font-medium">#483</span> (Branch: <span class="text-text-primary">fix/jdk-compatibility</span>)</span>
+</div>
+</div>
+</div>
+<!-- ROW 2 (08:44 Hôm nay - TracePilot AI) -->
+<div class="p-space-lg hover:bg-surface transition-colors flex flex-col gap-3">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Actor Identity -->
+<div class="flex items-start gap-3 min-w-[240px]">
+<div class="w-9 h-9 rounded-full bg-contrast-pink-dark/10 text-contrast-pink-dark flex items-center justify-center ring-1 ring-secondary/30 shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-text-primary">Hệ thống (TracePilot AI)</span>
+</div>
+<span class="font-code-sm text-code-sm text-contrast-pink-dark bg-gutter-error-pink px-1.5 py-0.2 rounded w-fit mt-0.5">
+                Hệ thống tự động
+              </span>
+</div>
+</div>
+<!-- Action & Scope Badges -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<span class="px-2.5 py-1 rounded-md bg-secondary-fixed/40 text-contrast-pink-dark font-label-md text-label-md inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">analytics</span>
+              Hoàn tất phân tích AI (RCA)
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-tertiary">
+              Tag: AI Triage
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20">
+              INC-014
+            </span>
+</div>
+<!-- Timestamp & System Identity -->
+<div class="flex flex-col lg:items-end text-left lg:text-right shrink-0">
+<span class="font-label-md text-label-md text-text-primary">08:44 GMT+7 <span class="font-body-sm text-body-sm text-primary font-medium">(Hôm nay)</span></span>
+<div class="flex items-center gap-1 font-code-sm text-code-sm text-text-secondary">
+<span class="material-symbols-outlined text-[13px]">terminal</span>
+<span class="font-mono">worker-triage-core #ord-9a</span>
+</div>
+</div>
+</div>
+<!-- Target & Telemetry Note -->
+<div class="ml-0 lg:ml-12 pl-3 border-l-2 border-secondary/50 flex flex-col gap-1.5 bg-surface-container-low/60 p-3 rounded-r-lg">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-text-secondary">Mục tiêu:</span>
+<span class="font-body-md text-body-md text-text-primary font-medium">Báo cáo căn nguyên sự cố INC-014</span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+            Khớp thành công 2 nguồn bằng chứng (<span class="font-code-sm text-code-sm px-1 rounded bg-surface text-contrast-pink-dark border border-secondary/20">[1] log đã che</span>, <span class="font-code-sm text-code-sm px-1 rounded bg-surface text-primary border border-border-subtle">[2] KB-082</span>). Chi phí tài nguyên: <span class="font-code-sm text-code-sm font-semibold text-text-primary">27,450 tokens ($0.11 USD)</span>.
+          </p>
+</div>
+</div>
+<!-- ROW 3 (08:43 Hôm nay - Log Sanitizer) -->
+<div class="p-space-lg hover:bg-surface transition-colors flex flex-col gap-3">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Actor Identity -->
+<div class="flex items-start gap-3 min-w-[240px]">
+<div class="w-9 h-9 rounded-full bg-status-success/10 text-status-success flex items-center justify-center ring-1 ring-status-success/30 shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-text-primary">Hệ thống (Log Sanitizer)</span>
+</div>
+<span class="font-code-sm text-code-sm text-status-success bg-status-success/10 px-1.5 py-0.2 rounded w-fit mt-0.5">
+                Bảo vệ bí mật
+              </span>
+</div>
+</div>
+<!-- Action & Scope Badges -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<span class="px-2.5 py-1 rounded-md bg-status-success/10 text-status-success font-label-md text-label-md inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">lock_reset</span>
+              Che dữ liệu log nhạy cảm
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-tertiary">
+              Tag: Bảo mật
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container text-text-secondary">
+              Job: build-backend
+            </span>
+</div>
+<!-- Timestamp -->
+<div class="flex flex-col lg:items-end text-left lg:text-right shrink-0">
+<span class="font-label-md text-label-md text-text-primary">08:43 GMT+7 <span class="font-body-sm text-body-sm text-primary font-medium">(Hôm nay)</span></span>
+<span class="font-code-sm text-code-sm text-text-secondary">Entropy Regex Filter v2.4</span>
+</div>
+</div>
+<!-- Target & Sanitization Report -->
+<div class="ml-0 lg:ml-12 pl-3 border-l-2 border-status-success flex flex-col gap-1.5 bg-surface-container-low/60 p-3 rounded-r-lg">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-text-secondary">Mục tiêu:</span>
+<span class="font-code-sm text-code-sm text-text-primary font-medium">Log lần chạy #482 (Job build-backend) · orders-api</span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5 font-body-sm text-body-sm text-text-secondary">
+<span>Đã che 3 giá trị nhạy cảm</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-inverse-surface text-surface-card">[REDACTED]</span>
+<span class="font-code-sm text-code-sm text-text-primary">(AWS_SECRET_KEY, DB_PASSWORD, JWT_TOKEN_SALT)</span>
+<span>trước khi nạp vào vector store.</span>
+</div>
+</div>
+</div>
+<!-- ROW 4 (08:42 Hôm nay - GitHub Webhook) -->
+<div class="p-space-lg hover:bg-surface transition-colors flex flex-col gap-3">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Actor Identity -->
+<div class="flex items-start gap-3 min-w-[240px]">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-text-primary flex items-center justify-center ring-1 ring-border-subtle shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">webhook</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-text-primary">GitHub Webhook</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-secondary">api.github.com/events</span>
+</div>
+</div>
+<!-- Action & Scope Badges -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<span class="px-2.5 py-1 rounded-md bg-surface-container text-text-primary font-label-md text-label-md inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">input</span>
+              Nhận webhook workflow_run.completed
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-tertiary">
+              Tag: Tích hợp
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-primary-fixed text-contrast-blue-dark">
+              Run #482
+            </span>
+</div>
+<!-- Timestamp -->
+<div class="flex flex-col lg:items-end text-left lg:text-right shrink-0">
+<span class="font-label-md text-label-md text-text-primary">08:42 GMT+7 <span class="font-body-sm text-body-sm text-primary font-medium">(Hôm nay)</span></span>
+<span class="font-code-sm text-code-sm text-text-secondary">Hook ID: 881920412</span>
+</div>
+</div>
+<!-- Target & Trigger Message -->
+<div class="ml-0 lg:ml-12 pl-3 border-l-2 border-border-subtle flex flex-col gap-1.5 bg-surface-container-low/60 p-3 rounded-r-lg">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-text-secondary">Mục tiêu:</span>
+<span class="font-body-md text-body-md text-text-primary">
+              Lần chạy <span class="font-code-sm text-code-sm font-semibold text-error">#482 thất bại</span> · Nhánh <span class="font-code-sm text-code-sm text-text-primary font-medium">main</span> (Commit <span class="font-code-sm text-code-sm text-primary font-semibold">9f3a2bd</span>)
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">
+            Tự động kích hoạt quy trình phân loại và khởi tạo sự cố <span class="font-code-sm text-code-sm text-contrast-pink-dark font-semibold">INC-014</span> mức độ <span class="text-error font-medium">Cao (P1)</span>.
+          </p>
+</div>
+</div>
+<!-- ROW 5 (23/10 16:30 - Bảo Trâm) -->
+<div class="p-space-lg hover:bg-surface transition-colors flex flex-col gap-3">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Actor Identity -->
+<div class="flex items-start gap-3 min-w-[240px]">
+<img alt="Bảo Trâm" class="w-9 h-9 rounded-full object-cover ring-1 ring-border-subtle shrink-0 mt-0.5" data-alt="Editorial headshot of an Asian female systems engineer in workspace environment with subtle glass reflections and calm focused posture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa9JvTgoLgl44pq1FCTnVxoeHy9qYtB89Rnz2PmdxCV3jcO4mzcYs-oK9W_OTj0VXSiFEQWeoJyB3viK-7mZl148BvyY-VwMbkbMraxk4OqJobZnHyEhK07o0c_1F_8ZubZE0TuJvTLR_zayKF21D-Ntoa_ybk40oYnqzGwFLQ2knX77N9Ik8B-OfAF1SEysXEcWwClor0O9S_yQfD0_zMeDyZsfmeIyLQcc0Gvily"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-text-primary">Bảo Trâm</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant">Quản trị viên</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary">tram.bao@releaselab.io</span>
+</div>
+</div>
+<!-- Action & Scope Badges -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<span class="px-2.5 py-1 rounded-md bg-status-success/15 text-status-success font-label-md text-label-md inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">verified</span>
+              Phê duyệt &amp; Xuất bản tri thức
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-tertiary">
+              Tag: Tri thức
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-primary-fixed text-contrast-blue-dark">
+              KB-082
+            </span>
+</div>
+<!-- Timestamp -->
+<div class="flex flex-col lg:items-end text-left lg:text-right shrink-0">
+<span class="font-label-md text-label-md text-text-primary">23/10/2024 · 16:30 GMT+7</span>
+<div class="flex items-center gap-1 font-code-sm text-code-sm text-text-secondary">
+<span class="material-symbols-outlined text-[13px]">fingerprint</span>
+<span>14.232.208.10 · Da Nang, VN</span>
+</div>
+</div>
+</div>
+<!-- Target & Approval Details -->
+<div class="ml-0 lg:ml-12 pl-3 border-l-2 border-status-success flex flex-col gap-1.5 bg-surface-container-low/60 p-3 rounded-r-lg">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-text-secondary">Mục tiêu:</span>
+<a class="font-code-md text-code-md text-primary hover:underline font-medium inline-flex items-center gap-1" href="#">
+              Bài viết KB-082: Đồng bộ JDK trên GitHub Actions
+              <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+<div class="font-code-sm text-code-sm text-text-primary bg-surface-card p-2 rounded border border-border-subtle flex items-start gap-2">
+<span class="text-primary font-semibold shrink-0">Δ</span>
+<span class="text-text-secondary">Trạng thái: <span class="line-through text-outline">Bản nháp</span> → <span class="text-status-success font-medium">Đã duyệt</span>. Đã hoàn tất vector hóa 1,536 chiều vào index <span class="text-text-primary font-mono">workspace-releaselab-kb</span>.</span>
+</div>
+</div>
+</div>
+<!-- ROW 6 (22/10 10:15 - Minh Đạt) -->
+<div class="p-space-lg hover:bg-surface transition-colors flex flex-col gap-3">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Actor Identity -->
+<div class="flex items-start gap-3 min-w-[240px]">
+<img alt="Minh Đạt" class="w-9 h-9 rounded-full object-cover ring-1 ring-border-subtle shrink-0 mt-0.5" data-alt="Close up realistic portrait of male technology specialist in minimal studio lighting with confident expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyqsVX9Yp3n7quhCWi4oxVFO0LPjjU0oSs6WutmBZxSVyuvmQ-vZmFtZugJJ2w9r6Dj0cAJuyMPtBAdahYoWPaJwdc7_9ZkPaIT3fHXhe6KHoEwlHBuMqnn-GEqo8aSvkK_y_g1ebm-3dZ1z7B0OKWscQwge3X2U-h7W8qGj5XxSOOEFoXU710AdE9JPokhoZ7hLjGEpZd5v2IdgVgjtda6Wafvzyfg1pfL8tQx0ph"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-text-primary">Minh Đạt</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.2 rounded bg-primary-fixed text-on-primary-fixed-variant">Chủ workspace</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary">dat.minh@releaselab.io</span>
+</div>
+</div>
+<!-- Action & Scope Badges -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high text-contrast-blue-dark font-label-md text-label-md inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">person_add</span>
+              Mời thành viên mới
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-high text-tertiary">
+              Tag: Thành viên
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container text-text-secondary">
+              Vai trò: Auditor
+            </span>
+</div>
+<!-- Timestamp -->
+<div class="flex flex-col lg:items-end text-left lg:text-right shrink-0">
+<span class="font-label-md text-label-md text-text-primary">22/10/2024 · 10:15 GMT+7</span>
+<span class="font-code-sm text-code-sm text-text-secondary">118.69.182.44</span>
+</div>
+</div>
+<!-- Target & Invite Scope -->
+<div class="ml-0 lg:ml-12 pl-3 border-l-2 border-primary flex flex-col gap-1.5 bg-surface-container-low/60 p-3 rounded-r-lg">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-text-secondary">Mục tiêu:</span>
+<span class="font-code-sm text-code-sm text-text-primary font-medium">quynh.le@partner.dev</span>
+<span class="text-text-secondary text-body-sm">(Quyền hạn: Chỉ đọc nhật ký &amp; xem báo cáo kiểm toán / Auditor)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="px-space-lg py-space-md bg-surface border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-text-secondary">
+<span>Hiển thị <strong class="text-text-primary font-semibold">6</strong> / 142 sự kiện kiểm toán</span>
+<span class="text-outline-variant">•</span>
+<span>Trang 1 / 24</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="h-8 px-2.5 rounded-lg border border-border-subtle bg-surface-card text-text-secondary hover:bg-surface-container disabled:opacity-40 transition-colors flex items-center gap-1 font-label-md text-label-md" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+<span>Trước</span>
+</button>
+<button class="h-8 w-8 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center">
+          1
+        </button>
+<button class="h-8 w-8 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-container text-text-primary font-label-md text-label-md flex items-center justify-center transition-colors">
+          2
+        </button>
+<button class="h-8 w-8 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-container text-text-primary font-label-md text-label-md flex items-center justify-center transition-colors">
+          3
+        </button>
+<span class="px-1 text-text-secondary font-code-sm">...</span>
+<button class="h-8 w-8 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-container text-text-primary font-label-md text-label-md flex items-center justify-center transition-colors">
+          24
+        </button>
+<button class="h-8 px-2.5 rounded-lg border border-border-subtle bg-surface-card text-text-primary hover:bg-surface-container transition-colors flex items-center gap-1 font-label-md text-label-md">
+<span>Sau</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Security Compliance & Retention Notice Card -->
+<div class="mt-space-xl p-space-lg bg-surface-card rounded-xl border border-border-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+<div class="flex flex-col gap-1 max-w-3xl">
+<h4 class="font-headline-sm text-headline-sm text-text-primary">Chính sách lưu trữ kiểm toán không thể sửa đổi (WORM)</h4>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+          Toàn bộ nhật ký hoạt động được bảo lưu tối thiểu <strong>365 ngày</strong> tuân thủ tiêu chuẩn <strong>SOC 2 Type II</strong> và <strong>ISO 27001</strong>. Dữ liệu token, mật khẩu và khóa bí mật tuyệt đối không được ghi lại trong nhật ký này theo chuẩn Zero-Knowledge Sanitization của TracePilot.
+        </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0 w-full md:w-auto justify-end">
+<a class="h-9 px-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container text-text-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px] text-text-secondary">description</span>
+<span>Báo cáo chứng nhận</span>
+</a>
+<a class="h-9 px-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">settings_suggest</span>
+<span>Cấu hình Syslog SIEM</span>
+</a>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for Export action simulation
+  const exportBtn = document.getElementById('exportDropdownBtn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      const originalText = exportBtn.innerHTML;
+      exportBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span><span>Đang xuất dữ liệu...</span>';
+      setTimeout(() => {
+        exportBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span><span>Đã tải file audit_20241024.csv</span>';
+        setTimeout(() => {
+          exportBtn.innerHTML = originalText;
+        }, 3000);
+      }, 1000);
+    });
+  }
+</script></main></div></body></html>

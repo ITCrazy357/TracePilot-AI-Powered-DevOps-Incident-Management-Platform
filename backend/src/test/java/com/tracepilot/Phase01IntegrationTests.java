@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "GITHUB_ENABLED=false",
+        properties = {"AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "GITHUB_ENABLED=false",
         "AUTH_SIGNING_SECRET=phase01-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase01IntegrationTests {
     private static final String PASSWORD = "Phase01-password-123!";

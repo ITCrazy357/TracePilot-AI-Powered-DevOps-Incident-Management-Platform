@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.util.HexFormat;
 
 import com.tracepilot.notification.NotificationRepository;
+import com.tracepilot.analysis.AnalysisService;
 import com.tracepilot.pipeline.OutboxRepository;
 import com.tracepilot.pipeline.PipelineAccess;
 import com.tracepilot.pipeline.PipelineDtos;
@@ -26,16 +27,18 @@ public class IncidentLogStore {
     private final IncidentRepository incidentRepository;
     private final NotificationRepository notificationRepository;
     private final Clock clock;
+    private final AnalysisService analysisService;
 
     public IncidentLogStore(WorkspaceRepository workspaceRepository, PipelineAccess access,
                             OutboxRepository outboxRepository, IncidentRepository incidentRepository,
-                            NotificationRepository notificationRepository, Clock clock) {
+                            NotificationRepository notificationRepository, Clock clock, AnalysisService analysisService) {
         this.workspaceRepository = workspaceRepository;
         this.access = access;
         this.outboxRepository = outboxRepository;
         this.incidentRepository = incidentRepository;
         this.notificationRepository = notificationRepository;
         this.clock = clock;
+        this.analysisService = analysisService;
     }
 
     @Transactional
@@ -72,6 +75,7 @@ public class IncidentLogStore {
         } while (start < redactedLog.length());
         notificationRepository.notifyMembers(source.workspaceId(), source.incidentId(),
             "INCIDENT_LOGS_READY", clock.instant());
+        analysisService.enqueueAutomatic(source.workspaceId(), source.incidentId(), source.repositoryId());
         outboxRepository.complete(claim, "SUCCEEDED");
     }
 

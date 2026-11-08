@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"tertiary-fixed-dim":"#8ccdff","on-surface":"#071c32","tertiary":"#02628f","secondary-fixed-dim":"#ffafd2","inverse-on-surface":"#eaf1ff","on-secondary-container":"#630040","primary-fixed-dim":"#8fcdff","text-primary":"#10243A","primary-container":"#007bb6","gutter-error-pink":"#FDF2F8","surface-tint":"#006495","surface":"#f8f9ff","surface-variant":"#d2e4ff","error":"#ba1a1a","status-success":"#10B981","primary-fixed":"#cbe6ff","secondary-fixed":"#ffd8e7","surface-container":"#e5eeff","inverse-primary":"#8fcdff","error-container":"#ffdad6","on-secondary":"#ffffff","on-tertiary-fixed":"#001e2f","on-secondary-fixed-variant":"#8b005b","on-tertiary-container":"#fcfcff","surface-card":"#FFFFFF","border-subtle":"#DDE8F0","outline":"#6f7882","outline-variant":"#bec7d2","surface-container-highest":"#d2e4ff","contrast-pink-dark":"#9D2368","contrast-blue-dark":"#00618E","on-surface-variant":"#3f4850","on-tertiary":"#ffffff","text-secondary":"#475569","surface-bright":"#f8f9ff","on-primary-container":"#fcfcff","secondary-container":"#fe59b4","on-tertiary-fixed-variant":"#004b70","surface-container-low":"#eff4ff","inverse-surface":"#1e3148","on-secondary-fixed":"#3d0025","on-background":"#071c32","on-primary-fixed-variant":"#004b71","tertiary-fixed":"#cae6ff","on-primary":"#ffffff","surface-dim":"#c8dbf9","status-warning":"#F59E0B","surface-container-lowest":"#ffffff","primary":"#006191","surface-container-high":"#dce9ff","background":"#f8f9ff","tertiary-container":"#307ba9","secondary":"#b21277","on-error":"#ffffff","on-error-container":"#93000a","on-primary-fixed":"#001e30","canvas-workspace":"#F5FAFE"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter-compact":"1rem","space-lg":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","gutter":"1.5rem","space-xl":"2rem","margin":"2rem","margin-mobile":"1rem","space-md":"1rem"},fontFamily:{"body-md":["Be Vietnam Pro"],"label-md":["Be Vietnam Pro"],"headline-xl":["Be Vietnam Pro"],"headline-md":["Be Vietnam Pro"],"headline-xl-mobile":["Be Vietnam Pro"],"body-sm":["Be Vietnam Pro"],"headline-sm":["Be Vietnam Pro"],"headline-lg":["Be Vietnam Pro"],"code-sm":["JetBrains Mono"],"code-md":["JetBrains Mono"],"body-lg":["Be Vietnam Pro"],"code-lg":["JetBrains Mono"],"label-sm":["Be Vietnam Pro"]},fontSize:{"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"label-md":["13px",{lineHeight:"16px",fontWeight:"600"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-xl-mobile":["26px",{lineHeight:"34px",letterSpacing:"-0.015em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"headline-sm":["16px",{lineHeight:"24px",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"600"}],"code-sm":["11px",{lineHeight:"16px",fontWeight:"400"}],"code-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}],"code-lg":["14px",{lineHeight:"20px",fontWeight:"500"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}]}}}};</script></head><body class="bg-canvas-workspace font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-[224px] bg-surface-card border-r border-border-subtle z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-14 px-space-md flex items-center gap-space-sm border-b border-border-subtle"><img alt="TracePilot Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDvT1xie6a5B_nSUO76gao5RWf8QSiRadrX74Xt3dtGe2F9-WlJoh6UpLp_-xenQGUYpKxej083sMb6PhHPoDosoS_Y3YbOEcJoq16E0sIh8NhBjjOQUkoAm3V6BBoHEdi_IVAi0hFDBrFtc2ZCeuVgOMqTrjc4DlCdL9jTInfZEpJVjZDOkE4r-j4v9nEyADmD5MNoBavwHkwMDM8EtAX_YQVquTDKq7sozSnB-9Rj"/><span class="font-headline-sm text-headline-sm text-text-primary tracking-tight">TracePilot</span></div><div class="p-space-sm"><button class="w-full flex items-center justify-between px-space-sm py-1.5 rounded-lg border border-border-subtle bg-surface hover:bg-surface-container transition-colors text-left"><div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary text-[18px]">domain</span><span class="font-label-md text-label-md text-text-primary truncate">Release Lab</span><span class="material-symbols-outlined text-status-success text-[15px]">verified</span></div><span class="material-symbols-outlined text-outline text-[16px]">unfold_more</span></button></div><nav class="flex flex-col gap-0.5 px-space-sm pt-space-xs" data-active-classes="bg-surface-container-high text-contrast-blue-dark font-label-md"><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="tong-quan" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span>Tổng quan</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-github" href="#"><span class="material-symbols-outlined text-[18px]">folder_code</span><span>Kho GitHub</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="lan-chay" href="#"><span class="material-symbols-outlined text-[18px]">play_circle</span><span>Lần chạy</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="su-co" href="#"><div class="flex items-center gap-2.5"><span class="material-symbols-outlined text-[18px]">warning</span><span>Sự cố</span></div><span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded-full bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20">2</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kho-tri-thuc" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Kho tri thức</span></a><a class="flex items-center gap-2.5 px-space-sm py-2 rounded-lg font-body-md text-body-md text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cai-dat" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Cài đặt</span></a></nav></div><div class="p-space-sm flex flex-col gap-space-sm border-t border-border-subtle bg-surface-card"><div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low border border-border-subtle"><span class="w-2 h-2 rounded-full bg-status-success animate-pulse shrink-0"></span><span class="font-code-sm text-code-sm text-text-secondary truncate">GitHub App: Đã kết nối • 1 kho</span></div><a class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">help_outline</span><span>Tài liệu &amp; Trợ giúp</span></a></div></aside><div class="pl-[224px]"><header class="fixed top-0 left-[224px] right-0 h-14 bg-surface-card border-b border-border-subtle z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="font-label-md text-label-md text-text-secondary">Release Lab</span><span class="text-outline-variant">/</span><span class="font-label-md text-label-md text-text-primary">Tổng quan</span></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-canvas-workspace border border-border-subtle text-text-secondary font-code-sm text-code-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-success"></span><span>Live: 08:44 GMT+7</span></div><button aria-label="Thông báo" class="relative p-1.5 rounded-lg text-text-secondary hover:bg-surface-container hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-card"></span></button><div class="flex items-center gap-2 pl-space-sm border-l border-border-subtle"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYvvLeL7ZwcD_YKmS6U0d2fgP_dnGF4X9ra-dTo84S7SZVPU61UnZ084OIRyKsxNRjCN7WxNkTBiGf0TRI_9XFTebph9_4Mu0Fmv1IHiNFt5SbrK8qeflFG9dVZWaNBLAbdEa2vNAoTs00j1On7Pl4yTbQz4YHuYaqjRVcBct5M9e_eMGKsoeRtqdbHDN9N3fDNgEY8Eac6Gw9V9kToI1Z_KZymxBc1DNebObPX3f8"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary leading-none">Minh Đạt</span><span class="font-label-sm text-label-sm text-text-secondary leading-none mt-0.5">DevOps Lead</span></div></div></div></header><main class="w-full pt-14 bg-canvas-workspace min-h-screen px-margin py-margin"><div class="flex flex-col w-full gap-6">
+<!-- Top Operational Header Bar -->
+<section class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-headline-lg text-headline-lg text-text-primary tracking-tight">Tổng quan</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-contrast-blue-dark font-code-sm text-code-sm border border-border-subtle">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+<span>v2.4.1</span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary flex items-center gap-2">
+<span>Cập nhật trực tiếp: 08:44 GMT+7</span>
+<span class="text-outline-variant">•</span>
+<span class="inline-flex items-center text-status-success font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] mr-1">check_circle</span> Ổn định
+        </span>
+</p>
+</div>
+<!-- Quick action controls -->
+<div class="flex items-center gap-2.5">
+<div class="relative">
+<button class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-card border border-border-subtle hover:bg-surface text-text-primary font-label-md text-label-md transition-colors shadow-sm" id="filterBtn">
+<span class="material-symbols-outlined text-outline text-[18px]">filter_list</span>
+<span>Lọc nhanh</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.2 rounded bg-surface-container text-contrast-blue-dark">Tất cả kho</span>
+</button>
+</div>
+<button class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-surface-card border border-border-subtle hover:bg-surface text-text-primary font-label-md text-label-md transition-colors shadow-sm active:scale-95" id="refreshBtn" onclick="this.classList.add('rotate-refresh'); setTimeout(()=&gt;this.classList.remove('rotate-refresh'), 600)">
+<span class="material-symbols-outlined text-primary text-[18px] transition-transform">sync</span>
+<span>Làm mới</span>
+</button>
+<a class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary hover:bg-contrast-blue-dark text-on-primary font-label-md text-label-md transition-colors shadow-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">add_box</span>
+<span>Ghi nhận sự cố</span>
+</a>
+</div>
+</section>
+<!-- Slim High-Precision Metrics Strip -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Stat 1 -->
+<div class="p-space-lg rounded-xl bg-surface-card border border-border-subtle shadow-sm flex items-center justify-between">
+<div class="flex flex-col gap-1 min-w-0">
+<span class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider">Lần chạy trong 7 ngày</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-text-primary font-bold">142</span>
+<span class="font-code-sm text-code-sm text-status-success font-medium flex items-center">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> 94.2% thành công
+          </span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">134 đạt tiêu chuẩn CI/CD</span>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-contrast-blue-dark">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="p-space-lg rounded-xl bg-surface-card border border-border-subtle shadow-sm flex items-center justify-between">
+<div class="flex flex-col gap-1 min-w-0">
+<span class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider">Lần chạy thất bại</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-text-primary font-bold">8</span>
+<span class="font-code-sm text-code-sm text-status-warning font-medium">2 chờ xem xét</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">Tập trung chính ở `orders-api`</span>
+</div>
+<div class="w-12 h-12 rounded-lg bg-gutter-error-pink flex items-center justify-center shrink-0 text-contrast-pink-dark border border-secondary/20">
+<span class="material-symbols-outlined text-[24px]">error_outline</span>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="p-space-lg rounded-xl bg-surface-card border border-border-subtle shadow-sm flex items-center justify-between">
+<div class="flex flex-col gap-1 min-w-0">
+<span class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider">Sự cố cần xử lý</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-contrast-pink-dark font-bold">1</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-gutter-error-pink text-contrast-pink-dark font-semibold border border-secondary/20">INC-014</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">Mức độ ưu tiên: <strong class="text-text-primary font-semibold">Cao (P1)</strong></span>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[24px]">bug_report</span>
+</div>
+</div>
+</section>
+<!-- Main Grid 2:1 Architecture -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Main Left Column (2/3) - "Cần điều tra" -->
+<div class="lg:col-span-2 flex flex-col gap-4">
+<div class="bg-surface-card rounded-xl border border-border-subtle shadow-sm overflow-hidden flex flex-col">
+<!-- Section Header with Filters -->
+<div class="p-space-lg border-b border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-card">
+<div class="flex items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary shrink-0"></span>
+<h2 class="font-headline-md text-headline-md text-text-primary font-semibold">Cần điều tra</h2>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded-full bg-gutter-error-pink text-contrast-pink-dark border border-secondary/20 font-medium">1 mở</span>
+</div>
+<!-- Filter Pills -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+<button class="px-2.5 py-1 rounded-md text-contrast-blue-dark bg-surface-container font-label-sm text-label-sm border border-transparent whitespace-nowrap">Đang kích hoạt</button>
+<button class="px-2.5 py-1 rounded-md text-text-secondary hover:bg-surface font-label-sm text-label-sm transition-colors whitespace-nowrap">P1 / Nghiêm trọng</button>
+<button class="px-2.5 py-1 rounded-md text-text-secondary hover:bg-surface font-label-sm text-label-sm transition-colors whitespace-nowrap">Được phân công (Tôi)</button>
+</div>
+</div>
+<!-- Interactive Incident Row (INC-014) -->
+<div class="p-space-lg relative flex flex-col gap-4 border-b border-border-subtle hover:bg-surface/50 transition-colors">
+<!-- Active Evidence Anchor Line -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<!-- Top Metadata Bar -->
+<div class="flex flex-wrap items-center justify-between gap-2 pl-2">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-code-md text-code-md font-bold px-2 py-0.5 rounded bg-gutter-error-pink text-contrast-pink-dark border border-secondary/20">INC-014</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-low text-contrast-pink-dark font-label-sm text-label-sm border border-border-subtle">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Mức độ: Cao
+              </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface text-text-secondary font-label-sm text-label-sm border border-border-subtle">
+<span class="material-symbols-outlined text-[14px] text-status-warning">hourglass_top</span> Đang điều tra
+              </span>
+</div>
+<div class="flex items-center gap-2 text-text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>Phát hiện: 08:42 GMT+7 (2 phút trước)</span>
+</div>
+</div>
+<!-- Incident Title & Evidence Context -->
+<div class="pl-2 flex flex-col gap-1.5">
+<div class="flex items-start justify-between gap-4">
+<h3 class="font-headline-sm text-headline-sm text-text-primary tracking-tight font-semibold">
+                JDK 17 không biên dịch được target 21 (Xung đột bytecode javac release flags)
+              </h3>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+              Workflow biên dịch tại bước <code class="font-code-sm text-code-sm bg-surface-container px-1 py-0.5 rounded text-contrast-blue-dark">mvn clean test-compile</code> gặp lỗi bất tương thích phiên bản trình dịch javac do bản vá commit mới yêu cầu Java 21 preview features.
+            </p>
+</div>
+<!-- Technical Attributes Table Row -->
+<div class="pl-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 py-2 px-3 rounded-lg bg-surface border border-border-subtle">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Kho mã nguồn</span>
+<div class="flex items-center gap-1.5 mt-0.5 text-text-primary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">folder_open</span>
+<span class="font-code-sm text-code-sm font-medium">release-lab/orders-api</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Quy trình (Workflow)</span>
+<div class="flex items-center gap-1.5 mt-0.5 text-text-primary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-contrast-pink-dark">account_tree</span>
+<span class="font-code-sm text-code-sm font-medium">CI / Build &amp; Test #482 (Lượt 2)</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Người phụ trách</span>
+<div class="flex items-center gap-1.5 mt-0.5 text-text-primary font-body-sm text-body-sm">
+<img alt="Minh Đạt" class="w-4 h-4 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYvvLeL7ZwcD_YKmS6U0d2fgP_dnGF4X9ra-dTo84S7SZVPU61UnZ084OIRyKsxNRjCN7WxNkTBiGf0TRI_9XFTebph9_4Mu0Fmv1IHiNFt5SbrK8qeflFG9dVZWaNBLAbdEa2vNAoTs00j1On7Pl4yTbQz4YHuYaqjRVcBct5M9e_eMGKsoeRtqdbHDN9N3fDNgEY8Eac6Gw9V9kToI1Z_KZymxBc1DNebObPX3f8"/>
+<span class="font-label-md text-label-md">Minh Đạt (Lead)</span>
+</div>
+</div>
+</div>
+<!-- Root-cause Log Diagnostic Snippet (Inline Sanitized Preview) -->
+<div class="pl-2 mt-1">
+<div class="rounded-lg bg-text-primary p-3 text-surface-container font-code-sm text-code-sm overflow-x-auto shadow-inner border border-outline/30">
+<div class="flex items-center justify-between pb-2 border-b border-outline/30 text-outline-variant">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="text-white/80">orders-api/build-backend.log</span>
+</div>
+<span class="text-xs uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface/10 text-on-surface-variant font-medium">Dữ liệu log đã che</span>
+</div>
+<div class="pt-2 flex flex-col gap-1 font-mono">
+<p class="text-white/60">[08:42:11] [INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ orders-api ---</p>
+<div class="bg-gutter-error-pink/10 border-l-2 border-secondary px-2 py-1 text-secondary-fixed-dim">
+<span class="text-contrast-pink-dark font-bold">[08:42:15] [ERROR]</span> Fatal error compiling: error: invalid target release: 21 (current runner has JDK 17.0.10)
+                </div>
+<p class="text-white/60">[08:42:16] [INFO] BUILD FAILURE: Check `setup-java` action distribution parameters.</p>
+</div>
+</div>
+</div>
+<!-- Interactive Action Buttons Footer -->
+<div class="pl-2 pt-2 flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-contrast-blue-dark text-on-primary font-label-md text-label-md transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">travel_explore</span>
+<span>Xem sự cố</span>
+</button>
+<button class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-surface-card border border-border-subtle hover:bg-surface text-text-primary font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[18px] text-contrast-blue-dark">receipt_long</span>
+<span>Xem log đã che</span>
+</button>
+</div>
+<div class="flex items-center gap-2 text-text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">bookmark</span>
+<span>1 bằng chứng AI đính kèm</span>
+</div>
+</div>
+</div>
+<!-- Low Priority / Empty State Placeholder Bar -->
+<div class="p-space-lg flex items-center justify-center gap-2.5 text-center bg-canvas-workspace/50">
+<span class="material-symbols-outlined text-outline text-[18px]">verified</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Không còn sự cố chưa xử lý nào khác. Toàn bộ 5 quy trình CI/CD đều đang chạy bình thường.</span>
+</div>
+</div>
+<!-- Quick Action / Diagnostic Guide Card -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-lg shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]">auto_fix_high</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-text-primary">Đề xuất giải quyết tự động cho INC-014</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Cập nhật workflow `.github/workflows/ci.yml` lên <code class="font-code-sm text-code-sm bg-surface-container px-1 rounded text-contrast-blue-dark">java-version: '21'</code></span>
+</div>
+</div>
+<button class="px-3.5 py-2 rounded-lg bg-surface hover:bg-surface-container border border-border-subtle text-text-primary font-label-md text-label-md shrink-0 transition-colors">
+          Xem Pull Request gợi ý
+        </button>
+</div>
+</div>
+<!-- Side Column (1/3) - "Dấu vết gần đây" & "Lần chạy gần đây" -->
+<div class="flex flex-col gap-6">
+<!-- 1. Dấu vết gần đây (Recent Evidence Trail) -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-lg shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between pb-3 border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-contrast-blue-dark text-[20px]">timeline</span>
+<h3 class="font-headline-sm text-headline-sm text-text-primary font-semibold">Dấu vết gần đây</h3>
+</div>
+<span class="font-code-sm text-code-sm text-text-secondary">Thời gian thực</span>
+</div>
+<!-- Vertical Timeline Tree -->
+<div class="relative pl-6 flex flex-col gap-6 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[2px] before:bg-border-subtle">
+<!-- Timeline Item 1 -->
+<div class="relative flex flex-col gap-1">
+<div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full bg-error border-2 border-surface-card"></div>
+<div class="flex items-center justify-between text-text-secondary">
+<span class="font-code-sm text-code-sm font-semibold text-text-primary">08:42:15 GMT+7</span>
+<span class="font-code-sm text-code-sm bg-surface-container px-1.5 rounded text-contrast-blue-dark">orders-api</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-primary mt-0.5">
+              Run <span class="font-code-sm text-code-sm font-semibold">#482</span> lượt 2 thất bại tại job <code class="font-code-sm text-code-sm bg-surface-container-low px-1 py-0.5 rounded text-text-primary">build-backend</code>
+</p>
+<span class="font-body-sm text-body-sm text-text-secondary">Tiến trình kết thúc với mã lỗi exit code 1</span>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative flex flex-col gap-1">
+<div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full bg-primary border-2 border-surface-card"></div>
+<div class="flex items-center justify-between text-text-secondary">
+<span class="font-code-sm text-code-sm font-semibold text-text-primary">08:43:02 GMT+7</span>
+<span class="font-code-sm text-code-sm text-status-success font-medium">Bảo mật</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-primary mt-0.5">
+              Đã thu thập và che log nhạy cảm (Sanitized Log)
+            </p>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-container text-contrast-blue-dark border border-border-subtle">[Source 1: GH Runner]</span>
+<span class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-gutter-error-pink text-contrast-pink-dark font-medium border border-secondary/20">3 tokens ẩn</span>
+</div>
+</div>
+<!-- Timeline Item 3 - Active Pink Investigation Node -->
+<div class="relative flex flex-col gap-1 p-2.5 rounded-lg bg-gutter-error-pink border border-secondary/20">
+<div class="absolute -left-[27px] top-3.5 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-gutter-error-pink"></div>
+<div class="flex items-center justify-between">
+<span class="font-code-sm text-code-sm font-bold text-contrast-pink-dark">08:44:10 GMT+7</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-card text-contrast-pink-dark font-code-sm text-code-sm border border-secondary/30">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span> TracePilot AI
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-contrast-pink-dark font-medium mt-1">
+              Phân tích AI hoàn tất: Phát hiện xung đột phiên bản JDK 17 vs 21
+            </p>
+<span class="font-body-sm text-body-sm text-text-secondary mt-0.5">
+              Độ tin cậy phán đoán đạt 98.4%. Đã liên kết với INC-014.
+            </span>
+</div>
+</div>
+</div>
+<!-- 2. Lần chạy gần đây (Compact Recent Runs) -->
+<div class="bg-surface-card rounded-xl border border-border-subtle p-space-lg shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between pb-2 border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">history</span>
+<h3 class="font-headline-sm text-headline-sm text-text-primary font-semibold">Lần chạy gần đây</h3>
+</div>
+<a class="font-label-sm text-label-sm text-contrast-blue-dark hover:underline flex items-center gap-0.5" href="#">
+<span>Tất cả</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</a>
+</div>
+<div class="flex flex-col divide-y divide-border-subtle">
+<!-- Run Item 1 (Failed / Has Incident) -->
+<div class="py-2.5 flex items-start justify-between gap-3">
+<div class="flex items-start gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5 shrink-0">cancel</span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-code-sm text-code-sm font-semibold text-text-primary">#482 (Lượt 2)</span>
+<span class="text-outline-variant">•</span>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">orders-api</span>
+</div>
+<div class="flex items-center gap-1 text-text-secondary font-body-sm text-body-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">fork_right</span>
+<span class="font-code-sm text-code-sm">main</span>
+<span class="text-outline-variant">@</span>
+<span class="font-code-sm text-code-sm text-contrast-blue-dark">9f3a2bd</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-gutter-error-pink text-contrast-pink-dark border border-secondary/20">Thất bại (Có sự cố)</span>
+<span class="font-code-sm text-code-sm text-text-secondary mt-1">1m 18s</span>
+</div>
+</div>
+<!-- Run Item 2 (Success) -->
+<div class="py-2.5 flex items-start justify-between gap-3">
+<div class="flex items-start gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-status-success text-[18px] mt-0.5 shrink-0">check_circle</span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-code-sm text-code-sm font-semibold text-text-primary">#481</span>
+<span class="text-outline-variant">•</span>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">orders-api</span>
+</div>
+<div class="flex items-center gap-1 text-text-secondary font-body-sm text-body-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">fork_right</span>
+<span class="font-code-sm text-code-sm">feat/checkout</span>
+<span class="text-outline-variant">@</span>
+<span class="font-code-sm text-code-sm text-contrast-blue-dark">4a18c0e</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-contrast-blue-dark">Thành công</span>
+<span class="font-code-sm text-code-sm text-text-secondary mt-1">4m 12s</span>
+</div>
+</div>
+<!-- Run Item 3 (Success) -->
+<div class="py-2.5 flex items-start justify-between gap-3">
+<div class="flex items-start gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-status-success text-[18px] mt-0.5 shrink-0">check_circle</span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-code-sm text-code-sm font-semibold text-text-primary">#480</span>
+<span class="text-outline-variant">•</span>
+<span class="font-code-sm text-code-sm text-text-secondary truncate">orders-api</span>
+</div>
+<div class="flex items-center gap-1 text-text-secondary font-body-sm text-body-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">fork_right</span>
+<span class="font-code-sm text-code-sm">fix/cors</span>
+<span class="text-outline-variant">@</span>
+<span class="font-code-sm text-code-sm text-contrast-blue-dark">b892f11</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-contrast-blue-dark">Thành công</span>
+<span class="font-code-sm text-code-sm text-text-secondary mt-1">3m 48s</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for visual polish and UI responsiveness
+  document.addEventListener('DOMContentLoaded', () => {
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        const icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.classList.add('animate-spin');
+          setTimeout(() => {
+            icon.classList.remove('animate-spin');
+          }, 800);
+        }
+      });
+    }
+  });
+</script></main></div></body></html>
