@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
-  ArrowUpRight,
-  BookOpen,
+  Bell,
+  CirclePlay,
+  CircleAlert,
   ChevronDown,
   GitBranch,
   LayoutDashboard,
@@ -22,10 +23,14 @@ import { CreateWorkspace } from "./create-workspace";
 import { WorkspaceProvider, useWorkspace } from "./workspace-provider";
 import { Button } from "./ui/button";
 import { ErrorNotice, Loading } from "./ui/states";
+import { RealtimeProvider, refreshWorkspace, useRealtime } from "./realtime-provider";
 
 const links = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/repositories", label: "Kho mã", icon: GitBranch },
+  { href: "/runs", label: "Lần chạy", icon: CirclePlay },
+  { href: "/incidents", label: "Sự cố", icon: CircleAlert },
+  { href: "/notifications", label: "Thông báo", icon: Bell },
   { href: "/members", label: "Thành viên", icon: Users },
   { href: "/account", label: "Tài khoản", icon: UserRound },
 ];
@@ -48,7 +53,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   if (!user) return <Loading label="Đang chuyển đến trang đăng nhập…" />;
   return (
     <WorkspaceProvider>
-      <Shell>{children}</Shell>
+      <RealtimeProvider>
+        <Shell>{children}</Shell>
+      </RealtimeProvider>
     </WorkspaceProvider>
   );
 }
@@ -57,7 +64,8 @@ function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, setUser } = useAuth();
-  const { workspaces, selectedId, select, loading } = useWorkspace();
+  const { workspaces, selectedId, select, loading, workspace, role } = useWorkspace();
+  const connected = useRealtime();
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState("");
@@ -123,6 +131,8 @@ function Shell({ children }: { children: ReactNode }) {
               onChange={(event) => {
                 select(event.target.value);
                 setMenuOpen(false);
+                if (pathname.startsWith("/incidents/")) router.push("/incidents");
+                if (pathname.startsWith("/runs/")) router.push("/runs");
               }}
               disabled={loading || workspaces.length === 0}
             >
@@ -144,8 +154,16 @@ function Shell({ children }: { children: ReactNode }) {
             <Link
               key={href}
               href={href}
-              aria-current={pathname === href ? "page" : undefined}
-              className={pathname === href ? "nav-active" : ""}
+              aria-current={
+                pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
+                  ? "page"
+                  : undefined
+              }
+              className={
+                pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
+                  ? "nav-active"
+                  : ""
+              }
               onClick={() => setMenuOpen(false)}
             >
               <Icon size={18} />
@@ -155,12 +173,16 @@ function Shell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="sidebar-note">
-          <span className="small-eyebrow">BƯỚC TIẾP THEO</span>
-          <BookOpen size={21} />
-          <strong>Từ kết nối đến thấu hiểu</strong>
-          <p>Theo dõi pipeline và phân tích sự cố đang được phát triển.</p>
-          <span className="future-label">
-            Sắp ra mắt <ArrowUpRight size={14} />
+          <div className="trace-motif" aria-hidden="true">
+            <i />
+            <span />
+            <i />
+            <span />
+            <i />
+          </div>
+          <p>Workflow → log → nguyên nhân.</p>
+          <span className="field-hint">
+            {role ? `Quyền hiện tại: ${role}` : "Chọn workspace để bắt đầu"}
           </span>
         </div>
         <div className="sidebar-user">
@@ -183,13 +205,35 @@ function Shell({ children }: { children: ReactNode }) {
       <div className="main-column">
         <div className="topbar">
           <div className="breadcrumb">
-            Workspace<span>/</span>
-            <strong>{links.find((item) => item.href === pathname)?.label}</strong>
+            <span className="breadcrumb-workspace">{workspace?.name ?? "Workspace"}</span>
+            <span>/</span>
+            <strong>
+              {
+                links.find(
+                  (item) =>
+                    item.href === pathname ||
+                    (item.href !== "/" && pathname.startsWith(item.href + "/")),
+                )?.label
+              }
+            </strong>
           </div>
-          <span className="environment-label">
-            <span />
-            Không gian làm việc
-          </span>
+          <div className="topbar-actions">
+            <button
+              className={`connection-state ${connected ? "connected" : ""}`}
+              onClick={() => refreshWorkspace(selectedId)}
+              title="Làm mới dữ liệu workspace"
+            >
+              <span />
+              {connected ? "Trực tiếp" : "Cập nhật thủ công"}
+            </button>
+            <Link href="/notifications" className="icon-button" aria-label="Xem thông báo">
+              <Bell size={19} />
+            </Link>
+            <Link href="/account" className="topbar-account">
+              <span className="avatar">{user?.displayName.slice(0, 1).toUpperCase()}</span>
+              <span>{user?.displayName}</span>
+            </Link>
+          </div>
         </div>
         <main id="main-content" className="page-content">
           {error && <ErrorNotice message={`Chưa đăng xuất được. ${error}`} />}
@@ -197,7 +241,7 @@ function Shell({ children }: { children: ReactNode }) {
         </main>
         <footer className="app-footer">
           <span>TracePilot</span>
-          <span>Kết nối đội ngũ. Quản lý kho mã.</span>
+          <span>Từ lần chạy đến nguyên nhân.</span>
         </footer>
       </div>
     </div>

@@ -78,40 +78,38 @@ export function AuthForm({ register = false }: { register?: boolean }) {
           <Brand />
         </Link>
         <div className="auth-story-body">
-          <span className="eyebrow">KHÔNG GIAN DEVOPS CỦA BẠN</span>
           <h1>
-            Mọi kết nối.
+            Từ dấu vết
             <br />
-            Một nơi quản lý.
+            đến nguyên nhân.
           </h1>
-          <p>Kết nối đội ngũ và kho mã GitHub trong cùng một không gian làm việc.</p>
+          <p>Theo dõi GitHub Actions, đọc log đã che và đối chiếu từng đề xuất với bằng chứng.</p>
           <div className="connection-visual" aria-hidden="true">
             <div className="visual-node">
               <GitBranch size={21} />
-              <span>GitHub repositories</span>
+              <span>Lần chạy GitHub Actions</span>
               <span className="status-dot" />
             </div>
             <div className="visual-line" />
             <div className="visual-node visual-node-main">
               <Layers3 size={21} />
-              <span>Workspace của bạn</span>
+              <span>Log & dấu vết sự cố</span>
               <span className="visual-chip">TracePilot</span>
             </div>
             <div className="visual-line" />
             <div className="visual-node">
               <ShieldCheck size={21} />
-              <span>Đúng người. Đúng quyền.</span>
+              <span>Nguyên nhân cần kiểm chứng</span>
             </div>
           </div>
         </div>
-        <span className="auth-story-footer">TRACEPILOT / WORKSPACE & REPOSITORIES</span>
+        <span className="auth-story-footer">Giữ bằng chứng. Hiểu sự cố. Chủ động xử lý.</span>
       </section>
       <section className="auth-form-side">
         <div className="auth-form-wrap">
           <div className="auth-mobile-brand">
             <Brand />
           </div>
-          <span className="eyebrow">BẮT ĐẦU TỪ ĐÂY</span>
           <h2>{isRegister ? "Tạo tài khoản" : "Chào mừng trở lại"}</h2>
           <p className="muted">
             {isRegister

@@ -5,7 +5,6 @@ export default function RepositoriesPage() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">KẾT NỐI GITHUB</span>
           <h1>Kho mã</h1>
           <p className="muted">Các repository và quyền theo dõi trong workspace của bạn.</p>
         </div>

@@ -2,6 +2,7 @@ package com.tracepilot.analysis;
 
 import java.util.List;
 import java.util.UUID;
+import com.tracepilot.knowledge.KnowledgeDtos;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -53,5 +54,11 @@ public class AnalysisController {
     public List<AnalysisDtos.UsageResponse> usage(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
                                                  @PathVariable UUID incidentId, @PathVariable UUID analysisId) {
         return analysisService.usage(UUID.fromString(jwt.getSubject()), workspaceId, incidentId, analysisId);
+    }
+
+    @GetMapping("/{analysisId}/evidence")
+    public List<KnowledgeDtos.Evidence> evidence(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
+                                                @PathVariable UUID incidentId, @PathVariable UUID analysisId) {
+        return analysisService.evidence(UUID.fromString(jwt.getSubject()), workspaceId, incidentId, analysisId);
     }
 }

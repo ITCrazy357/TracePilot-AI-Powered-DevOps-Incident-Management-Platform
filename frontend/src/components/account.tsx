@@ -11,7 +11,6 @@ export function Account() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">HỒ SƠ CỦA BẠN</span>
           <h1>Tài khoản</h1>
           <p className="muted">Thông tin tài khoản và mã định danh của bạn.</p>
         </div>

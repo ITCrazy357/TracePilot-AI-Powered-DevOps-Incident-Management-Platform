@@ -54,7 +54,7 @@ import static org.awaitility.Awaitility.await;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
+    properties = {"RAG_ENABLED=false", "AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
         "AUTH_SIGNING_SECRET=phase04-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase04IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();
@@ -113,7 +113,8 @@ class Phase04IntegrationTests {
         }
         GITHUB.reset();
         GITHUB.workflows.failedJob = true;
-        for (var table : List.of("outbox_events", "notifications", "incident_log_snippets", "incidents",
+        for (var table : List.of("outbox_events", "analysis_evidence", "ai_usage_events", "ai_analyses",
+            "knowledge_chunks", "knowledge_articles", "notifications", "incident_log_snippets", "incidents",
             "workflow_jobs", "workflow_runs", "webhook_deliveries", "repositories", "github_installations")) {
             jdbcTemplate.update("DELETE FROM " + table);
         }
@@ -384,6 +385,21 @@ class Phase04IntegrationTests {
         assertThat(response.statusCode()).isEqualTo(503);
         assertThat(count("ai_analyses")).isZero();
         assertThat(count("ai_usage_events")).isZero();
+    }
+
+    @Test
+    void disabledRagAllowsDraftsButCannotPublishOrSearchVectors() throws Exception {
+        var path = basePath() + "/knowledge-articles";
+        var created = call("POST", path, owner.accessToken(),
+            Map.of("title", "Reviewed fix", "rootCause", "Investigated root cause", "resolution", "Human confirmed fix"));
+        assertThat(created.statusCode()).isEqualTo(201);
+        var id = body(created).path("id").asString();
+        assertThat(call("POST", path + "/" + id + "/approve", owner.accessToken(),
+            Map.of("version", 0)).statusCode()).isEqualTo(503);
+        assertThat(call("POST", path + "/search", owner.accessToken(),
+            Map.of("query", "Investigated root cause", "topK", 3, "mode", "EXACT")).statusCode()).isEqualTo(503);
+        assertThat(count("knowledge_chunks")).isZero();
+        jdbcTemplate.update("DELETE FROM knowledge_articles WHERE id = CAST(? AS uuid)", id);
     }
 
     private UUID requestSync(int attempt) throws Exception {

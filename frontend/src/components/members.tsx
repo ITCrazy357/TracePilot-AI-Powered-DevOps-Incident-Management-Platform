@@ -16,7 +16,6 @@ export function Members() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">ĐỘI NGŨ CỦA BẠN</span>
           <h1>Thành viên</h1>
           <p className="muted">Quản lý người tham gia và quyền truy cập workspace.</p>
         </div>

@@ -61,6 +61,13 @@ tracepilot:
     max-calls-per-day: 50
     input-price-per-million: ${AI_INPUT_PRICE_PER_MILLION:}
     output-price-per-million: ${AI_OUTPUT_PRICE_PER_MILLION:}
+  rag:
+    enabled: ${RAG_ENABLED:false}
+    embedding-model: text-embedding-3-small
+    dimensions: 1536
+    top-k: 3
+    minimum-similarity: 0.35
+    embedding-price-per-million: ${EMBEDDING_PRICE_PER_MILLION:}
 
 server:
   address: ${SERVER_ADDRESS:127.0.0.1}

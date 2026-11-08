@@ -47,9 +47,9 @@ test("live registration, login, reload and logout through the UI", async ({ page
     .getByRole("dialog")
     .getByRole("button", { name: "Tạo workspace", exact: true })
     .click();
-  await expect(page.getByRole("heading", { name: "Live UI Workspace", exact: true })).toBeVisible();
+  await expect(page.locator(".workspace-context")).toHaveText("Live UI Workspace");
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Live UI Workspace", exact: true })).toBeVisible();
+  await expect(page.locator(".workspace-context")).toHaveText("Live UI Workspace");
   await page.getByRole("button", { name: "Đăng xuất", exact: true }).click();
   await expect(page).toHaveURL(/\/login$/);
   expect(

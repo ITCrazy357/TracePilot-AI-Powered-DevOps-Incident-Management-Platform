@@ -23,7 +23,8 @@ public final class AnalysisDtos {
     public record AnalysisPage(List<AnalysisResponse> items, int page, int size, long total) {
     }
 
-    public record UsageResponse(UUID id, UUID analysisId, int attempt, String status, Long inputTokens,
+    public record UsageResponse(UUID id, UUID analysisId, int attempt, String operation, String provider,
+                                String model, String status, Long inputTokens,
                                 Long outputTokens, BigDecimal estimatedCostUsd, Long durationMs,
                                 String errorCode, Instant createdAt) {
     }

@@ -20,21 +20,21 @@ export const otherWorkspace = {
 export const memberId = "44444444-4444-4444-8444-444444444444";
 export const repositories = [
   {
-    id: "repo1",
+    id: "55555555-5555-4555-8555-555555555555",
     githubRepositoryId: 101,
     fullName: "tracepilot/backend",
     defaultBranch: "main",
     active: true,
   },
   {
-    id: "repo2",
+    id: "66666666-6666-4666-8666-666666666666",
     githubRepositoryId: 102,
     fullName: "tracepilot/dashboard",
     defaultBranch: "develop",
     active: true,
   },
   {
-    id: "repo3",
+    id: "77777777-7777-4777-8777-777777777777",
     githubRepositoryId: 103,
     fullName: "tracepilot/infrastructure",
     defaultBranch: null,
@@ -66,6 +66,11 @@ export async function mockSession(
     const url = new URL(route.request().url());
     const path = url.pathname;
     if (options.delay) await new Promise((resolve) => setTimeout(resolve, options.delay));
+    if (path.endsWith("/notifications/stream")) return route.abort();
+    if (path.endsWith("/notifications"))
+      return route.fulfill({ json: { items: [], page: 0, size: 5, total: 0 } });
+    if (path.endsWith("/incidents"))
+      return route.fulfill({ json: { items: [], page: 0, size: 5, total: 0 } });
     if (path.endsWith("/workspaces"))
       return route.fulfill({ json: options.empty ? [] : [workspace, otherWorkspace] });
     if (path.endsWith("/members"))

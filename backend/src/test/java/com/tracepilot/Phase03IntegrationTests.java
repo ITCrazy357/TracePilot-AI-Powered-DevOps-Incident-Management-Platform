@@ -52,7 +52,7 @@ import static org.awaitility.Awaitility.await;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
+    properties = {"RAG_ENABLED=false", "AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
         "AUTH_SIGNING_SECRET=phase03-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase03IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();

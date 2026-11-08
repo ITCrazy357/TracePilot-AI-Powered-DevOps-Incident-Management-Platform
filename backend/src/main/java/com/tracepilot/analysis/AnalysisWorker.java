@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.tracepilot.pipeline.OutboxRepository;
 import com.tracepilot.pipeline.PipelineQueues;
+import com.tracepilot.knowledge.RagService;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -20,13 +21,15 @@ public class AnalysisWorker {
     private final AnalysisStore analysisStore;
     private final AnalysisClient client;
     private final AnalysisOutput output;
+    private final RagService ragService;
 
     public AnalysisWorker(OutboxRepository outboxRepository, AnalysisStore analysisStore,
-                          AnalysisClient client, AnalysisOutput output) {
+                          AnalysisClient client, AnalysisOutput output, RagService ragService) {
         this.outboxRepository = outboxRepository;
         this.analysisStore = analysisStore;
         this.client = client;
         this.output = output;
+        this.ragService = ragService;
     }
 
     @RabbitListener(id = "incident-analysis", queues = PipelineQueues.AI_QUEUE,
@@ -45,13 +48,15 @@ public class AnalysisWorker {
             if (prepared.isEmpty()) {
                 return;
             }
-            var providerResult = client.analyze(prepared.orElseThrow().content());
+            var context = ragService.prepare(analysisId, claim.attempts(), prepared.orElseThrow());
+            analysisStore.requireContext(claim, analysisId, context);
+            var providerResult = client.analyze(context.input());
             result = Optional.of(providerResult);
             if (!"stop".equalsIgnoreCase(providerResult.finishReason())) {
                 throw new AnalysisFailure("AI_REFUSED_OR_TRUNCATED", false);
             }
-            var report = output.parse(providerResult.content(), prepared.orElseThrow().content());
-            analysisStore.succeed(claim, analysisId, providerResult, report, elapsed(started));
+            var report = output.parse(providerResult.content(), context.input());
+            analysisStore.succeed(claim, analysisId, providerResult, report, elapsed(started), context);
         } catch (AnalysisFailure failure) {
             analysisStore.fail(claim, analysisId, failure, result, elapsed(started));
         }

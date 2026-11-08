@@ -20,6 +20,7 @@ final class AiApiFixture implements AutoCloseable {
     static final String KEY = "fixture-ai-opaque-key-never-store-this";
     static final String QUOTE = "Error: expected HTTP 200 but got 500";
     final AtomicInteger calls = new AtomicInteger();
+    final EmbeddingApiFixture embeddings = new EmbeddingApiFixture();
     final List<String> problems = new CopyOnWriteArrayList<>();
     final List<String> inputs = new CopyOnWriteArrayList<>();
     volatile int status;
@@ -51,6 +52,7 @@ final class AiApiFixture implements AutoCloseable {
     }
 
     void reset() {
+        embeddings.reset();
         calls.set(0);
         problems.clear();
         inputs.clear();
@@ -69,6 +71,10 @@ final class AiApiFixture implements AutoCloseable {
 
     private void handle(HttpExchange exchange) throws IOException {
         try (exchange) {
+            if ("/v1/embeddings".equals(exchange.getRequestURI().getPath())) {
+                embeddings.handle(exchange);
+                return;
+            }
             calls.incrementAndGet();
             if (!"/v1/chat/completions".equals(exchange.getRequestURI().getPath())
                 || !"POST".equals(exchange.getRequestMethod())
@@ -130,6 +136,7 @@ final class AiApiFixture implements AutoCloseable {
 
     @Override
     public void close() {
+        embeddings.release.countDown();
         release.countDown();
         server.stop(0);
         executor.shutdownNow();

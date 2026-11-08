@@ -59,7 +59,7 @@ test("loading state is announced before data arrives", async ({ page }) => {
   await mockSession(page, { delay: 500 });
   await page.goto("/");
   await expect(page.getByRole("status").first()).toBeVisible();
-  await expect(page.getByRole("heading", { name: workspace.name, exact: true })).toBeVisible();
+  await expect(page.locator(".workspace-context")).toHaveText(workspace.name);
 });
 
 test("repository failure leaves workspace and member data visible and can recover", async ({
@@ -67,11 +67,11 @@ test("repository failure leaves workspace and member data visible and can recove
 }) => {
   await mockSession(page, { repositoriesError: true });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: workspace.name, exact: true })).toBeVisible();
+  await expect(page.locator(".workspace-context")).toHaveText(workspace.name);
   await expect(
     page.getByRole("alert").filter({ hasText: "Không kết nối được dịch vụ" }),
   ).toBeVisible();
-  await expect(page.getByText("Thành viên đang hoạt động")).toBeVisible();
+  await expect(page.getByText("Sự cố gần đây", { exact: true })).toBeVisible();
   await page.route("**/repositories?*", (route) =>
     route.fulfill({ json: { items: repositories, page: 0, size: 5, totalElements: 3 } }),
   );

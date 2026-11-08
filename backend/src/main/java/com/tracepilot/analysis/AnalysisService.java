@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import com.tracepilot.pipeline.OutboxRepository;
 import com.tracepilot.workspace.WorkspaceRepository;
+import com.tracepilot.knowledge.EvidenceRepository;
+import com.tracepilot.knowledge.KnowledgeDtos;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,10 +25,11 @@ public class AnalysisService {
     private final WorkspaceRepository workspaceRepository;
     private final AiProperties properties;
     private final Clock clock;
+    private final EvidenceRepository evidenceRepository;
 
     public AnalysisService(AnalysisRepository analysisRepository, AnalysisAccess access, AnalysisInput input,
                            OutboxRepository outboxRepository, WorkspaceRepository workspaceRepository,
-                           AiProperties properties, Clock clock) {
+                           AiProperties properties, Clock clock, EvidenceRepository evidenceRepository) {
         this.analysisRepository = analysisRepository;
         this.access = access;
         this.input = input;
@@ -34,6 +37,7 @@ public class AnalysisService {
         this.workspaceRepository = workspaceRepository;
         this.properties = properties;
         this.clock = clock;
+        this.evidenceRepository = evidenceRepository;
     }
 
     @Transactional
@@ -94,6 +98,11 @@ public class AnalysisService {
     public List<AnalysisDtos.UsageResponse> usage(UUID actorId, UUID workspaceId, UUID incidentId, UUID analysisId) {
         get(actorId, workspaceId, incidentId, analysisId);
         return analysisRepository.usage(analysisId);
+    }
+
+    public List<KnowledgeDtos.Evidence> evidence(UUID actorId, UUID workspaceId, UUID incidentId, UUID analysisId) {
+        get(actorId, workspaceId, incidentId, analysisId);
+        return evidenceRepository.list(analysisId);
     }
 
     private void requireCapacity(UUID workspaceId, UUID incidentId) {

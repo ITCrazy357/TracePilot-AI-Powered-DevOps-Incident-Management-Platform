@@ -1,6 +1,8 @@
-# Frontend — tài khoản, workspace và GitHub
+# Frontend — Clean Precision và luồng điều tra sự cố
 
-Frontend tương ứng backend Phase 00–02. Có đăng ký, đăng nhập, duy trì phiên, đăng xuất, thông tin tài khoản/UUID, tạo/chuyển workspace, quản lý thành viên và danh sách repository/phân trang/đồng bộ GitHub. API workflow được bổ sung ở [Phase 03](phase-03.md); tài liệu frontend này chưa bao gồm màn hình workflow, incident hoặc AI.
+Frontend tương ứng backend Phase 01–05: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE và phân tích AI. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
+
+Áp dụng hướng dẫn tinh giản và hoàn thiện từ [Impeccable](https://github.com/pbakaus/impeccable/tree/924bbd194d02e5e15a227e75b5901fb0d7a4ecad/.agents/skills/impeccable). Bản clone local ở `.tools/impeccable`; dùng context loader và detector trực tiếp, không cài hook toàn cục hay thêm Impeccable vào runtime sản phẩm.
 
 ## Chạy local
 
@@ -38,6 +40,18 @@ APP_ORIGIN=http://127.0.0.1:3000
 6. Vào **Kho mã**. Người vận hành cấu hình GitHub App/binding theo [Phase 02](phase-02.md), rồi OWNER chọn **Đồng bộ GitHub**. Tích hợp mặc định tắt; lỗi 503 hiển thị hướng xử lý. Không nhập key/token GitHub vào frontend.
 7. Đăng xuất thu hồi refresh token hiện tại và xóa cookie của frontend. Nếu backend lỗi, giao diện báo chưa đăng xuất thành công để người dùng thử lại.
 
+## Luồng điều tra Phase 03–05
+
+- **Tổng quan:** số kho mã, thành viên và tổng sự cố lấy từ API; sự cố và thông báo gần đây. Không suy diễn tỷ lệ thành công/metric 7 ngày khi chưa có API tổng hợp.
+- **Lần chạy:** chọn repository trước, xem lịch sử/phân trang, mở đúng attempt và jobs. OWNER gửi GitHub run ID/attempt để xếp hàng đồng bộ; 202 chỉ xác nhận đã xếp hàng. Processing/publication status của yêu cầu tách riêng với kết quả CI.
+- **Sự cố:** danh sách/phân trang và bộ lọc trạng thái trên trang hiện tại. Ba tab Tổng quan / Log đã che / Phân tích AI. OWNER/ADMIN được phân công và đổi trạng thái; MEMBER chỉ được đổi trạng thái hoặc yêu cầu AI khi đang phụ trách. Chỉ đưa ra các bước chuyển hợp lệ của backend.
+- **Version:** PATCH trạng thái/phân công gửi version đã đọc. Khi 409, người dùng tải lại rồi quyết định lại; không tự gửi lại thay đổi bằng version mới. Đổi workspace ở màn hình chi tiết đưa về danh sách để tránh ghép ID cũ vào workspace mới.
+- **Log:** chỉ đọc snippets đã lưu. Ghép đúng thứ tự để tìm chuỗi qua ranh giới đoạn; tìm kiếm/sao chép giữ nguyên văn bản. React hiển thị log/report như text, không thực thi HTML/script/lệnh. Có trạng thái chưa sẵn sàng/thất bại và hash nội dung đã che.
+- **AI:** xác nhận việc gửi log tới nhà cung cấp và khả năng phát sinh chi phí. Tạo một requestId cho một thao tác, giữ lại khi retry; chỉ gửi sau xác nhận. Không tự bật AI/API key. Lịch sử/report, câu trích và usage theo attempt từ API. Usage/cost thiếu giữ là chưa có, không điền 0 hoặc tạo confidence giả. Câu trích mở đúng chuỗi trong tab log.
+- **Thông báo:** dữ liệu của người đăng nhập trong workspace, phân trang và đánh dấu đã đọc. Next chuyển tiếp SSE với Bearer ở server; không đưa token vào URL. Reconnect giữ Last-Event-ID, kiểm tra/refresh phiên trước khi mở luồng. Mất kết nối vẫn có làm mới thủ công; dấu “Trực tiếp” chỉ hiện khi EventSource mở thành công.
+
+Kho tri thức/RAG, xuất CSV thành viên, đổi tên/xóa/chuyển OWNER, AI feedback, sửa mã/tạo PR và dashboard chi phí toàn workspace trong mẫu chưa thuộc API Phase 01–05 đã đối chiếu. Không tạo nút giả hoặc lấy dữ liệu minh họa làm dữ liệu sản phẩm. Tài khoản/workspace mới có trạng thái trống cho đến khi GitHub đã được cấu hình và gửi dữ liệu.
+
 ## Luồng dữ liệu và bảo vệ phiên
 
 ```mermaid
@@ -69,7 +83,7 @@ sequenceDiagram
 frontend/src/
   app/
     login/, register/              # Form tài khoản
-    (dashboard)/                   # Tổng quan, members, repositories, account
+    (dashboard)/                   # Tổng quan, repositories, runs, incidents, notifications, members, account
     api/auth/[action]/             # Cookie phiên và auth API
     api/backend/[...path]/         # Proxy allowlist tới workspace API
     globals.css                    # Màu, bố cục và responsive
@@ -78,10 +92,15 @@ frontend/src/
     workspace-provider.tsx         # Workspace hiện tại và membership/role
     workspace-boundary.tsx         # Loading/error/empty của workspace
     dashboard-shell.tsx            # Điều hướng và đăng xuất
+    realtime-provider.tsx          # SSE, reconnect và invalidation theo workspace
+    incident-detail.tsx            # Lifecycle, phân công và ba tab
+    log-viewer.tsx                 # Văn bản log, tìm kiếm và bằng chứng
+    analysis-panel.tsx             # Consent, lịch sử, report và usage
     ui/                            # Button, Radix Dialog và thông báo trạng thái
   lib/
     contracts.ts                   # DTO TypeScript
     api.ts                         # Fetch, refresh một lần, lỗi tiếng Việt
+    use-resource.ts                # GET, hủy request cũ và reload khi có SSE
     server/backend.ts              # Server-only: fetch Spring và cookie
 ```
 
@@ -93,6 +112,7 @@ Tại `frontend/`:
 
 ```powershell
 npm run typecheck
+npm run format:check
 npm run build
 npx playwright install chromium
 npm run test:ui
@@ -105,9 +125,13 @@ Remove-Item Env:TRACEPILOT_LIVE
 
 `npm run test:e2e` chạy tất cả; live tests được skip nếu không bật biến trên. Playwright tự bật Next dev tại port 3000 nếu chưa có server. `FRONTEND_URL` đổi baseURL để dùng một frontend đã chạy sẵn; cấu hình `APP_ORIGIN` của server phải tương ứng.
 
-UI fixture tests kiểm tra các trạng thái, quyền hiển thị, lỗi một phần, validation UTF-8, đổi workspace, bàn phím và responsive 1440/390/320 px. Live tests gọi Next/Spring thật để kiểm tra cookie, refresh đồng thời, logout, đăng ký, tạo workspace và cách ly quyền. Tài khoản `frontend-test-*`/`frontend-ui-*` và workspace thử được giữ trong database local; test không reset hoặc xóa dữ liệu đang có. Test report ở `frontend/playwright-report/`, ảnh ở `.verification/frontend/`; không đưa credential hoặc artifact riêng tư lên Git.
+UI fixture tests kiểm tra trạng thái/quyền, lỗi một phần, validation UTF-8, đổi workspace, version 409, idempotency AI, bằng chứng qua hai đoạn log, log giống HTML và responsive/accessibility 1440/390/320 px. Live tests gọi Next/Spring thật để kiểm tra cookie, refresh/logout, tạo workspace, API Phase 03–05, SSE và cách ly quyền. Tài khoản `frontend-test-*`/`frontend-ui-*`/`frontend-operations-*` và workspace thử được giữ trong database đích; không reset/xóa dữ liệu đang có. Report ở `frontend/playwright-report/`, ảnh ở `.verification/redesign/` và `.verification/frontend/`; không đưa credential hay artifact riêng tư lên Git.
+
+Khi cần kiểm chứng tách khỏi database local, dùng `TestTracePilotApplication` với `spring-boot:test-run` theo [Spring Boot Maven](https://docs.spring.io/spring-boot/maven-plugin/run.html). Class này tạo PostgreSQL/RabbitMQ riêng qua Testcontainers; dữ liệu của môi trường đó là tạm thời. Phải đặt JDK 21 trước, giữ AI/GitHub tắt khi chỉ thử UI. Đây không phải cách sửa database local lỗi migration.
 
 Kiểm thử backend tại root: `.\scripts\backend.ps1 -Task verify`. Build Next, TypeScript, browser test local, Maven test, IDE và triển khai là các mức bằng chứng khác nhau. GitHub App thật cần cấu hình và kiểm tra riêng theo Phase 02.
+
+Kết quả local của lần sửa Clean Precision: build/TypeScript đạt, **29 test frontend** (23 fixture UI + 6 tích hợp live) và **81 test backend của baseline Phase 05** đạt. Impeccable source detector trả 0 finding; axe trên dashboard/report tại ba viewport không có vi phạm theo các rule đã chạy. Report chi tiết local: `.verification/redesign/report.json`. Preview hiện dùng snapshot `7cce48c` và Testcontainers tại port 8080; dữ liệu preview là tạm thời. Không reset/sửa lịch sử database gốc; các live check ban đầu đã bổ sung tài khoản/workspace kiểm thử `frontend-*` vào database đó. Các file Phase 06 đang phát triển đồng thời không thuộc phạm vi xác nhận này.
 
 ## Khắc phục lỗi
 
@@ -116,4 +140,5 @@ Kiểm thử backend tại root: `.\scripts\backend.ps1 -Task verify`. Build Nex
 - Đăng ký lỗi mật khẩu dù ít hơn 72 ký tự: giới hạn là byte UTF-8; tiếng Việt/emoji có thể dùng nhiều byte.
 - Workspace/membership trả 404: tài khoản không còn quyền hoặc UUID sai. Tải lại danh sách workspace; không suy luận workspace tồn tại từ lỗi 404.
 - Đồng bộ trả 503/409/502: xem [hướng dẫn GitHub](phase-02.md); frontend không tự tạo binding installation hoặc retry sync liên tục.
+- API mới trả 404 dù source có controller: kiểm tra tiến trình backend đã nạp code mới chưa. Nếu khởi động bị Flyway checksum mismatch, cần đối soát migration/schema trước; không repair hoặc reset chỉ để chạy UI. Ở lượt kiểm chứng này, database local có V4 applied `-702013013` khác source `6650674`; giữ nguyên DB và dùng snapshot Phase 05 `7cce48c` với Testcontainers riêng cho kiểm thử frontend.
 - Chạy production local: `npm run build`, `npm start`. Production đặt Secure cookie; dùng HTTPS khi triển khai và cấu hình origin public chính xác.

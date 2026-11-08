@@ -1,0 +1,91 @@
+{
+  "scope": "Synthetic embedding fixture; measures retrieval plumbing, not production embedding quality.",
+  "documents": [
+    {
+      "key": "port",
+      "title": "EADDRINUSE socket conflict",
+      "rootCause": "A second process occupies the configured port.",
+      "resolution": "Stop the stale process and bind the service to a free socket."
+    },
+    {
+      "key": "memory",
+      "title": "Java heap exhausted",
+      "rootCause": "The JVM memory limit is too small for the test suite.",
+      "resolution": "Inspect heap growth and set a measured memory budget."
+    },
+    {
+      "key": "database",
+      "title": "PostgreSQL connections exhausted",
+      "rootCause": "The database connection pool has leaked connections.",
+      "resolution": "Close connections and size the Hikari pool against PostgreSQL limits."
+    },
+    {
+      "key": "permission",
+      "title": "EACCES when writing build output",
+      "rootCause": "The runner lacks permission to write into its working directory.",
+      "resolution": "Grant the minimum required directory access to the build user."
+    },
+    {
+      "key": "http",
+      "title": "Unexpected HTTP 500 during integration tests",
+      "rootCause": "The application returns an internal server error.",
+      "resolution": "Inspect the server error and correct the failing application path."
+    },
+    {
+      "key": "dependency",
+      "title": "Maven dependency resolution fails",
+      "rootCause": "The requested artifact is missing from the configured repository.",
+      "resolution": "Check the dependency coordinates and repository configuration."
+    }
+  ],
+  "queries": [
+    {
+      "key": "port",
+      "query": "A socket cannot start because its address is already occupied."
+    },
+    {
+      "key": "port",
+      "query": "Không khởi động được vì cổng đang có chương trình khác dùng."
+    },
+    {
+      "key": "memory",
+      "query": "The test JVM runs out of heap space."
+    },
+    {
+      "key": "memory",
+      "query": "Bộ nhớ dành cho bộ kiểm thử đã cạn."
+    },
+    {
+      "key": "database",
+      "query": "Hikari cannot acquire any more database connections."
+    },
+    {
+      "key": "database",
+      "query": "Không còn kết nối tới cơ sở dữ liệu."
+    },
+    {
+      "key": "permission",
+      "query": "The runner receives access denied while saving build output."
+    },
+    {
+      "key": "permission",
+      "query": "Tài khoản chạy build thiếu quyền ghi thư mục."
+    },
+    {
+      "key": "http",
+      "query": "Integration checks fail with an internal server error."
+    },
+    {
+      "key": "http",
+      "query": "The endpoint returns HTTP 500 instead of HTTP 200."
+    },
+    {
+      "key": "dependency",
+      "query": "The repository cannot locate a Maven artifact."
+    },
+    {
+      "key": "dependency",
+      "query": "Dependency resolution prevents the build from starting."
+    }
+  ]
+}

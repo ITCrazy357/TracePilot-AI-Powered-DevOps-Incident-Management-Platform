@@ -19,6 +19,18 @@ const messages: Record<number, string> = {
 };
 
 const details: Record<string, string> = {
+  "AI integration is not configured.":
+    "AI chưa được bật. Nhờ người vận hành kiểm tra cấu hình rồi thử lại.",
+  "An analysis is already pending for this incident.":
+    "Sự cố đang có một phân tích chờ hoặc đang chạy. Tải lại lịch sử để xem tiến độ.",
+  "Redacted logs are not available for analysis.":
+    "Chưa có log phù hợp để phân tích. Kiểm tra trạng thái thu thập log.",
+  "Workspace AI daily call limit reached.":
+    "Workspace đã dùng hết lượt phân tích AI trong 24 giờ. Vui lòng thử lại sau.",
+  "Incident changed. Reload before updating.":
+    "Sự cố vừa được cập nhật. Tải lại dữ liệu trước khi quyết định thay đổi.",
+  "Invalid incident status transition.":
+    "Không thể chuyển trực tiếp sang trạng thái này. Tải lại và chọn bước chuyển hợp lệ.",
   "Email is already registered.": "Email này đã được đăng ký.",
   "User not found.": "Không tìm thấy tài khoản với UUID này.",
   "User is already a member.": "Tài khoản này đã là thành viên workspace.",

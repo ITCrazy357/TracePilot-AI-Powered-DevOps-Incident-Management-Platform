@@ -16,27 +16,32 @@ import com.openai.core.RequestOptions;
 import com.openai.core.http.Headers;
 import com.openai.core.http.HttpResponse;
 import com.tracepilot.common.LimitedResponseBody;
+import com.tracepilot.knowledge.RagProperties;
 
-// This transport supports only the synchronous chat endpoint used by this worker.
+// Provider paths are fixed; logs and user requests cannot select an arbitrary endpoint.
 public class AiHttpClient implements com.openai.core.http.HttpClient {
     private static final int MAX_RESPONSE_BYTES = 256 * 1024;
     private final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER)
         .connectTimeout(Duration.ofSeconds(5)).build();
     private final AiProperties properties;
+    private final RagProperties ragProperties;
 
-    public AiHttpClient(AiProperties properties) {
+    public AiHttpClient(AiProperties properties, RagProperties ragProperties) {
         this.properties = properties;
+        this.ragProperties = ragProperties;
     }
 
     @Override
     public HttpResponse execute(com.openai.core.http.HttpRequest request, RequestOptions options) {
-        var expected = properties.baseUrl().toString().replaceAll("/+$", "") + "/chat/completions";
-        if (!"POST".equals(request.method().name()) || !expected.equals(request.url())) {
+        var base = properties.baseUrl().toString().replaceAll("/+$", "");
+        boolean embedding = ragProperties.enabled() && (base + "/embeddings").equals(request.url());
+        if (!"POST".equals(request.method().name())
+            || (!embedding && !(base + "/chat/completions").equals(request.url()))) {
             throw new AnalysisFailure("AI_ENDPOINT_REJECTED", false);
         }
         var body = new ByteArrayOutputStream();
         request.body().writeTo(body);
-        var builder = HttpRequest.newBuilder(URI.create(expected)).timeout(properties.timeout())
+        var builder = HttpRequest.newBuilder(URI.create(request.url())).timeout(properties.timeout())
             .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofByteArray(body.toByteArray()));
         for (var name : request.headers().names()) {
             if (!"Content-Length".equalsIgnoreCase(name) && !"Content-Type".equalsIgnoreCase(name)) {
@@ -45,7 +50,8 @@ public class AiHttpClient implements com.openai.core.http.HttpClient {
                 }
             }
         }
-        var pending = client.sendAsync(builder.build(), info -> new LimitedResponseBody(MAX_RESPONSE_BYTES));
+        int responseLimit = embedding ? 1024 * 1024 : MAX_RESPONSE_BYTES;
+        var pending = client.sendAsync(builder.build(), info -> new LimitedResponseBody(responseLimit));
         try {
             var response = pending.get(properties.timeout().toMillis(), TimeUnit.MILLISECONDS);
             if (response.statusCode() >= 300 && response.statusCode() < 400) {

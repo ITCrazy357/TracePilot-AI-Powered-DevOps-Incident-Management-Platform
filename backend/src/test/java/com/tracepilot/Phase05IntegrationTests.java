@@ -43,7 +43,7 @@ import static org.awaitility.Awaitility.await;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "AI_ENABLED=true",
+    properties = {"RAG_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "AI_ENABLED=true",
         "AUTH_SIGNING_SECRET=phase05-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase05IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();
@@ -114,7 +114,7 @@ class Phase05IntegrationTests {
         }
         GITHUB.reset();
         AI.reset();
-        for (var table : List.of("outbox_events", "ai_usage_events", "ai_analyses", "notifications",
+        for (var table : List.of("outbox_events", "analysis_evidence", "ai_usage_events", "ai_analyses", "notifications",
             "incident_log_snippets", "incidents", "workflow_jobs", "workflow_runs", "webhook_deliveries",
             "repositories", "github_installations")) {
             jdbcTemplate.update("DELETE FROM " + table);
@@ -201,8 +201,17 @@ class Phase05IntegrationTests {
         assertThat(call("GET", "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/incidents/" + id + "/analyses/" + analysisId,
             outsider.accessToken(), null).statusCode()).isEqualTo(404);
         assertThat(call("GET", path(id) + "/" + analysisId + "/usage", outsider.accessToken(), null).statusCode()).isEqualTo(404);
-        jdbcTemplate.update("DELETE FROM incident_log_snippets WHERE incident_id = ?", id);
-        assertThat(call("POST", path(id), owner.accessToken(), Map.of("requestId", UUID.randomUUID())).statusCode()).isEqualTo(409);
+        GITHUB.workflows.conclusionOverride = "failure";
+        var sync = call("POST", basePath() + "/repositories/" + REPOSITORY_ID + "/workflow-runs/sync",
+            owner.accessToken(), Map.of("githubRunId", 7000, "runAttempt", 2));
+        assertThat(sync.statusCode()).isEqualTo(202);
+        var syncId = UUID.fromString(body(sync).path("id").asString());
+        await().atMost(Duration.ofSeconds(15)).until(() -> "SUCCEEDED".equals(outboxRepository.find(syncId).processingStatus()));
+        var emptyIncident = jdbcTemplate.queryForObject("""
+            SELECT i.id FROM incidents i JOIN workflow_runs r ON r.id = i.workflow_run_id WHERE r.run_attempt = 2
+            """, UUID.class);
+        assertThat(call("POST", path(emptyIncident), owner.accessToken(),
+            Map.of("requestId", UUID.randomUUID())).statusCode()).isEqualTo(409);
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.openai.client.OpenAIClientImpl;
 import com.openai.core.ClientOptions;
 import com.openai.core.LogLevel;
 import com.tracepilot.pipeline.PipelineQueues;
+import com.tracepilot.knowledge.RagProperties;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarables;
@@ -47,8 +48,8 @@ public class AiConfiguration {
     }
     @Bean(destroyMethod = "close")
     @ConditionalOnProperty(prefix = "tracepilot.ai", name = "enabled", havingValue = "true")
-    AiHttpClient aiHttpClient(AiProperties properties) {
-        return new AiHttpClient(properties);
+    AiHttpClient aiHttpClient(AiProperties properties, RagProperties ragProperties) {
+        return new AiHttpClient(properties, ragProperties);
     }
 
     @Bean

@@ -42,7 +42,7 @@ export async function backend(path: string, init: RequestInit = {}) {
       ...init,
       cache: "no-store",
       redirect: "error",
-      signal: AbortSignal.timeout(path.endsWith("github/sync") ? 180_000 : 15_000),
+      signal: init.signal ?? AbortSignal.timeout(path.endsWith("github/sync") ? 180_000 : 15_000),
       headers: { "Content-Type": "application/json", ...init.headers },
     });
   } catch {

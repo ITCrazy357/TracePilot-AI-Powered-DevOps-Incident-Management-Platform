@@ -120,16 +120,17 @@ public class AnalysisRepository {
                     AND input_price_per_million IS NOT NULL AND output_price_per_million IS NOT NULL
                     THEN round((CAST(? AS numeric) * input_price_per_million
                         + CAST(? AS numeric) * output_price_per_million) / 1000000, 8) ELSE NULL END
-            WHERE analysis_id = ? AND attempt = ?
+            WHERE analysis_id = ? AND attempt = ? AND operation = 'CHAT'
             """, status, inputTokens, outputTokens, Math.max(0, durationMs), errorCode,
             inputTokens, outputTokens, inputTokens, outputTokens, id, attempt);
     }
 
     public List<AnalysisDtos.UsageResponse> usage(UUID analysisId) {
         return jdbcTemplate.query("""
-            SELECT * FROM ai_usage_events WHERE analysis_id = ? ORDER BY attempt
+            SELECT * FROM ai_usage_events WHERE analysis_id = ? ORDER BY attempt, created_at, id
             """, (row, number) -> new AnalysisDtos.UsageResponse(row.getObject("id", UUID.class), analysisId,
-            row.getInt("attempt"), row.getString("status"), row.getObject("input_tokens", Long.class),
+            row.getInt("attempt"), row.getString("operation"), row.getString("provider"), row.getString("model"),
+            row.getString("status"), row.getObject("input_tokens", Long.class),
             row.getObject("output_tokens", Long.class), row.getBigDecimal("estimated_cost_usd"),
             row.getObject("duration_ms", Long.class), row.getString("error_code"),
             row.getTimestamp("created_at").toInstant()), analysisId);

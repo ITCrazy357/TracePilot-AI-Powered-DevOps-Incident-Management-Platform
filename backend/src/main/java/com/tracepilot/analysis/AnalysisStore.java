@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.tracepilot.incident.IncidentRepository;
+import com.tracepilot.knowledge.EvidenceRepository;
+import com.tracepilot.knowledge.RagContext;
+import com.tracepilot.knowledge.RagService;
 import com.tracepilot.notification.NotificationRepository;
 import com.tracepilot.pipeline.OutboxRepository;
 import com.tracepilot.pipeline.PipelineProperties;
@@ -25,11 +28,14 @@ public class AnalysisStore {
     private final AiProperties properties;
     private final PipelineProperties pipelineProperties;
     private final Clock clock;
+    private final RagService ragService;
+    private final EvidenceRepository evidenceRepository;
 
     public AnalysisStore(WorkspaceRepository workspaceRepository, AnalysisRepository analysisRepository,
                          IncidentRepository incidentRepository, AnalysisAccess access, AnalysisInput input,
                          OutboxRepository outboxRepository, NotificationRepository notificationRepository,
-                         AiProperties properties, PipelineProperties pipelineProperties, Clock clock) {
+                         AiProperties properties, PipelineProperties pipelineProperties, Clock clock,
+                         RagService ragService, EvidenceRepository evidenceRepository) {
         this.workspaceRepository = workspaceRepository;
         this.analysisRepository = analysisRepository;
         this.incidentRepository = incidentRepository;
@@ -40,6 +46,8 @@ public class AnalysisStore {
         this.properties = properties;
         this.pipelineProperties = pipelineProperties;
         this.clock = clock;
+        this.ragService = ragService;
+        this.evidenceRepository = evidenceRepository;
     }
 
     @Transactional
@@ -68,8 +76,19 @@ public class AnalysisStore {
     }
 
     @Transactional
+    public void requireContext(OutboxRepository.ProcessingClaim claim, UUID analysisId, RagContext context) {
+        var work = analysisRepository.find(analysisId).orElseThrow();
+        workspaceRepository.findForUpdate(work.workspaceId()).orElseThrow();
+        if (!outboxRepository.lockProcessingClaim(claim)) {
+            throw new AnalysisFailure("AI_LEASE_LOST", false);
+        }
+        requireAllowed(analysisRepository.find(analysisId).orElseThrow());
+        ragService.requireCurrent(context);
+    }
+
+    @Transactional
     public void succeed(OutboxRepository.ProcessingClaim claim, UUID analysisId, AnalysisDtos.ProviderResult result,
-                        AnalysisDtos.Report report, long durationMs) {
+                        AnalysisDtos.Report report, long durationMs, RagContext context) {
         var work = analysisRepository.find(analysisId).orElseThrow();
         workspaceRepository.findForUpdate(work.workspaceId()).orElseThrow();
         if (!outboxRepository.lockProcessingClaim(claim)) {
@@ -77,6 +96,8 @@ public class AnalysisStore {
         }
         work = analysisRepository.find(analysisId).orElseThrow();
         requireAllowed(work);
+        ragService.requireCurrent(context);
+        evidenceRepository.save(work, report, context, clock.instant());
         analysisRepository.finishUsage(analysisId, claim.attempts(), Optional.of(result), "SUCCEEDED", null, durationMs);
         analysisRepository.succeed(analysisId, report, clock.instant());
         notificationRepository.notifyMembers(work.workspaceId(), work.analysis().incidentId(),

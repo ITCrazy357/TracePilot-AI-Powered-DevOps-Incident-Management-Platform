@@ -1,6 +1,6 @@
 # TracePilot
 
-Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–05: nền tảng local, tài khoản/workspace, GitHub App/webhook, workflow run/job, incident, log đã che dữ liệu nhạy cảm, SSE và phân tích AI qua worker**. AI mặc định tắt; RAG/embedding thuộc Phase 06.
+Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–06: nền tảng local, tài khoản/workspace, GitHub App/webhook, workflow run/job, incident, log đã che dữ liệu nhạy cảm, SSE, phân tích AI và knowledge/RAG với pgvector**. AI và RAG mặc định tắt.
 
 Hướng dẫn học, API và chạy thử: [Phase 01 — Identity & Workspace](docs/phase-01.md).
 
@@ -8,11 +8,13 @@ Kết nối repo thật, cấu hình key và webhook: [Phase 02 — GitHub App](
 
 Luồng webhook → outbox → worker, API run/jobs và workflow mẫu: [Phase 03 — Pipeline ingestion](docs/phase-03.md). Pipeline mặc định bật cùng GitHub; có retry, DLQ và khôi phục công việc sau gián đoạn. Đây là phần backend/API của Phase 03.
 
-Incident theo run attempt, lifecycle/phân công/version, log đã redacted và notification/SSE: [Phase 04 — Incident & safe logs](docs/phase-04.md). Phần triển khai và kiểm chứng là backend/API; frontend hiện vẫn tương ứng Phase 01–02.
+Incident theo run attempt, lifecycle/phân công/version, log đã redacted và notification/SSE: [Phase 04 — Incident & safe logs](docs/phase-04.md). Kiểm chứng backend và frontend được ghi riêng trong tài liệu tương ứng.
 
 Phân tích qua Spring AI/OpenAI, lịch sử re-analysis, validation JSON/evidence, token usage/quota và API: [Phase 05 — LLM root cause analysis](docs/phase-05.md). Cần chủ động cấu hình AI_ENABLED, model và API key trước khi gửi log đã che đến provider; kiểm thử dùng fixture, không phát sinh phí AI thật.
 
-Frontend Next.js tương ứng Phase 01–02: [hướng dẫn chạy và học frontend](docs/frontend.md). Có tài khoản/phiên, workspace, thành viên theo quyền và kho mã GitHub. Chạy backend, sau đó tại `frontend/` dùng `npm ci` và `npm run dev`, mở http://127.0.0.1:3000. Yêu cầu Node.js 22+.
+Knowledge do con người duyệt, embedding 1.536 chiều, exact/HNSW/hybrid search và dẫn chứng nguồn: [Phase 06 — pgvector & RAG](docs/phase-06.md). Chỉ APPROVED/READY/current revision trong cùng workspace được dùng cho RAG; báo cáo Recall@K local phân biệt rõ fixture với chất lượng provider thật.
+
+Frontend Next.js tương ứng Phase 01–05: [hướng dẫn chạy và học frontend](docs/frontend.md). Thiết kế theo `Design_TracePilot`/Clean Precision và Impeccable; có tài khoản/workspace, kho mã, lần chạy/jobs, sự cố/log/AI và thông báo trực tiếp. Chạy backend, sau đó tại `frontend/` dùng `npm ci` và `npm run dev`, mở http://127.0.0.1:3000. Yêu cầu Node.js 22+.
 
 Quy tắc code cho các phase: [AGENTS.md](AGENTS.md). Ưu tiên code rõ nghĩa, đơn giản và hiệu năng có căn cứ; `.editorconfig` thống nhất định dạng Java.
 
@@ -99,6 +101,7 @@ backend/
     db/migration/V4__pipeline_ingestion_and_outbox.sql
     db/migration/V5__incidents_safe_logs_and_notifications.sql
     db/migration/V6__ai_analysis_and_usage.sql
+    db/migration/V7__knowledge_vectors_and_evidence.sql
   src/test/java/com/tracepilot/    # Integration tests + Testcontainers
 scripts/backend.ps1               # Chọn JDK và chạy các tác vụ local
 compose.yaml                      # PostgreSQL/pgvector và RabbitMQ

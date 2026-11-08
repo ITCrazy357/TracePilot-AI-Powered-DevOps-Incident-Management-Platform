@@ -1,27 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowRight, Check, GitBranch, Layers3, Plus, Users } from "lucide-react";
-import { useAuth } from "./auth-provider";
+import { CircleAlert, ArrowRight, GitBranch, RefreshCw, Users, Workflow } from "lucide-react";
+import type { DataPage, Incident, Notification, RepositoryPage } from "@/lib/contracts";
+import { useResource } from "@/lib/use-resource";
+import { dateTime, shortId } from "@/lib/presentation";
 import { CreateWorkspace } from "./create-workspace";
-import { RepositoryPanel } from "./repository-panel";
 import { useWorkspace } from "./workspace-provider";
 import { WorkspaceBoundary } from "./workspace-boundary";
+import { refreshWorkspace } from "./realtime-provider";
+import { Button } from "./ui/button";
+import { EmptyState, ErrorNotice, Loading } from "./ui/states";
+import { PageHeading, StatusBadge } from "./ui/operational";
 
 export function Overview() {
-  const { user } = useAuth();
-  const { selectedId } = useWorkspace();
+  const { selectedId, workspace } = useWorkspace();
   return (
     <>
-      <div className="page-heading">
-        <div>
-          <span className="eyebrow">KHÔNG GIAN LÀM VIỆC</span>
-          <h1>Tổng quan</h1>
-          <p className="muted">Xin chào {user?.displayName}. Cùng chuẩn bị cho dự án tiếp theo.</p>
-        </div>
-        <CreateWorkspace />
-      </div>
+      <PageHeading
+        title="Tổng quan"
+        description={
+          <span className="workspace-context">
+            {workspace?.name ?? "Không gian cho đội ngũ và dự án của bạn."}
+          </span>
+        }
+        action={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => refreshWorkspace(selectedId)}
+              disabled={!selectedId}
+            >
+              <RefreshCw size={16} />
+              Làm mới
+            </Button>
+            <CreateWorkspace />
+          </>
+        }
+      />
       <WorkspaceBoundary>
         <WorkspaceOverview key={selectedId} />
       </WorkspaceBoundary>
@@ -30,137 +46,169 @@ export function Overview() {
 }
 
 function WorkspaceOverview() {
-  const { workspace, selectedId, workspaces, members, role } = useWorkspace();
-  const [repositoryTotal, setRepositoryTotal] = useState<number | null>(null);
+  const { selectedId, members } = useWorkspace();
+  const base = `/api/backend/workspaces/${selectedId}`;
+  const repositories = useResource<RepositoryPage>(`${base}/repositories?page=0&size=5`);
+  const incidents = useResource<DataPage<Incident>>(`${base}/incidents?page=0&size=5`);
+  const notifications = useResource<DataPage<Notification>>(`${base}/notifications?page=0&size=5`);
+  const names = new Map(repositories.data?.items.map((repo) => [repo.id, repo.fullName]));
+
   return (
-    <div key={selectedId} className="overview-content">
-      <section className="workspace-banner">
-        <div className="workspace-banner-icon">
-          <Layers3 size={26} />
+    <div className="overview-content">
+      <div className="metrics-strip" aria-label="Thông tin workspace">
+        <div>
+          <GitBranch size={18} />
+          <span>Kho mã GitHub</span>
+          <strong>{repositories.data?.totalElements ?? "—"}</strong>
         </div>
-        <div className="workspace-banner-text">
-          <span className="small-eyebrow">WORKSPACE HIỆN TẠI</span>
-          <h2>{workspace?.name}</h2>
-          <p>/{workspace?.slug}</p>
+        <div>
+          <Users size={18} />
+          <span>Thành viên</span>
+          <strong>{members.length}</strong>
         </div>
-        <span className="badge badge-dark">{role ?? "Chưa xác định quyền"}</span>
-      </section>
-      <div className="stats-grid">
-        <div className="stat">
-          <span className="stat-label">
-            Workspace của bạn
-            <Layers3 size={18} />
-          </span>
-          <strong>{workspaces.length.toString().padStart(2, "0")}</strong>
-          <span className="stat-caption">Không gian bạn có quyền truy cập</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">
-            Kho mã GitHub
-            <GitBranch size={18} />
-          </span>
-          <strong>
-            {repositoryTotal === null ? "—" : repositoryTotal.toString().padStart(2, "0")}
-          </strong>
-          <span className="stat-caption">Tổng kho mã trong workspace hiện tại</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">
-            Thành viên
-            <Users size={18} />
-          </span>
-          <strong>{members.length.toString().padStart(2, "0")}</strong>
-          <span className="stat-caption">Thành viên đang hoạt động</span>
+        <div>
+          <CircleAlert size={18} />
+          <span>Sự cố đã ghi nhận</span>
+          <strong>{incidents.data?.total ?? "—"}</strong>
         </div>
       </div>
       <div className="overview-grid">
-        <RepositoryPanel preview onTotal={setRepositoryTotal} />
-        <section className="panel setup-panel">
+        <section className="panel">
           <div className="panel-heading">
             <div>
-              <span className="small-eyebrow">SẴN SÀNG LÀM VIỆC</span>
-              <h2>Thiết lập workspace</h2>
+              <h2>Sự cố gần đây</h2>
+              <p className="muted">Bắt đầu từ lần chạy thất bại, lần theo bằng chứng.</p>
             </div>
+            <Button asChild variant="ghost">
+              <Link href="/incidents">
+                Tất cả
+                <ArrowRight size={16} />
+              </Link>
+            </Button>
           </div>
-          <ol className="setup-list">
-            <li>
-              <span className="setup-number done">
-                <Check size={15} />
-              </span>
-              <div>
-                <strong>Tạo workspace</strong>
-                <p>Không gian riêng cho dự án và đội ngũ.</p>
-              </div>
-            </li>
-            <li>
-              <span className={`setup-number ${members.length > 1 ? "done" : ""}`}>
-                {members.length > 1 ? <Check size={15} /> : "2"}
-              </span>
-              <div>
-                <strong>Thêm thành viên</strong>
-                <p>Cộng tác với đúng quyền truy cập.</p>
-                <Link href="/members">
-                  Quản lý thành viên
-                  <ArrowRight size={13} />
+          {incidents.loading && !incidents.data ? (
+            <Loading label="Đang tải sự cố…" />
+          ) : incidents.error ? (
+            <div className="panel-error">
+              <ErrorNotice message={incidents.error} retry={incidents.reload} />
+            </div>
+          ) : !incidents.data?.items.length ? (
+            <EmptyState
+              icon={Workflow}
+              title="Chưa có sự cố nào"
+              description="Sự cố được ghi nhận khi một workflow thất bại. Bạn có thể kiểm tra các lần chạy đã đồng bộ."
+              action={
+                <Button asChild variant="outline">
+                  <Link href="/runs">
+                    Xem lần chạy
+                    <ArrowRight size={16} />
+                  </Link>
+                </Button>
+              }
+            />
+          ) : (
+            <div className="incident-feed">
+              {incidents.data.items.map((incident) => (
+                <Link
+                  className="incident-feed-item"
+                  href={`/incidents/${incident.id}`}
+                  key={incident.id}
+                >
+                  <div className="incident-feed-meta">
+                    <span className="incident-reference">
+                      <span className="trace-point" />
+                      {shortId(incident.id)}
+                    </span>
+                    <StatusBadge incident status={incident.status} />
+                    <time dateTime={incident.detectedAt}>{dateTime(incident.detectedAt)}</time>
+                  </div>
+                  <h3>{incident.title}</h3>
+                  <div className="incident-feed-bottom">
+                    <span>
+                      <GitBranch size={14} />
+                      {names.get(incident.repositoryId) ??
+                        `Kho mã ${shortId(incident.repositoryId)}`}
+                    </span>
+                    <span className="text-link">
+                      Xem sự cố
+                      <ArrowRight size={15} />
+                    </span>
+                  </div>
                 </Link>
-              </div>
-            </li>
-            <li>
-              <span className={`setup-number ${repositoryTotal ? "done" : ""}`}>
-                {repositoryTotal ? <Check size={15} /> : "3"}
-              </span>
-              <div>
-                <strong>Kết nối kho mã</strong>
-                <p>Đồng bộ repository từ GitHub App.</p>
-                <Link href="/repositories">
-                  Quản lý kho mã
-                  <ArrowRight size={13} />
-                </Link>
-              </div>
-            </li>
-          </ol>
+              ))}
+            </div>
+          )}
         </section>
+        <div className="context-column">
+          <section className="panel">
+            <div className="panel-heading">
+              <h2>Dấu vết gần đây</h2>
+              <Link href="/notifications" className="text-link" aria-label="Xem tất cả thông báo">
+                <ArrowRight size={17} />
+              </Link>
+            </div>
+            {notifications.loading && !notifications.data ? (
+              <Loading label="Đang tải dấu vết…" />
+            ) : notifications.error ? (
+              <div className="panel-error">
+                <ErrorNotice message={notifications.error} retry={notifications.reload} />
+              </div>
+            ) : !notifications.data?.items.length ? (
+              <div className="quiet-empty">Hoạt động về sự cố, log và AI sẽ xuất hiện tại đây.</div>
+            ) : (
+              <ol className="activity-trace">
+                {notifications.data.items.map((item) => (
+                  <li key={item.id}>
+                    <span
+                      className={`activity-node ${item.type.startsWith("AI_") ? "activity-ai" : ""}`}
+                    />
+                    <time dateTime={item.createdAt}>{dateTime(item.createdAt)}</time>
+                    <p>{item.title}</p>
+                    {item.incidentId && (
+                      <Link href={`/incidents/${item.incidentId}`} className="text-link">
+                        Mở sự cố
+                        <ArrowRight size={13} />
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+          <section className="panel">
+            <div className="panel-heading">
+              <h2>Kho mã trong workspace</h2>
+            </div>
+            {repositories.loading && !repositories.data ? (
+              <Loading label="Đang tải kho mã…" />
+            ) : repositories.error ? (
+              <div className="panel-error">
+                <ErrorNotice message={repositories.error} retry={repositories.reload} />
+              </div>
+            ) : !repositories.data?.items.length ? (
+              <div className="quiet-empty">
+                Chưa có kho mã. OWNER có thể đồng bộ sau khi cấu hình GitHub App.
+              </div>
+            ) : (
+              <div className="compact-repositories">
+                {repositories.data.items.map((repo) => (
+                  <Link href={`/runs?repositoryId=${repo.id}`} key={repo.id}>
+                    <GitBranch size={15} />
+                    <span>{repo.fullName}</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                ))}
+              </div>
+            )}
+            <div className="panel-footer">
+              <Link href="/repositories" className="text-link">
+                Quản lý kho mã
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </section>
+        </div>
       </div>
-      <section className="workspace-section">
-        <div className="section-heading">
-          <h2>
-            Workspace của bạn<span className="count-label">{workspaces.length}</span>
-          </h2>
-          <span className="muted">Chọn workspace ở thanh điều hướng để chuyển đổi</span>
-        </div>
-        <div className="workspace-cards">
-          {workspaces.map((item) => (
-            <WorkspaceCard key={item.id} id={item.id} name={item.name} slug={item.slug} />
-          ))}
-          <div className="workspace-create-card">
-            <Plus size={22} />
-            <strong>Một ý tưởng mới?</strong>
-            <CreateWorkspace />
-          </div>
-        </div>
-      </section>
     </div>
-  );
-}
-
-function WorkspaceCard({ id, name, slug }: { id: string; name: string; slug: string }) {
-  const { select, selectedId } = useWorkspace();
-  return (
-    <button
-      className={`workspace-card ${id === selectedId ? "workspace-card-selected" : ""}`}
-      onClick={() => select(id)}
-      aria-pressed={id === selectedId}
-    >
-      <span className="workspace-card-top">
-        <span className="workspace-monogram">{name.slice(0, 2).toUpperCase()}</span>
-        {id === selectedId && <span className="badge badge-green">Đang chọn</span>}
-      </span>
-      <strong>{name}</strong>
-      <span className="muted">/{slug}</span>
-      <span className="workspace-card-bottom">
-        {id === selectedId ? "Workspace hiện tại" : "Mở workspace"}
-        <ArrowRight size={15} />
-      </span>
-    </button>
   );
 }
