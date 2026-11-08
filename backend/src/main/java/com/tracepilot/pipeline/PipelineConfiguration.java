@@ -24,8 +24,11 @@ public class PipelineConfiguration {
         var syncQueue = QueueBuilder.durable(PipelineQueues.SYNC_QUEUE)
             .deadLetterExchange(PipelineQueues.EXCHANGE).deadLetterRoutingKey(PipelineQueues.DEAD_KEY).build();
         var deadQueue = QueueBuilder.durable(PipelineQueues.DEAD_QUEUE).build();
-        return new Declarables(exchange, syncQueue, deadQueue,
+        var logsQueue = QueueBuilder.durable(PipelineQueues.LOGS_QUEUE)
+            .deadLetterExchange(PipelineQueues.EXCHANGE).deadLetterRoutingKey(PipelineQueues.DEAD_KEY).build();
+        return new Declarables(exchange, syncQueue, logsQueue, deadQueue,
             BindingBuilder.bind(syncQueue).to(exchange).with(PipelineQueues.SYNC_KEY),
+            BindingBuilder.bind(logsQueue).to(exchange).with(PipelineQueues.LOGS_KEY),
             BindingBuilder.bind(deadQueue).to(exchange).with(PipelineQueues.DEAD_KEY));
     }
 

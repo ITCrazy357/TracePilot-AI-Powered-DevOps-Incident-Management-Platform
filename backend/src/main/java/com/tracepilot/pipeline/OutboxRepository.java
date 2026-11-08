@@ -39,6 +39,24 @@ public class OutboxRepository {
         return id;
     }
 
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void enqueueLogs(UUID repositoryId, PipelineDtos.Work work, UUID incidentId) {
+        var now = timestamp(clock.instant());
+        jdbcTemplate.update("""
+            INSERT INTO outbox_events (id, aggregate_type, aggregate_id, event_type, payload, available_at, created_at)
+            VALUES (?, 'REPOSITORY', ?, 'INCIDENT_LOG_CAPTURE',
+                jsonb_build_object('runId', ?, 'runAttempt', ?, 'incidentId', CAST(? AS text)), ?, ?)
+            ON CONFLICT DO NOTHING
+            """, UUID.randomUUID(), repositoryId, work.runId(), work.runAttempt(), incidentId.toString(), now, now);
+    }
+
+    public UUID logIncidentId(ProcessingClaim claim) {
+        return jdbcTemplate.queryForObject("""
+            SELECT CAST(payload->>'incidentId' AS uuid) FROM outbox_events
+            WHERE id = ? AND event_type = 'INCIDENT_LOG_CAPTURE' AND processing_token = ?
+            """, UUID.class, claim.id(), claim.token());
+    }
+
     @Transactional
     public Optional<PublicationClaim> claimPublication() {
         var token = UUID.randomUUID();
@@ -48,15 +66,16 @@ public class OutboxRepository {
                     attempts = attempts + 1
                 WHERE id = (
                     SELECT id FROM outbox_events
-                    WHERE event_type = 'WORKFLOW_SYNC' AND processing_status IN ('PENDING', 'RETRY', 'FAILED')
+                    WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE')
+                        AND processing_status IN ('PENDING', 'RETRY', 'FAILED')
                         AND available_at <= ?
                         AND (status = 'PENDING' OR (status = 'PUBLISHING' AND publish_lease_until <= ?))
                     ORDER BY created_at, id FOR UPDATE SKIP LOCKED LIMIT 1
                 )
-                RETURNING id, publish_token, attempts, processing_status
+                RETURNING id, publish_token, attempts, processing_status, event_type
                 """, (row, number) -> new PublicationClaim(row.getObject("id", UUID.class),
                 row.getObject("publish_token", UUID.class), row.getInt("attempts"),
-                "FAILED".equals(row.getString("processing_status"))),
+                "FAILED".equals(row.getString("processing_status")), row.getString("event_type")),
             token, timestamp(now.plusSeconds(30)), timestamp(now), timestamp(now)).stream().findFirst();
     }
 
@@ -79,20 +98,25 @@ public class OutboxRepository {
 
     @Transactional
     public Optional<ProcessingClaim> claimProcessing(UUID id) {
+        return claimProcessing(id, "WORKFLOW_SYNC");
+    }
+
+    @Transactional
+    public Optional<ProcessingClaim> claimProcessing(UUID id, String eventType) {
         var now = clock.instant();
         var token = UUID.randomUUID();
         return jdbcTemplate.query("""
                 UPDATE outbox_events SET processing_status = 'RUNNING', processing_token = ?,
                     processing_lease_until = ?, processing_attempts = processing_attempts + 1
-                WHERE id = ? AND event_type = 'WORKFLOW_SYNC' AND available_at <= ?
+                WHERE id = ? AND event_type = ? AND available_at <= ?
                     AND processing_status IN ('PENDING', 'RETRY') AND processing_attempts < ?
                 RETURNING id, aggregate_id, payload->>'runId' AS run_id, payload->>'runAttempt' AS run_attempt,
-                    processing_token, processing_attempts
+                    processing_token, processing_attempts, payload->>'incidentId' AS incident_id
                 """, (row, number) -> new ProcessingClaim(row.getObject("id", UUID.class),
                 row.getObject("aggregate_id", UUID.class), new PipelineDtos.Work(row.getLong("run_id"),
                 row.getInt("run_attempt")), row.getObject("processing_token", UUID.class),
                 row.getInt("processing_attempts")), token, timestamp(now.plus(properties.processingLease())),
-            id, timestamp(now), properties.maxAttempts()).stream().findFirst();
+            id, eventType, timestamp(now), properties.maxAttempts()).stream().findFirst();
     }
 
     public boolean lockProcessingClaim(ProcessingClaim claim) {
@@ -137,11 +161,12 @@ public class OutboxRepository {
                 status = 'PENDING', available_at = ?, last_error_code = 'WORKER_LEASE_EXPIRED',
                 processed_at = CASE WHEN processing_attempts >= ? THEN CAST(? AS timestamptz) ELSE NULL END,
                 processing_token = NULL, processing_lease_until = NULL, publish_token = NULL, publish_lease_until = NULL
-            WHERE event_type = 'WORKFLOW_SYNC' AND processing_status = 'RUNNING' AND processing_lease_until <= ?
+            WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE')
+                AND processing_status = 'RUNNING' AND processing_lease_until <= ?
             """, properties.maxAttempts(), now, properties.maxAttempts(), now, now);
         jdbcTemplate.update("""
             UPDATE outbox_events SET status = 'PENDING', available_at = ?
-            WHERE event_type = 'WORKFLOW_SYNC' AND status = 'PUBLISHED'
+            WHERE event_type IN ('WORKFLOW_SYNC', 'INCIDENT_LOG_CAPTURE') AND status = 'PUBLISHED'
                 AND processing_status IN ('PENDING', 'RETRY') AND published_at <= ?
             """, now, timestamp(clock.instant().minus(properties.processingLease())));
     }
@@ -178,7 +203,7 @@ public class OutboxRepository {
         return Timestamp.from(value);
     }
 
-    public record PublicationClaim(UUID id, UUID token, int attempts, boolean deadLetter) {
+    public record PublicationClaim(UUID id, UUID token, int attempts, boolean deadLetter, String eventType) {
     }
 
     public record ProcessingClaim(UUID id, UUID repositoryId, PipelineDtos.Work work, UUID token, int attempts) {

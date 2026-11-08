@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.HashMap;
 
 import com.tracepilot.workspace.WorkspaceRepository;
+import com.tracepilot.incident.IncidentRecorder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,16 +18,18 @@ public class PipelineSyncStore {
     private final WorkflowRunRepository runRepository;
     private final WorkflowJobRepository jobRepository;
     private final Clock clock;
+    private final IncidentRecorder incidentRecorder;
 
     public PipelineSyncStore(WorkspaceRepository workspaceRepository, PipelineAccess access,
                              OutboxRepository outboxRepository, WorkflowRunRepository runRepository,
-                             WorkflowJobRepository jobRepository, Clock clock) {
+                             WorkflowJobRepository jobRepository, Clock clock, IncidentRecorder incidentRecorder) {
         this.workspaceRepository = workspaceRepository;
         this.access = access;
         this.outboxRepository = outboxRepository;
         this.runRepository = runRepository;
         this.jobRepository = jobRepository;
         this.clock = clock;
+        this.incidentRecorder = incidentRecorder;
     }
 
     @Transactional
@@ -68,6 +71,8 @@ public class PipelineSyncStore {
                 job.update(jobData);
             }
         }
+        jobRepository.flush();
+        incidentRecorder.record(fetchedScope.workspaceId(), run);
         outboxRepository.complete(claim, "SUCCEEDED");
     }
 }

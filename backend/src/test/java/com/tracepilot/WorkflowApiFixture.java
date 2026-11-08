@@ -23,6 +23,8 @@ final class WorkflowApiFixture {
     volatile boolean partialJobs;
     volatile boolean wrongAttempt;
     volatile boolean pauseJobs;
+    volatile boolean failedJob;
+    volatile String conclusionOverride;
     volatile String status = "completed";
     volatile String updatedAt = "2026-11-08T01:00:00Z";
     volatile CountDownLatch snapshotRequested = new CountDownLatch(1);
@@ -37,6 +39,8 @@ final class WorkflowApiFixture {
         partialJobs = false;
         wrongAttempt = false;
         pauseJobs = false;
+        failedJob = false;
+        conclusionOverride = null;
         status = "completed";
         updatedAt = "2026-11-08T01:00:00Z";
         snapshotRequested = new CountDownLatch(1);
@@ -75,7 +79,8 @@ final class WorkflowApiFixture {
         data.put("head_branch", "main");
         data.put("head_sha", "a".repeat(40));
         data.put("status", status);
-        data.put("conclusion", "completed".equals(status) ? (attempt == 1 ? "failure" : "success") : null);
+        data.put("conclusion", "completed".equals(status)
+            ? (conclusionOverride != null ? conclusionOverride : (attempt == 1 ? "failure" : "success")) : null);
         data.put("html_url", "https://github.com/acme/repo-0/actions/runs/" + runId);
         data.put("run_started_at", "2026-11-08T00:00:00Z");
         data.put("updated_at", updatedAt);
@@ -94,7 +99,7 @@ final class WorkflowApiFixture {
             job.put("run_attempt", attempt);
             job.put("name", "job-" + index);
             job.put("status", status);
-            job.put("conclusion", "completed".equals(status) ? "success" : null);
+            job.put("conclusion", "completed".equals(status) ? (failedJob && index == 0 ? "failure" : "success") : null);
             job.put("html_url", "https://github.com/acme/repo-0/actions/runs/" + runId + "/job/" + id);
             job.put("started_at", "2026-11-08T00:00:00Z");
             job.put("completed_at", "completed".equals(status) ? "2026-11-08T00:59:00Z" : null);

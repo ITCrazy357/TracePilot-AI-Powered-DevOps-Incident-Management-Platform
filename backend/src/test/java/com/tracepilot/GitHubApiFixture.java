@@ -30,6 +30,7 @@ final class GitHubApiFixture implements AutoCloseable {
     final AtomicInteger metadataRequests = new AtomicInteger();
     final AtomicInteger transientFailures = new AtomicInteger();
     final WorkflowApiFixture workflows = new WorkflowApiFixture();
+    final JobLogApiFixture logs = new JobLogApiFixture();
     volatile int repositoryCount = 2;
     volatile boolean partialResponse;
     volatile boolean rejectToken;
@@ -71,6 +72,7 @@ final class GitHubApiFixture implements AutoCloseable {
 
     void reset() {
         workflows.reset();
+        logs.reset();
         metadataRequests.set(0);
         transientFailures.set(0);
         repositoryCount = 2;
@@ -86,17 +88,25 @@ final class GitHubApiFixture implements AutoCloseable {
 
     private void handle(HttpExchange exchange) throws IOException {
         try (exchange) {
+            var path = exchange.getRequestURI().getPath();
+            if (path.equals("/download/job.log")) {
+                logs.download(exchange);
+                return;
+            }
             if (!"2026-03-10".equals(exchange.getRequestHeaders().getFirst("X-GitHub-Api-Version"))) {
                 respond(exchange, 400, Map.of("message", "Missing API version"));
                 return;
             }
-            var path = exchange.getRequestURI().getPath();
             if (path.startsWith("/repos/")) {
                 if (!("Bearer " + INSTALLATION_TOKEN).equals(exchange.getRequestHeaders().getFirst("Authorization"))) {
                     respond(exchange, 401, Map.of("message", "Invalid installation token"));
                     return;
                 }
-                workflows.handle(exchange);
+                if (path.matches("/repos/acme/repo-0/actions/jobs/[0-9]+/logs")) {
+                    logs.redirect(exchange, baseUrl());
+                } else {
+                    workflows.handle(exchange);
+                }
                 return;
             }
             if (path.startsWith("/app/installations/")) {

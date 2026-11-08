@@ -111,7 +111,8 @@ class Phase03IntegrationTests {
         rabbitAdmin.purgeQueue(PipelineQueues.SYNC_QUEUE, false);
         rabbitAdmin.purgeQueue(PipelineQueues.DEAD_QUEUE, false);
         GITHUB.reset();
-        for (var table : List.of("outbox_events", "workflow_jobs", "workflow_runs", "webhook_deliveries",
+        for (var table : List.of("outbox_events", "notifications", "incident_log_snippets", "incidents",
+            "workflow_jobs", "workflow_runs", "webhook_deliveries",
             "repositories", "github_installations")) {
             jdbcTemplate.update("DELETE FROM " + table);
         }

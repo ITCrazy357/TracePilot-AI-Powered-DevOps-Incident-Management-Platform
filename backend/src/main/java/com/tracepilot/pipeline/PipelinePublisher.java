@@ -47,7 +47,10 @@ public class PipelinePublisher {
         var message = new Message(claim.id().toString().getBytes(StandardCharsets.UTF_8), messageProperties);
         var correlation = new CorrelationData(claim.token().toString());
         try {
-            var key = claim.deadLetter() ? PipelineQueues.DEAD_KEY : PipelineQueues.SYNC_KEY;
+            var key = "INCIDENT_LOG_CAPTURE".equals(claim.eventType()) ? PipelineQueues.LOGS_KEY : PipelineQueues.SYNC_KEY;
+            if (claim.deadLetter()) {
+                key = PipelineQueues.DEAD_KEY;
+            }
             rabbitTemplate.send(PipelineQueues.EXCHANGE, key, message, correlation);
             var confirm = correlation.getFuture().get(5, TimeUnit.SECONDS);
             if (!confirm.ack() || correlation.getReturned() != null) {
