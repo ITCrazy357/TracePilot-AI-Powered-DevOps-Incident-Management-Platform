@@ -1,6 +1,6 @@
 # Frontend — Clean Precision và luồng điều tra sự cố
 
-Frontend tương ứng backend Phase 01–05: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE và phân tích AI. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
+Frontend có các luồng backend Phase 01–05 và feedback/dashboard Phase 07: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE, phân tích AI và Chất lượng AI. Quản trị knowledge/RAG Phase 06 hiện qua backend/API. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
 
 Áp dụng hướng dẫn tinh giản và hoàn thiện từ [Impeccable](https://github.com/pbakaus/impeccable/tree/924bbd194d02e5e15a227e75b5901fb0d7a4ecad/.agents/skills/impeccable). Bản clone local ở `.tools/impeccable`; dùng context loader và detector trực tiếp, không cài hook toàn cục hay thêm Impeccable vào runtime sản phẩm.
 
@@ -50,7 +50,9 @@ APP_ORIGIN=http://127.0.0.1:3000
 - **AI:** xác nhận việc gửi log tới nhà cung cấp và khả năng phát sinh chi phí. Tạo một requestId cho một thao tác, giữ lại khi retry; chỉ gửi sau xác nhận. Không tự bật AI/API key. Lịch sử/report, câu trích và usage theo attempt từ API. Usage/cost thiếu giữ là chưa có, không điền 0 hoặc tạo confidence giả. Câu trích mở đúng chuỗi trong tab log.
 - **Thông báo:** dữ liệu của người đăng nhập trong workspace, phân trang và đánh dấu đã đọc. Next chuyển tiếp SSE với Bearer ở server; không đưa token vào URL. Reconnect giữ Last-Event-ID, kiểm tra/refresh phiên trước khi mở luồng. Mất kết nối vẫn có làm mới thủ công; dấu “Trực tiếp” chỉ hiện khi EventSource mở thành công.
 
-Kho tri thức/RAG, xuất CSV thành viên, đổi tên/xóa/chuyển OWNER, AI feedback, sửa mã/tạo PR và dashboard chi phí toàn workspace trong mẫu chưa thuộc API Phase 01–05 đã đối chiếu. Không tạo nút giả hoặc lấy dữ liệu minh họa làm dữ liệu sản phẩm. Tài khoản/workspace mới có trạng thái trống cho đến khi GitHub đã được cấu hình và gửi dữ liệu.
+Phase 07 thêm **đánh giá cá nhân** bên dưới báo cáo SUCCEEDED và trang **Chất lượng AI**: success rate, helpful rate, độ phủ review, latency, lý do đánh giá, lỗi và token/cost theo operation/model. Thành viên ACTIVE có thể chấm dù chưa được phân công; 409 yêu cầu tải lại phiếu. Xem [định nghĩa mẫu số và hướng dẫn thử](phase-07.md).
+
+Quản trị knowledge/RAG trên UI, xuất CSV thành viên, đổi tên/xóa/chuyển OWNER và sửa mã/tạo PR chưa được triển khai. Không tạo nút giả hoặc lấy dữ liệu minh họa làm dữ liệu sản phẩm. Tài khoản/workspace mới có trạng thái trống cho đến khi GitHub đã được cấu hình và gửi dữ liệu.
 
 ## Luồng dữ liệu và bảo vệ phiên
 
@@ -73,9 +75,9 @@ sequenceDiagram
 - Access cookie `tp_access` có path `/api`, hạn theo `expiresIn` (backend hiện là 15 phút). Refresh cookie `tp_refresh` có path `/api/auth`, hạn 7 ngày theo `TokenService.REFRESH_TTL`. Cả hai là HttpOnly, SameSite=Lax, host-only; production bật Secure và cần HTTPS. Không lưu token vào localStorage/sessionStorage. localStorage chỉ giữ UUID workspace đã chọn theo từng user.
 - Khi request cần xác thực trả 401, client gọi refresh rồi thử lại request **một lần**. Các request cùng tab dùng chung refresh đang chạy. Next server gom refresh đồng thời cùng token trong một process, giữ kết quả 5 giây để tránh hai tab tiêu thụ token single-use. Không tự refresh khi sai mật khẩu đăng nhập, lỗi mạng, 403 hoặc 404.
 - **Giới hạn triển khai:** cơ chế gom refresh ở RAM chỉ dành cho một Next instance. Trước khi scale nhiều instance/serverless cần shared session/lock store hoặc thiết kế BFF session tập trung. Đây chưa phải bằng chứng production readiness. Rate limiting, password reset và email verification cũng chưa thuộc backend hiện tại.
-- Mọi POST/PATCH/DELETE kiểm tra `Origin === APP_ORIGIN` và từ chối `Sec-Fetch-Site: cross-site`. Cookie SameSite bổ sung bảo vệ; kiểm tra origin áp dụng cả login/logout/refresh. Reverse proxy cần giữ Origin chuẩn và không public một origin phụ ngoài cấu hình.
-- Proxy chỉ nhận các method/path workspace được liệt kê, UUID hợp lệ và query phân trang `page/size`. Không phải open proxy, không chuyển header Authorization/cookie do browser tự nhập sang backend. Auth data không cache, không log password/token; Playwright trace tắt vì có thể chứa cookie/request body.
-- Backend vẫn giữ toàn bộ validation, transaction, khóa đồng thời, role và cách ly workspace. Không có thay đổi Java hoặc Flyway cho frontend này.
+- Mọi POST/PUT/PATCH/DELETE kiểm tra `Origin === APP_ORIGIN` và từ chối `Sec-Fetch-Site: cross-site`. Cookie SameSite bổ sung bảo vệ; kiểm tra origin áp dụng cả login/logout/refresh. Reverse proxy cần giữ Origin chuẩn và không public một origin phụ ngoài cấu hình.
+- Proxy chỉ nhận các method/path workspace được liệt kê, UUID hợp lệ và query phân trang `page/size` hoặc `days` riêng cho quality. Không phải open proxy, không chuyển header Authorization/cookie do browser tự nhập sang backend. Auth data không cache, không log password/token; Playwright trace tắt vì có thể chứa cookie/request body.
+- Backend giữ toàn bộ validation, transaction, khóa đồng thời, role và cách ly workspace. Feedback/dashboard cần API và migration V8 của [Phase 07](phase-07.md).
 
 ## Cấu trúc để đọc và học
 

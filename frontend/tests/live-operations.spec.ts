@@ -42,6 +42,20 @@ test("live operations API and SSE retain workspace isolation through Next", asyn
     expect(await response.json()).toMatchObject({ items: [], page: 0, size: 20, total: 0 });
   }
   const missingId = randomUUID();
+  const quality = await page.request.get(`${base}/quality?days=7`);
+  expect(quality.status()).toBe(200);
+  expect(await quality.json()).toMatchObject({
+    analyses: { total: 0, successRate: null },
+    feedback: { votes: 0, helpfulRate: null },
+    usage: [],
+  });
+  expect((await page.request.get(`${base}/quality?days=91`)).status()).toBe(400);
+  const feedback = await page.request.put(
+    `${base}/incidents/${missingId}/analyses/${missingId}/feedback`,
+    { headers, data: { helpful: true, reason: "OTHER", comment: "", version: 0 } },
+  );
+  expect(feedback.status()).toBe(404);
+  expect((await feedback.json()).detail).not.toBe("Unknown endpoint.");
   for (const suffix of [
     `incidents/${missingId}/logs`,
     `incidents/${missingId}/analyses`,
@@ -80,6 +94,7 @@ test("live operations API and SSE retain workspace isolation through Next", asyn
   try {
     await login(outsider);
     expect((await outsider.get(`${base}/incidents`)).status()).toBe(404);
+    expect((await outsider.get(`${base}/quality`)).status()).toBe(404);
     expect((await outsider.get(`${base}/notifications/stream`)).status()).toBe(404);
   } finally {
     await outsider.dispose();

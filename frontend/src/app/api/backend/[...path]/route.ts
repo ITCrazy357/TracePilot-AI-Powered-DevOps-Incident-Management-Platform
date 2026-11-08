@@ -20,7 +20,8 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^workspaces/${uuid}/(members|repositories)$`),
     new RegExp(`^${runs}(?:/sync-requests|/${uuid}(?:/jobs)?)?$`),
     new RegExp(`^${incidents}(?:/${uuid}(?:/logs)?)?$`),
-    new RegExp(`^${analyses}(?:/${uuid}(?:/usage)?)?$`),
+    new RegExp(`^${analyses}(?:/${uuid}(?:/usage|/feedback)?)?$`),
+    new RegExp(`^${workspace}/quality$`),
     new RegExp(`^${workspace}/notifications(?:/stream)?$`),
   ],
   POST: [
@@ -34,6 +35,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${incidents}/${uuid}/(status|assignee)$`),
     new RegExp(`^${workspace}/notifications/${uuid}/read$`),
   ],
+  PUT: [new RegExp(`^${analyses}/${uuid}/feedback$`)],
   DELETE: [new RegExp(`^workspaces/${uuid}/members/${uuid}$`)],
 };
 
@@ -71,7 +73,7 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   }
   let body: string | undefined;
   if (
-    ["POST", "PATCH"].includes(request.method) &&
+    ["POST", "PATCH", "PUT"].includes(request.method) &&
     !path.endsWith("github/sync") &&
     !path.endsWith("/read")
   ) {
@@ -81,7 +83,7 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   }
   const query = new URLSearchParams();
   if (request.method === "GET") {
-    for (const key of ["page", "size"]) {
+    for (const key of path.endsWith("/quality") ? ["days"] : ["page", "size"]) {
       const value = request.nextUrl.searchParams.get(key);
       if (value !== null) query.set(key, value);
     }
@@ -99,4 +101,5 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
 export const GET = handle;
 export const POST = handle;
 export const PATCH = handle;
+export const PUT = handle;
 export const DELETE = handle;

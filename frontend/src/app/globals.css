@@ -1,5 +1,4 @@
 @import "tailwindcss";
-
 :root {
   --background: #f5fafe;
   --surface: #ffffff;
@@ -587,6 +586,10 @@ select:focus {
   border-right: 1px solid var(--line);
   padding: 24px 12px 0;
   z-index: 30;
+  overflow-y: auto;
+}
+.sidebar > * {
+  flex-shrink: 0;
 }
 .sidebar-brand {
   margin: 0 8px 28px;
@@ -2545,5 +2548,170 @@ dd {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+.quality-content {
+  display: grid;
+  gap: 20px;
+}
+.quality-toolbar,
+.feedback-votes,
+.quality-errors li,
+.quality-reasons li > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.quality-range,
+.feedback-form,
+.feedback-field {
+  display: grid;
+  gap: 8px;
+}
+.quality-range {
+  max-width: 240px;
+}
+.quality-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.quality-card {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.quality-card h2 {
+  font-size: 13px;
+  font-weight: 500;
+}
+.quality-card > strong {
+  display: block;
+  margin: 12px 0 8px;
+  font-size: clamp(18px, 2vw, 28px);
+}
+.quality-card p,
+.quality-explanation {
+  color: var(--muted);
+  font-size: 13px;
+}
+.quality-grid,
+.quality-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.quality-panel-body,
+.feedback-form,
+.feedback-panel > .notice {
+  margin: 20px;
+}
+.quality-reasons,
+.quality-errors {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+.quality-bar {
+  height: 6px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--line);
+}
+.quality-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.quality-usage {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.quality-usage h3 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.quality-usage dl {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.quality-usage dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.quality-usage dd {
+  margin: 3px 0 0;
+}
+.quality-usage code,
+.quality-errors code {
+  overflow-wrap: anywhere;
+}
+.quality-usage small {
+  color: var(--muted);
+}
+.feedback-form {
+  gap: 16px;
+}
+.feedback-form fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.feedback-form legend {
+  margin-bottom: 8px;
+}
+.feedback-votes {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.feedback-votes label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.feedback-votes input {
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+.feedback-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  resize: vertical;
+}
+@media (max-width: 1100px) {
+  .quality-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .quality-grid,
+  .quality-usage-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .quality-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .quality-toolbar {
+    align-items: flex-end;
+  }
+  .quality-panel-body,
+  .feedback-form {
+    margin: 16px;
   }
 }

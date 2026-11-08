@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Dialog } from "./ui/dialog";
 import { EmptyState, ErrorNotice, Loading, SuccessNotice } from "./ui/states";
 import { Pagination, StatusBadge } from "./ui/operational";
+import { FeedbackPanel } from "./feedback-panel";
 
 export function AnalysisPanel({
   incident,
@@ -248,10 +249,13 @@ function Report({
           )}
         </section>
         {completed && (
-          <p className="analysis-caveat">
-            Đây là đề xuất AI. Câu trích xác nhận nguồn văn bản trong log, không chứng minh kết luận
-            đã đúng.
-          </p>
+          <>
+            <p className="analysis-caveat">
+              Đây là đề xuất AI. Câu trích xác nhận nguồn văn bản, không chứng minh kết luận đã
+              đúng.
+            </p>
+            <FeedbackPanel key={analysis.id} analysis={analysis} />
+          </>
         )}
       </div>
       <aside className="context-column">

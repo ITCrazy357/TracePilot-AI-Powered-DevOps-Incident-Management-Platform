@@ -183,3 +183,69 @@ export interface Notification {
   readAt: string | null;
   createdAt: string;
 }
+
+export type FeedbackReason =
+  | "CORRECT_DIAGNOSIS"
+  | "ACTIONABLE_FIX"
+  | "USEFUL_EVIDENCE"
+  | "INCORRECT_DIAGNOSIS"
+  | "INSUFFICIENT_EVIDENCE"
+  | "UNSAFE_SUGGESTION"
+  | "NOT_A_REAL_INCIDENT"
+  | "OTHER";
+
+export interface AnalysisFeedback {
+  id: string;
+  analysisId: string;
+  helpful: boolean;
+  reason: FeedbackReason;
+  comment: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QualityUsage {
+  operation: string;
+  provider: string;
+  model: string;
+  calls: number;
+  succeeded: number;
+  failed: number;
+  unknown: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  inputTokenSamples: number;
+  outputTokenSamples: number;
+  knownEstimatedCostUsd: number | null;
+  pricedCalls: number;
+  durationSamples: number;
+  averageDurationMs: number | null;
+  p95DurationMs: number | null;
+}
+
+export interface QualityDashboard {
+  from: string;
+  to: string;
+  analyses: {
+    total: number;
+    pending: number;
+    running: number;
+    succeeded: number;
+    failed: number;
+    successRate: number | null;
+    averageLatencyMs: number | null;
+    p95LatencyMs: number | null;
+  };
+  feedback: {
+    votes: number;
+    helpful: number;
+    unhelpful: number;
+    reviewedAnalyses: number;
+    helpfulRate: number | null;
+    reviewCoverage: number | null;
+  };
+  reasons: { reason: FeedbackReason; helpful: boolean; count: number }[];
+  usage: QualityUsage[];
+  errors: { code: string; count: number }[];
+}

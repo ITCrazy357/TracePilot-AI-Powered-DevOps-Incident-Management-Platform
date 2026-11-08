@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Bell,
+  ChartNoAxesCombined,
   CirclePlay,
   CircleAlert,
   ChevronDown,
@@ -30,6 +31,7 @@ const links = [
   { href: "/repositories", label: "Kho mã", icon: GitBranch },
   { href: "/runs", label: "Lần chạy", icon: CirclePlay },
   { href: "/incidents", label: "Sự cố", icon: CircleAlert },
+  { href: "/quality", label: "Chất lượng AI", icon: ChartNoAxesCombined },
   { href: "/notifications", label: "Thông báo", icon: Bell },
   { href: "/members", label: "Thành viên", icon: Users },
   { href: "/account", label: "Tài khoản", icon: UserRound },

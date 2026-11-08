@@ -1,6 +1,6 @@
 # TracePilot
 
-Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–06: nền tảng local, tài khoản/workspace, GitHub App/webhook, workflow run/job, incident, log đã che dữ liệu nhạy cảm, SSE, phân tích AI và knowledge/RAG với pgvector**. AI và RAG mặc định tắt.
+Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–07: nền tảng local, tài khoản/workspace, GitHub App/webhook, workflow run/job, incident, log đã che dữ liệu nhạy cảm, SSE, phân tích AI, knowledge/RAG với pgvector và feedback/quality metrics**. AI và RAG mặc định tắt.
 
 Hướng dẫn học, API và chạy thử: [Phase 01 — Identity & Workspace](docs/phase-01.md).
 
@@ -14,7 +14,9 @@ Phân tích qua Spring AI/OpenAI, lịch sử re-analysis, validation JSON/evide
 
 Knowledge do con người duyệt, embedding 1.536 chiều, exact/HNSW/hybrid search và dẫn chứng nguồn: [Phase 06 — pgvector & RAG](docs/phase-06.md). Chỉ APPROVED/READY/current revision trong cùng workspace được dùng cho RAG; báo cáo Recall@K local phân biệt rõ fixture với chất lượng provider thật.
 
-Frontend Next.js tương ứng Phase 01–05: [hướng dẫn chạy và học frontend](docs/frontend.md). Thiết kế theo `Design_TracePilot`/Clean Precision và Impeccable; có tài khoản/workspace, kho mã, lần chạy/jobs, sự cố/log/AI và thông báo trực tiếp. Chạy backend, sau đó tại `frontend/` dùng `npm ci` và `npm run dev`, mở http://127.0.0.1:3000. Yêu cầu Node.js 22+.
+Feedback cá nhân theo báo cáo, dashboard success/helpfulness/latency/token/cost và bộ tham chiếu đánh giá: [Phase 07 — Feedback & quality](docs/phase-07.md). Dashboard giữ rõ dữ liệu chưa biết và phần chi phí ước tính; không coi helpfulness là accuracy hoặc nhãn người dùng là false-positive rate.
+
+Frontend Next.js có luồng Phase 01–05 và feedback/dashboard Phase 07: [hướng dẫn chạy và học frontend](docs/frontend.md). Thiết kế theo `Design_TracePilot`/Clean Precision và Impeccable; có tài khoản/workspace, kho mã, lần chạy/jobs, sự cố/log/AI, thông báo trực tiếp và trang Chất lượng AI. Quản trị knowledge Phase 06 hiện qua backend/API. Chạy backend, sau đó tại `frontend/` dùng `npm ci` và `npm run dev`, mở http://127.0.0.1:3000. Yêu cầu Node.js 22+.
 
 Quy tắc code cho các phase: [AGENTS.md](AGENTS.md). Ưu tiên code rõ nghĩa, đơn giản và hiệu năng có căn cứ; `.editorconfig` thống nhất định dạng Java.
 
@@ -92,7 +94,7 @@ Tất cả port chỉ bind loopback. Các port có thể sửa trong `.env`. Cre
 backend/
   pom.xml                         # Java 21 / Spring Boot
   mvnw, mvnw.cmd, .mvn/wrapper/    # Maven Wrapper
-  src/main/java/com/tracepilot/    # common, identity, workspace, github, pipeline, incident, analysis, notification, infrastructure
+  src/main/java/com/tracepilot/    # identity, workspace, github, pipeline, incident, analysis, knowledge, quality, notification...
   src/main/resources/
     application.yaml
     db/migration/V1__enable_pgvector.sql
@@ -102,6 +104,7 @@ backend/
     db/migration/V5__incidents_safe_logs_and_notifications.sql
     db/migration/V6__ai_analysis_and_usage.sql
     db/migration/V7__knowledge_vectors_and_evidence.sql
+    db/migration/V8__feedback_and_quality.sql
   src/test/java/com/tracepilot/    # Integration tests + Testcontainers
 scripts/backend.ps1               # Chọn JDK và chạy các tác vụ local
 compose.yaml                      # PostgreSQL/pgvector và RabbitMQ

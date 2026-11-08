@@ -113,6 +113,7 @@ NestJS → Spring Boot analogy: `@Controller` (Nest) ≈ `@RestController`; `@In
 - **Xong khi:** tìm được lỗi tương tự khi diễn đạt khác; truy xuất không rò workspace; report AI dẫn nguồn log/knowledge; có tập test kiểm tra Recall@K.
 
 ### Phase 07 — Feedback & quality
+- **Đã triển khai local:** migration V8, feedback cá nhân có version/redaction, API tổng hợp và dashboard Chất lượng AI. Định nghĩa metrics, API, bộ tham chiếu 6 ca và giới hạn bằng chứng ở [docs/phase-07.md](docs/phase-07.md).
 - **Kiến thức:** measurement, evaluation dataset, SQL aggregation, false positives.
 - **Model:** `incident_feedback`.
 - **Xong khi:** developer có thể đánh giá AI hữu ích/không; có metrics latency, success rate, token/cost; dashboard tổng hợp lý do thường gặp.

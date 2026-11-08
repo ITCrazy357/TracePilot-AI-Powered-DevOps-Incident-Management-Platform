@@ -19,6 +19,10 @@ const messages: Record<number, string> = {
 };
 
 const details: Record<string, string> = {
+  "Feedback changed. Reload before updating.":
+    "Đánh giá vừa thay đổi. Tải lại đánh giá trước khi lưu.",
+  "Only a completed successful report can receive feedback.":
+    "Chỉ có thể đánh giá báo cáo đã phân tích thành công.",
   "AI integration is not configured.":
     "AI chưa được bật. Nhờ người vận hành kiểm tra cấu hình rồi thử lại.",
   "An analysis is already pending for this incident.":

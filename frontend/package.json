@@ -10,7 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
-    "test:ui": "playwright test tests/ui.spec.ts tests/operations.spec.ts",
+    "test:ui": "playwright test tests/ui.spec.ts tests/operations.spec.ts tests/quality.spec.ts",
     "test:live": "playwright test tests/live.spec.ts tests/live-operations.spec.ts"
   },
   "dependencies": {

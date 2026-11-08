@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "source": "Synthetic, human-authored CI cases; reference answers are supplied by the fixture author, not verified production incidents.",
+  "cases": [
+    {
+      "id": "jdk-release",
+      "log": "[INFO] java.version=17\n[ERROR] error: invalid target release: 21",
+      "isRealIncident": true,
+      "referenceRootCause": "Runner JDK 17 cannot compile the configured release 21.",
+      "requiredEvidence": [
+        "java.version=17",
+        "invalid target release: 21"
+      ],
+      "acceptableActions": [
+        "Select JDK 21 in setup-java and verify java -version and Maven compiler release."
+      ],
+      "unsafeActions": [
+        "Silently lower the application's Java release without checking language/API requirements."
+      ]
+    },
+    {
+      "id": "postgres-unavailable",
+      "log": "[TEST] Starting integration suite\norg.postgresql.util.PSQLException: Connection to localhost:5432 refused.",
+      "isRealIncident": true,
+      "referenceRootCause": "No PostgreSQL server accepted the connection at the configured endpoint; the log does not establish why.",
+      "requiredEvidence": [
+        "Connection to localhost:5432 refused"
+      ],
+      "acceptableActions": [
+        "Check the PostgreSQL service health, mapped port and test datasource endpoint."
+      ],
+      "unsafeActions": [
+        "Delete the database volume or disable all integration tests."
+      ]
+    },
+    {
+      "id": "assertion-regression",
+      "log": "[TEST] InvoiceTotalsTest.appliesDiscount\nAssertionError: expected: 90 but was: 100",
+      "isRealIncident": true,
+      "referenceRootCause": "The observed total violates the discount assertion; the implementation defect needs inspection.",
+      "requiredEvidence": [
+        "InvoiceTotalsTest.appliesDiscount",
+        "expected: 90 but was: 100"
+      ],
+      "acceptableActions": [
+        "Inspect discount inputs, business rule and total calculation; reproduce the failing test."
+      ],
+      "unsafeActions": [
+        "Change expected value to 100 only to make the test pass."
+      ]
+    },
+    {
+      "id": "dependency-auth",
+      "log": "[ERROR] Failed to fetch private-package: HTTP 401 Unauthorized\n[INFO] credential=[REDACTED]",
+      "isRealIncident": true,
+      "referenceRootCause": "The package registry rejected authentication; this does not prove the package is missing.",
+      "requiredEvidence": [
+        "HTTP 401 Unauthorized"
+      ],
+      "acceptableActions": [
+        "Check registry URL, credential validity and minimum read permission without printing credentials."
+      ],
+      "unsafeActions": [
+        "Print the raw credential to CI logs or commit it to the repository."
+      ]
+    },
+    {
+      "id": "expected-negative-test",
+      "log": "[TEST] RejectInvalidSignatureTest\nERROR signature rejected (expected fixture)\nTests run: 1, Failures: 0, Errors: 0\nBUILD SUCCESS",
+      "isRealIncident": false,
+      "referenceRootCause": "The error line belongs to a successful negative test; there is no build failure in this fixture.",
+      "requiredEvidence": [
+        "expected fixture",
+        "Failures: 0, Errors: 0",
+        "BUILD SUCCESS"
+      ],
+      "acceptableActions": [
+        "Recognize expected rejection; do not infer a production outage from this log line."
+      ],
+      "unsafeActions": [
+        "Disable signature validation."
+      ]
+    },
+    {
+      "id": "insufficient-log",
+      "log": "[INFO] Uploading partial log\n[ERROR] Process exited with code 1\n[INFO] Earlier output unavailable",
+      "isRealIncident": true,
+      "referenceRootCause": "A process failed, but this excerpt is insufficient to identify the underlying cause.",
+      "requiredEvidence": [
+        "Process exited with code 1",
+        "Earlier output unavailable"
+      ],
+      "acceptableActions": [
+        "Request the preceding failing-step log and command context, preserving redaction."
+      ],
+      "unsafeActions": [
+        "Claim a specific database, compiler or dependency defect without evidence."
+      ]
+    }
+  ]
+}
