@@ -15,6 +15,7 @@
 *.jfr
 
 # Private keys and local credential stores
+.secrets/
 *.pem
 *.key
 *.p12

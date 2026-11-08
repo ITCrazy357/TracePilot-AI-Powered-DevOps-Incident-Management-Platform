@@ -1,8 +1,10 @@
 # TracePilot
 
-Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00 và Phase 01: tài khoản, JWT/refresh token, workspace và phân quyền**.
+Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–02: nền tảng local, tài khoản/workspace và kết nối GitHub App/webhook**. Thu thập workflow run/job và AI thuộc các phase tiếp theo.
 
 Hướng dẫn học, API và chạy thử: [Phase 01 — Identity & Workspace](docs/phase-01.md).
+
+Kết nối repo thật, cấu hình key và webhook: [Phase 02 — GitHub App](docs/phase-02.md). MVP dùng binding installation/workspace do operator cấu hình; OWNER gọi sync, thành viên ACTIVE xem repo. Tích hợp mặc định tắt.
 
 Quy tắc code cho các phase: [AGENTS.md](AGENTS.md). Ưu tiên code rõ nghĩa, đơn giản và hiệu năng có căn cứ; `.editorconfig` thống nhất định dạng Java.
 
@@ -72,7 +74,7 @@ Tất cả port chỉ bind loopback. Các port có thể sửa trong `.env`. Cre
 .\scripts\backend.ps1 -Task stop
 ```
 
-`verify` dùng Testcontainers với PostgreSQL/pgvector và RabbitMQ riêng, port ngẫu nhiên. Các test kiểm tra HTTP health, Flyway, cosine distance, auth, refresh rotation và workspace RBAC qua HTTP thật. Nếu Docker không chạy, kiểm thử sẽ báo lỗi thay vì bỏ qua. Báo cáo ở `backend/target/surefire-reports/`.
+`verify` dùng Testcontainers với PostgreSQL/pgvector và RabbitMQ riêng, port ngẫu nhiên. Các test kiểm tra health, Flyway, auth/RBAC, GitHub sync và webhook qua HTTP thật. GitHub API được thay bằng HTTP fixture local, không cần credential GitHub thật để chạy test. Nếu Docker không chạy, kiểm thử sẽ báo lỗi thay vì bỏ qua. Báo cáo ở `backend/target/surefire-reports/`.
 
 ## Cấu trúc và migration
 
@@ -80,11 +82,12 @@ Tất cả port chỉ bind loopback. Các port có thể sửa trong `.env`. Cre
 backend/
   pom.xml                         # Java 21 / Spring Boot
   mvnw, mvnw.cmd, .mvn/wrapper/    # Maven Wrapper
-  src/main/java/com/tracepilot/    # common, identity, workspace, infrastructure/security
+  src/main/java/com/tracepilot/    # common, identity, workspace, github, infrastructure/security
   src/main/resources/
     application.yaml
     db/migration/V1__enable_pgvector.sql
     db/migration/V2__identity_and_workspaces.sql
+    db/migration/V3__github_connections_and_webhooks.sql
   src/test/java/com/tracepilot/    # Integration tests + Testcontainers
 scripts/backend.ps1               # Chọn JDK và chạy các tác vụ local
 compose.yaml                      # PostgreSQL/pgvector và RabbitMQ
@@ -95,7 +98,7 @@ V1__init.sql                      # SQL tham khảo đủ 20 bảng; chưa dùng
 
 Phase 00 chỉ bật extension `vector`, chưa khóa embedding dimension và chưa tạo bảng nghiệp vụ. **Không chép file `V1__init.sql` ở root vào thư mục migration**: dự án đã dùng version `V1` cho bootstrap. Từ Phase 01, thêm `V2__...sql`, `V3__...sql` theo từng tính năng. Không sửa migration đã áp dụng; Hibernate dùng `ddl-auto=validate`, Flyway quản lý schema.
 
-Trong IntelliJ IDEA, mở/import `backend/pom.xml` dưới dạng Maven project và đặt Project SDK / Maven Runner JRE thành JDK 21. Sau khi đổi dependencies, dùng **Reload All Maven Projects** nếu IDE chưa nhận Spring Security. Khi chạy `TracePilotApplication`, đặt working directory là thư mục `backend/` để đọc `.env` đúng vị trí. Frontend, webhook và AI nằm ở các phase sau.
+Trong IntelliJ IDEA, mở/import `backend/pom.xml` dưới dạng Maven project và đặt Project SDK / Maven Runner JRE thành JDK 21. Sau khi đổi dependencies, dùng **Reload All Maven Projects** nếu IDE chưa nhận Spring Security. Khi chạy `TracePilotApplication`, đặt working directory là thư mục `backend/` để đọc `.env` đúng vị trí. Frontend và AI nằm ở các phase sau.
 
 Phase 01 cần `AUTH_SIGNING_SECRET` tối thiểu 64 ký tự. `setup`, `verify`, `run` tự thêm secret ngẫu nhiên nếu `.env` hiện có chưa khai báo biến này; các giá trị sẵn có được giữ nguyên. Khi chạy trực tiếp bằng IntelliJ, chạy script một lần trước để chuẩn bị `.env`. Secret thiếu hoặc quá ngắn làm ứng dụng từ chối khởi động.
 

@@ -31,6 +31,14 @@ spring:
 tracepilot:
   auth:
     signing-secret: ${AUTH_SIGNING_SECRET}
+  github:
+    enabled: ${GITHUB_ENABLED:false}
+    app-id: ${GITHUB_APP_ID:0}
+    installation-id: ${GITHUB_INSTALLATION_ID:0}
+    workspace-id: ${GITHUB_WORKSPACE_ID:}
+    private-key-path: ${GITHUB_PRIVATE_KEY_PATH:}
+    webhook-secret: ${GITHUB_WEBHOOK_SECRET:}
+    api-base-url: https://api.github.com
 
 server:
   address: ${SERVER_ADDRESS:127.0.0.1}
