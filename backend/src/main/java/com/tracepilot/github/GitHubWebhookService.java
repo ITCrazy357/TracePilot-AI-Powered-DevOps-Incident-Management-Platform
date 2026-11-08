@@ -24,12 +24,13 @@ public class GitHubWebhookService {
     private final ObjectMapper objectMapper;
     private final Clock clock;
     private final GitHubProperties properties;
+    private final GitHubWorkflowIngestion workflowIngestion;
 
     public GitHubWebhookService(WebhookDeliveryRepository deliveryRepository,
                                 GitHubInstallationRepository installationRepository,
                                 TrackedRepositoryRepository repositoryRepository,
                                 WorkspaceRepository workspaceRepository, ObjectMapper objectMapper, Clock clock,
-                                GitHubProperties properties) {
+                                GitHubProperties properties, GitHubWorkflowIngestion workflowIngestion) {
         this.deliveryRepository = deliveryRepository;
         this.installationRepository = installationRepository;
         this.repositoryRepository = repositoryRepository;
@@ -37,6 +38,7 @@ public class GitHubWebhookService {
         this.objectMapper = objectMapper;
         this.clock = clock;
         this.properties = properties;
+        this.workflowIngestion = workflowIngestion;
     }
 
     @Transactional
@@ -58,7 +60,7 @@ public class GitHubWebhookService {
             boolean processed = "ping".equals(eventType);
             if (installation.isPresent()) {
                 var current = installation.orElseThrow();
-                processed = process(current, eventType, action, payload);
+                processed = process(current, eventType, action, payload, deliveryId);
             }
             var status = processed ? "PROCESSED" : "IGNORED";
             deliveryRepository.complete(deliveryId, installation.map(GitHubInstallation::getId), status);
@@ -90,7 +92,12 @@ public class GitHubWebhookService {
         return installationRepository.findByGithubInstallationId(id);
     }
 
-    private boolean process(GitHubInstallation installation, String eventType, String action, JsonNode payload) {
+    private boolean process(GitHubInstallation installation, String eventType, String action, JsonNode payload,
+                            String deliveryId) {
+        if ("workflow_run".equals(eventType)
+            && ("requested".equals(action) || "in_progress".equals(action) || "completed".equals(action))) {
+            return workflowIngestion.enqueue(installation, payload, deliveryId);
+        }
         if ("installation".equals(eventType)) {
             return updateInstallation(installation, action);
         }

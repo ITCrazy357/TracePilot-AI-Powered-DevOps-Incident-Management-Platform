@@ -25,3 +25,11 @@
 
 .DS_Store
 Thumbs.db
+
+# Next.js frontend and local browser-test output
+**/node_modules/
+frontend/.next/
+frontend/out/
+frontend/*.tsbuildinfo
+frontend/playwright-report/
+frontend/test-results/

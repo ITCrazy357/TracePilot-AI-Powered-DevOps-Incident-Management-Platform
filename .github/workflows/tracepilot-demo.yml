@@ -1,0 +1,24 @@
+name: TracePilot ingestion demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail:
+        description: Make the demo job fail
+        type: boolean
+        default: true
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Show demo message
+        run: echo "TracePilot pipeline ingestion demo"
+      - name: Produce an intentional failure
+        if: ${{ inputs.fail }}
+        run: exit 1

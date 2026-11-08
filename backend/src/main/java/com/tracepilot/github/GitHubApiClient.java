@@ -61,6 +61,24 @@ public class GitHubApiClient {
         }
     }
 
+    String createInstallationToken() {
+        properties.requireEnabled();
+        var response = request("POST", "/app/installations/" + properties.installationId() + "/access_tokens",
+            tokenSigner.createToken());
+        try {
+            return GitHubPayloads.text(response.path("token"), 8192);
+        } catch (IllegalArgumentException exception) {
+            throw upstreamFailure();
+        }
+    }
+
+    JsonNode getRepositoryResource(String path, String token) {
+        if (!path.startsWith("/repos/")) {
+            throw new IllegalArgumentException("Expected a repository API path.");
+        }
+        return request("GET", path, token);
+    }
+
     private List<GitHubDtos.RepositoryData> fetchRepositories(String token) {
         var repositories = new ArrayList<GitHubDtos.RepositoryData>();
         var seenIds = new HashSet<Long>();

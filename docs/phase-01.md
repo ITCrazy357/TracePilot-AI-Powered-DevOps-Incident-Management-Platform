@@ -1,7 +1,7 @@
 # Phase 01 — Users, Authentication & Workspace
 
 Phase này trả lời hai câu hỏi: **bạn là ai** và **bạn được làm gì trong workspace này**.
-Backend có API để đăng ký, đăng nhập, refresh/logout, tạo workspace và quản lý thành viên. Chưa có frontend, GitHub webhook hay AI.
+Backend Phase 01 có API để đăng ký, đăng nhập, refresh/logout, tạo workspace và quản lý thành viên. Giao diện tương ứng: [frontend](frontend.md). GitHub webhook được bổ sung ở [Phase 02](phase-02.md); AI thuộc phase sau.
 
 ## 1. Đọc mã theo luồng dữ liệu
 
@@ -64,7 +64,7 @@ Khác biệt nhỏ so với SQL tham khảo: UUID và thời gian tạo được
 - Refresh thành công thu hồi token cũ và cấp cặp token mới trong cùng transaction. Row lock làm hai request refresh cùng token chỉ có một request thành công.
 - Logout thu hồi refresh token được gửi lên và có thể gọi lặp. Các phiên khác giữ nguyên. Access token đã phát hành vẫn có hiệu lực đến hết hạn 15 phút; Phase 01 chưa có danh sách thu hồi access token.
 - Request có quyền dùng header `Authorization: Bearer <accessToken>`. Refresh/logout nhận refresh token trong JSON. API không dùng cookie xác thực hay HTTP session; CSRF được tắt cho cơ chế Bearer này. Nếu sau này chuyển sang cookie phải đánh giá lại CSRF.
-- Client cần lưu token an toàn; phase này chưa quyết định cách lưu token cho frontend. Không đưa token vào URL, log hoặc mã nguồn.
+- Frontend hiện dùng Next Route Handler giữ token trong cookie HttpOnly và chuyển thành Bearer khi gọi Spring. Lớp Next kiểm tra Origin cho request ghi dữ liệu; Spring vẫn dùng Bearer. Xem [luồng và giới hạn phiên frontend](frontend.md). Không đưa token vào URL, log hoặc mã nguồn.
 
 JWT được xác minh bằng [Spring Security OAuth2 Resource Server](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html). Ứng dụng tự phát hành token bằng `NimbusJwtEncoder`; phase này không dựng một OAuth authorization server.
 

@@ -24,6 +24,10 @@ spring:
     username: ${RABBITMQ_USER:tracepilot}
     password: ${RABBITMQ_PASSWORD}
     connection-timeout: 5s
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
   mvc:
     problemdetails:
       enabled: true
@@ -39,6 +43,13 @@ tracepilot:
     private-key-path: ${GITHUB_PRIVATE_KEY_PATH:}
     webhook-secret: ${GITHUB_WEBHOOK_SECRET:}
     api-base-url: https://api.github.com
+  pipeline:
+    enabled: ${PIPELINE_ENABLED:${GITHUB_ENABLED:false}}
+    publish-batch-size: 10
+    max-attempts: 3
+    retry-delay: 2s
+    processing-lease: 5m
+    dispatch-delay-ms: 1000
 
 server:
   address: ${SERVER_ADDRESS:127.0.0.1}

@@ -29,6 +29,7 @@ final class GitHubApiFixture implements AutoCloseable {
     static final String INSTALLATION_TOKEN = "fixture-installation-token-never-store-this";
     final AtomicInteger metadataRequests = new AtomicInteger();
     final AtomicInteger transientFailures = new AtomicInteger();
+    final WorkflowApiFixture workflows = new WorkflowApiFixture();
     volatile int repositoryCount = 2;
     volatile boolean partialResponse;
     volatile boolean rejectToken;
@@ -69,6 +70,7 @@ final class GitHubApiFixture implements AutoCloseable {
     }
 
     void reset() {
+        workflows.reset();
         metadataRequests.set(0);
         transientFailures.set(0);
         repositoryCount = 2;
@@ -89,6 +91,14 @@ final class GitHubApiFixture implements AutoCloseable {
                 return;
             }
             var path = exchange.getRequestURI().getPath();
+            if (path.startsWith("/repos/")) {
+                if (!("Bearer " + INSTALLATION_TOKEN).equals(exchange.getRequestHeaders().getFirst("Authorization"))) {
+                    respond(exchange, 401, Map.of("message", "Invalid installation token"));
+                    return;
+                }
+                workflows.handle(exchange);
+                return;
+            }
             if (path.startsWith("/app/installations/")) {
                 if (!validAppToken(exchange.getRequestHeaders().getFirst("Authorization"))) {
                     respond(exchange, 401, Map.of("message", "Invalid app JWT"));
@@ -190,6 +200,7 @@ final class GitHubApiFixture implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
+        workflows.releaseSnapshot.countDown();
         releaseSnapshot.countDown();
         server.stop(0);
         executor.shutdownNow();

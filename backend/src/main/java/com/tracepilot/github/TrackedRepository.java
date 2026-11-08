@@ -48,6 +48,14 @@ public class TrackedRepository {
         return id;
     }
 
+    public UUID getWorkspaceId() {
+        return workspaceId;
+    }
+
+    public UUID getInstallationId() {
+        return installationId;
+    }
+
     public long getGithubRepositoryId() {
         return githubRepositoryId;
     }
