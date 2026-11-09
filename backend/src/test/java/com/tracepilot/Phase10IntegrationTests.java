@@ -1,10 +1,13 @@
 package com.tracepilot;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -56,6 +59,67 @@ class Phase10IntegrationTests {
             INSERT INTO repositories(id, workspace_id, installation_id, github_repository_id, full_name, is_active, created_at, updated_at)
             VALUES (?, ?, ?, 1, 'fixture/repo', true, now(), now())
             """, repositoryId, workspaceId, installationId);
+    }
+
+    @Test
+    void tokenAnalyticsIncludesIndependentEmbeddingsRetriesAndPreservesUnknownMeasurements() throws Exception {
+        incident(0, "Token fixture", "OPEN");
+        var incidentId = jdbc.queryForObject("SELECT id FROM incidents WHERE workspace_id = ?", UUID.class, workspaceId);
+        var analysisId = UUID.randomUUID();
+        jdbc.update("""
+            INSERT INTO ai_analyses(id, workspace_id, incident_id, request_id, origin, provider, model,
+                prompt_version, input_sha256, status, summary, suspected_root_cause, suggested_fix, completed_at, created_at)
+            VALUES (?, ?, ?, ?, 'MANUAL', 'OPENAI', 'chat-fixture', 'fixture', ?, 'SUCCEEDED', 'Summary', 'Cause', 'Fix', now(), now())
+            """, analysisId, workspaceId, incidentId, UUID.randomUUID(), "a".repeat(64));
+        usage(workspaceId, analysisId, 1, "CHAT", "chat-fixture", "SUCCEEDED", 100L, 50L, "0.0005", Instant.now().minusSeconds(86400));
+        usage(workspaceId, analysisId, 2, "CHAT", "unknown-fixture", "UNKNOWN", null, null, null, Instant.now());
+        usage(workspaceId, null, 1, "EMBEDDING", "text-embedding-3-small", "SUCCEEDED", 20L, 0L, "0.00001", Instant.now());
+        usage(workspaceId, null, 1, "EMBEDDING", "old-fixture", "SUCCEEDED", 900L, 0L, "1", Instant.now().minusSeconds(100 * 86400));
+        var other = body(call("POST", "/api/v1/workspaces", Map.of("name", "Foreign fixture", "slug", "other-" + UUID.randomUUID())));
+        var otherId = UUID.fromString(other.path("id").asString());
+        usage(otherId, null, 1, "EMBEDDING", "foreign-fixture", "SUCCEEDED", 5000L, 0L, "9", Instant.now());
+        var response = call("GET", base() + "/ai-usage?days=7", null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var data = body(response);
+        assertThat(data.path("daily").size()).isEqualTo(7);
+        var totals = data.path("totals");
+        assertThat(totals.path("calls").asLong()).isEqualTo(3);
+        assertThat(totals.path("inputTokens").asLong()).isEqualTo(120);
+        assertThat(totals.path("outputTokens").asLong()).isEqualTo(50);
+        assertThat(totals.path("inputSamples").asLong()).isEqualTo(2);
+        assertThat(totals.path("outputSamples").asLong()).isEqualTo(2);
+        assertThat(totals.path("unknown").asLong()).isEqualTo(1);
+        assertThat(totals.path("pricedCalls").asLong()).isEqualTo(2);
+        assertThat(totals.path("knownEstimatedCostUsd").asDouble()).isEqualTo(0.00051);
+        assertThat(data.path("models").toString()).doesNotContain("old-fixture", "foreign-fixture");
+        assertThat(body(call("GET", base() + "/ai-usage?days=7&operation=EMBEDDING", null)).path("totals").path("inputTokens").asLong()).isEqualTo(20);
+        var unknown = body(call("GET", base() + "/ai-usage?days=7&model=unknown-fixture", null)).path("totals");
+        assertThat(unknown.path("inputTokens").isNull()).isTrue();
+        assertThat(unknown.path("outputTokens").isNull()).isTrue();
+        assertThat(unknown.path("knownEstimatedCostUsd").isNull()).isTrue();
+        assertThat(call("GET", base() + "/ai-usage?operation=INVALID", null).statusCode()).isEqualTo(400);
+        assertThat(call("GET", base() + "/ai-usage?days=91", null).statusCode()).isEqualTo(400);
+        assertThat(call("GET", "/api/v1/workspaces/" + UUID.randomUUID() + "/ai-usage", null).statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void emptyTokenAnalyticsHasZeroCallsAndCompleteCalendarWithoutInventingUsage() throws Exception {
+        var response = call("GET", base() + "/ai-usage?days=7", null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var data = body(response);
+        assertThat(data.path("totals").path("calls").asLong()).isZero();
+        assertThat(data.path("daily").size()).isEqualTo(7);
+        assertThat(data.path("byModel")).isEmpty();
+    }
+
+    private void usage(UUID scope, UUID analysisId, int attempt, String operation, String model, String status,
+                       Long input, Long output, String cost, Instant createdAt) {
+        jdbc.update("""
+            INSERT INTO ai_usage_events(id, workspace_id, analysis_id, attempt, operation, provider, model,
+                status, input_tokens, output_tokens, estimated_cost_usd, created_at)
+            VALUES (?, ?, ?, ?, ?, 'OPENAI', ?, ?, ?, ?, ?, ?)
+            """, UUID.randomUUID(), scope, analysisId, attempt, operation, model, status, input, output,
+            cost == null ? null : new BigDecimal(cost), Timestamp.from(createdAt));
     }
 
     @Test

@@ -1,15 +1,15 @@
-# Kho kiến thức — giao diện theo backend Phase 06
+# Kho kiến thức — giao diện và tra cứu
 
-Giao diện bổ sung cho `KnowledgeController`, `KnowledgeDtos` và nguồn của `AnalysisController`; không thêm API hay thay đổi nghiệp vụ backend. Tham chiếu quyền, revision và hành vi indexing ở [Phase 06](phase-06.md). Giữ thiết kế [Clean Precision](../DESIGN.md).
+Luồng hiện tại gồm bài viết, bộ lọc nghiệp vụ, tra vector và lịch sử riêng. Các thay đổi backend/frontend mới, migration V10–V11 và số liệu token được mô tả ở [Phase 10](phase-10.md). Tham chiếu quyền, revision và hành vi indexing gốc ở [Phase 06](phase-06.md). Giữ thiết kế [Clean Precision](../DESIGN.md).
 
 ## Luồng sử dụng
 
 1. Mở **Kho kiến thức → Viết bài mới**. Nhập tiêu đề, nguyên nhân đã xác nhận và cách khắc phục đã kiểm tra; lưu thành DRAFT. Không cần bật AI để tạo/sửa bài.
-2. Từ sự cố RESOLVED, chọn **Ghi vào kho kiến thức** để gắn nguồn. Form không tự sao chép đề xuất AI thành nội dung đã xác nhận. Backend kiểm tra lại trạng thái và workspace khi lưu.
+2. Từ sự cố RESOLVED, chọn **Ghi vào kho kiến thức** để viết bài thủ công gắn nguồn. Hoặc trong báo cáo AI SUCCEEDED, chọn **Thêm vào bản nháp tri thức**: form tự điền đề xuất, cho phép chỉnh sửa rồi lưu DRAFT; cách này không yêu cầu sự cố đã RESOLVED. Backend kiểm tra nguồn phân tích/workspace và giữ sourceAnalysisId. Chưa có thao tác duyệt hay embedding khi lưu nháp.
 3. Thành viên sửa draft của mình; OWNER/ADMIN sửa được bài trong workspace. Chỉnh sửa gửi version đã đọc, đưa bài về DRAFT và cần duyệt lại. 409 giữ phần nhập, khóa lưu và yêu cầu tải lại bài; không tự gửi lại với version mới.
 4. OWNER/ADMIN chọn **Duyệt bài viết**, kiểm tra nội dung và xác nhận việc gửi tới AI để tạo chỉ mục. Chỉ APPROVED/READY tham gia tìm kiếm. Nếu lỗi hoặc mất response, tải lại bài để xác định trạng thái trước khi quyết định thử lại. RUNNING có lease 120 giây; backend quyết định khi nào được thử lại.
 5. **Lưu trữ bài** cần xác nhận và version hiện tại. Bài ngừng tham gia tìm kiếm; nguồn trong báo cáo cũ được giữ. Người quản lý có thể sửa bài đã lưu trữ về DRAFT.
-6. **Tìm lỗi tương tự** chỉ gửi request sau khi nhập truy vấn, đồng ý gửi tới AI và nhấn tìm. Chọn HYBRID/EXACT/APPROXIMATE và topK 1–5 đúng contract. Điểm cosine là độ tương đồng, không phải độ chắc chắn của chẩn đoán. Đổi workspace xóa truy vấn/kết quả/form cũ.
+6. **Bài viết** lọc từ khóa/trạng thái ở backend, không gọi AI. **Tra lỗi bằng vector** chỉ gửi request sau khi nhập truy vấn, đồng ý gửi tới AI và nhấn tìm. Chọn HYBRID/EXACT/APPROXIMATE và topK 1–5. Truy vấn đã che và kết quả được tự lưu ở **Lịch sử tra cứu**, riêng theo tài khoản/workspace; xem lại không gọi AI. Điểm cosine là độ tương đồng, không phải độ chắc chắn của chẩn đoán. Đổi workspace xóa trạng thái màn hình cũ.
 7. Báo cáo AI tải `/evidence`, phân biệt LOG và KNOWLEDGE. Nguồn knowledge hiển thị quote, contentVersion và SHA đã lưu, dẫn đến bài hiện tại. Nếu revision khác, trang báo rõ; API hiện chưa có route đọc đầy đủ article lịch sử. Lỗi tải evidence không che mất báo cáo. Câu trích của báo cáo cũ chưa có mapping không được trình bày như nguồn đã xác nhận.
 
 ## Bảo vệ và cấu hình
@@ -21,7 +21,7 @@ Khi AI/RAG tắt, backend trả 503 cho approve/search và giao diện giải th
 ## Hợp đồng thiết kế và kiểm chứng
 
 - Công việc chính: lưu kiến thức đã kiểm tra và tra cứu để điều tra lỗi, dành cho developer đang dùng dashboard. Hành động chính của danh sách là viết bài; trang bài tập trung nội dung, quyền duyệt ở cột ngữ cảnh.
-- Bố cục theo màn hình điều tra hiện có: thư viện bên trái, tìm kiếm và hướng dẫn ngắn bên phải; một cột dưới 1.100 px. Dùng token/font/component hiện tại, không thêm dependency.
+- Bài viết, vector và lịch sử có trang riêng. Trang vector đặt biểu mẫu cạnh kết quả ở desktop, xếp dọc ở mobile. Dùng token/font/component hiện tại; Recharts được thêm cho dashboard/token ở Phase 10.
 - Viewport mục tiêu: **1440x900, 390x844, 320x812**. Tiêu đề dài xuống dòng, textarea co theo khung, menu và nội dung không tràn ngang; xác nhận dùng Radix với bàn phím/focus trả về nút mở.
 - Loading có nhãn tiến độ; empty giải thích và dẫn đến viết bài; lỗi tải có retry; lỗi indexing yêu cầu đọc lại; partial giữ báo cáo khi evidence lỗi; success hiển thị trạng thái đã lưu; quyền không cho phép thì ẩn mutation và giải thích vai trò.
 

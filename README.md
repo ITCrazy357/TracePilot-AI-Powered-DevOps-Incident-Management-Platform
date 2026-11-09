@@ -4,9 +4,11 @@ Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backen
 
 **Chạy đủ stack bằng Docker — Phase 09:** tại root dùng `.\scripts\shipping.ps1 -Task init`, tiếp theo `-Task up`, rồi `-Task check`. Mở **http://127.0.0.1:13000**. Bộ này dùng `.env.shipping` và volume riêng, không sửa DB local cũ. [Hướng dẫn shipping/CI/triển khai](docs/phase-09.md), [demo](docs/demo.md), [API](docs/api.md), [ERD](docs/architecture.md), [latency local](docs/performance.md).
 
+**Cập nhật Phase 10:** tạo nháp tri thức từ báo cáo AI, lịch sử tra cứu tự động, bộ lọc nghiệp vụ toàn workspace, trang vector riêng, biểu đồ hoạt động và **Tiêu thụ AI**. Xem [luồng sử dụng, API và kiểm chứng](docs/phase-10.md). Database bổ sung V10–V11; chạy lại `-Task up` để build/cập nhật stack hiện có, giữ `.env.shipping` và volume.
+
 ![Dashboard với dữ liệu browser fixture](docs/images/dashboard-fixture.png)
 
-Ảnh dùng dữ liệu synthetic. Bộ container đã kiểm chứng local; chưa có demo URL public hoặc bằng chứng workflow/AI provider thật.
+Ảnh dùng dữ liệu synthetic. Phạm vi kiểm chứng local và provider được ghi riêng trong [Phase 05](docs/phase-05.md) và [Phase 10](docs/phase-10.md); chưa có demo URL public.
 
 Hướng dẫn học, API và chạy thử: [Phase 01 — Identity & Workspace](docs/phase-01.md).
 

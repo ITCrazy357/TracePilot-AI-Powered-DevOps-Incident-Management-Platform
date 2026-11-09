@@ -46,7 +46,7 @@ Quyền và luồng:
 - Thành viên ACTIVE xem article trong workspace, kể cả draft/history. Việc hiển thị draft trong API không khiến draft được dùng cho RAG.
 - Thành viên tạo DRAFT và sửa draft của mình; OWNER/ADMIN sửa được article của workspace.
 - Chỉ OWNER/ADMIN approve hoặc archive. MVP cho phép người quản lý duyệt bài của chính mình.
-- Nếu gắn sourceIncidentId, incident phải thuộc cùng workspace và đang RESOLVED. Nội dung fix vẫn do người dùng nhập rõ ràng; không tự chuyển đề xuất AI thành knowledge được duyệt.
+- Bài thủ công gắn sourceIncidentId yêu cầu incident cùng workspace và đang RESOLVED. Từ [Phase 10](phase-10.md), bản nháp có sourceAnalysisId SUCCEEDED cùng workspace/incident được tạo khi sự cố còn mở. Nội dung AI cần con người kiểm tra trước khi duyệt; lưu nháp chưa tạo chỉ mục.
 - Bài không gắn incident có thể là tài liệu troubleshooting do con người viết.
 - POST approve chỉ trả 200 khi vector đã READY. Nếu provider lỗi, article giữ APPROVED với indexStatus FAILED; chưa có chunks dở dang được công bố.
 - Sửa article tăng contentVersion, đưa về DRAFT, hủy token indexing cũ và loại toàn bộ revision cũ khỏi truy xuất ngay trong transaction.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import type { QualityDashboard, QualityUsage } from "@/lib/contracts";
 import { feedbackReasons } from "@/lib/feedback";
@@ -30,6 +31,11 @@ export function Quality() {
       <PageHeading
         title="Chất lượng AI"
         description="Đối chiếu kết quả xử lý, đánh giá của đội ngũ và chi phí ghi nhận."
+        action={
+          <Button asChild variant="outline">
+            <Link href="/usage">Xem tiêu thụ token</Link>
+          </Button>
+        }
       />
       <WorkspaceBoundary>
         <WorkspaceQuality key={selectedId} />

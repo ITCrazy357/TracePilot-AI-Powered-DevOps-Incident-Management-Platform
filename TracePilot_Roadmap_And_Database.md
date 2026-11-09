@@ -284,6 +284,12 @@ LIMIT 5;
 5. Để tránh lưu quá nhiều dữ liệu, chỉ embedding các knowledge article đã được phê duyệt; nếu sửa, phải regenerate chunks và cập nhật vector atomically.
 6. Luôn có bước human review trước khi thực thi command/patch/deploy do AI đề xuất.
 
+## 10. Mở rộng trải nghiệm tra cứu và số liệu
+
+Theo yêu cầu bổ sung: nháp từ báo cáo AI, lịch sử tra cứu cá nhân tự lưu, bộ lọc nghiệp vụ tách tra vector, cải thiện bố cục/màu, biểu đồ hoạt động và phân tích token/chi phí. Xem [Phase 10](docs/phase-10.md) cho hợp đồng và cách chạy.
+
+V10 thêm `knowledge_articles.source_analysis_id` với composite FK cùng workspace/incident. V11 thêm bảng `knowledge_search_history`: người tra, workspace, truy vấn đã che, mode/topK, snapshot kết quả và thời điểm. Thống kê hoạt động/token đọc từ bảng nghiệp vụ và usage hiện có; không sinh số liệu mẫu.
+
 ---
 
 **Tổng quan:** 20 model là **schema mục tiêu**, không phải yêu cầu phải viết toàn bộ trong Phase 01. Hãy code từng nhóm nhỏ, tạo migration cho từng phase, test xong rồi mới học phần sau.

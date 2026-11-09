@@ -357,6 +357,11 @@ function Report({
               ))}
             </div>
           )}
+          <div className="panel-footer">
+            <Link className="text-link" href="/usage">
+              Xem tiêu thụ AI toàn workspace
+            </Link>
+          </div>
         </details>
       </aside>
     </div>

@@ -26,6 +26,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${knowledge}/search-history(?:/${uuid})?$`),
     new RegExp(`^${workspace}/quality$`),
     new RegExp(`^${workspace}/dashboard$`),
+    new RegExp(`^${workspace}/ai-usage$`),
     new RegExp(`^${workspace}/(?:audit-logs|operations(?:/outbox)?)$`),
     new RegExp(`^${workspace}/notifications(?:/stream)?$`),
   ],
@@ -94,8 +95,9 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   }
   const query = new URLSearchParams();
   if (request.method === "GET") {
-    const keys =
-      path.endsWith("/quality") || path.endsWith("/dashboard")
+    const keys = path.endsWith("/ai-usage")
+      ? ["days", "operation", "model"]
+      : path.endsWith("/quality") || path.endsWith("/dashboard")
         ? ["days"]
         : new RegExp(`^${incidents}$`).test(path)
           ? ["page", "size", "q", "status", "repositoryId", "assignedTo", "severity"]
