@@ -106,8 +106,8 @@ function CreateContent({ incidentId, analysisId }: { incidentId?: string; analys
               onSaved={(article) => router.push(`/knowledge/${article.id}`)}
             />
           </section>
-          <aside className="knowledge-guide">
-            <h2>Nội dung để dùng lại</h2>
+          <details className="knowledge-guide contextual-help">
+            <summary>Hướng dẫn viết và duyệt bài</summary>
             <p>
               Giải thích điều gì gây lỗi, cách bạn xác nhận và các bước đã khắc phục thành công.
             </p>
@@ -115,7 +115,7 @@ function CreateContent({ incidentId, analysisId }: { incidentId?: string; analys
               Không tự xem đề xuất AI là cách sửa đã được kiểm chứng. OWNER/ADMIN sẽ duyệt bài trước
               khi đưa vào tìm kiếm.
             </p>
-          </aside>
+          </details>
         </div>
       )}
     </>

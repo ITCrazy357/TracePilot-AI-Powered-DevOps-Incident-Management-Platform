@@ -27,3 +27,9 @@ Sự cố hỗ trợ từ khóa tiêu đề, trạng thái, repositoryId, assign
 Trang /knowledge chỉ hiển thị bài viết; /knowledge/search dành cho vector; /knowledge/history dành cho lịch sử. Navigation có nhãn rõ; đổi workspace xóa trạng thái cũ. BFF chuyển tiếp đúng danh sách query param được phép theo route.
 
 Kiểm chứng phần 3: 29/29 UI, TypeScript và production build đạt. Verify chạy 137 test; sửa fixture mới thiếu github_workflow_id và fixture stale worker chưa đặt thời điểm sẵn sàng. Chạy lại Phase08 + Phase10: 21/21 đạt; các nhóm khác đạt trong verify. Test tạo 23 sự cố để chứng minh lọc trước phân trang và kiểm tra tìm kiếm khi AI tắt.
+
+## 4. Bố cục và màu có ý nghĩa
+
+Báo cáo tách vùng tóm tắt, nguyên nhân nghi ngờ, đề xuất khắc phục và bằng chứng. Nút tạo nháp nằm ngay tiêu đề kết quả. Metadata mô hình/lượt gọi và hướng dẫn viết bài mở khi cần. Tra vector chia vùng nhập và vùng kết quả ở desktop, xếp dọc trên mobile. Xem nguồn thiết kế và thư viện trong docs/ui-improvements.md.
+
+Kiểm chứng phần 4: nhóm UI tổng hợp 61 test, 57 đạt ban đầu; cập nhật test mở metadata theo luồng mới rồi toàn bộ operations 11/11 đạt. Knowledge 18/18 đạt, gồm axe/không tràn ngang ở 1440/390/320 px cho editor, dialog và vector. Đã xem ảnh render desktop/mobile; production build và TypeScript đạt. Các ảnh dùng dữ liệu fixture được gắn nhãn fixture, không đưa dữ liệu mẫu vào sản phẩm.

@@ -38,9 +38,118 @@
   flex-wrap: wrap;
 }
 .lookup-layout {
-  max-width: 1000px;
+  max-width: 1280px;
   display: grid;
   gap: 20px;
+}
+.lookup-workbench {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.3fr);
+}
+.lookup-workbench > form {
+  border-right: 1px solid var(--line);
+}
+.lookup-output {
+  min-width: 0;
+}
+.lookup-output .knowledge-results {
+  border-radius: 0 0 12px;
+  min-height: 100%;
+}
+@media (max-width: 960px) {
+  .lookup-workbench {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lookup-workbench > form {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+.analysis-result > .panel-heading,
+.knowledge-library > .panel-heading {
+  background: var(--primary-soft);
+  border-radius: 12px 12px 0 0;
+}
+.analysis-result > .panel-heading {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.analysis-result .report-sections {
+  padding: 12px 24px 24px;
+}
+.analysis-result .report-sections > section {
+  padding: 20px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #f7fafc;
+}
+.analysis-result .report-sections > section:nth-child(2) {
+  background: #fdf2f8;
+}
+.analysis-result .report-sections > section:nth-child(3) {
+  background: #edf6ff;
+}
+.analysis-result .report-sections h3 {
+  margin-bottom: 8px;
+}
+.evidence-panel > .panel-heading {
+  background: #fdf2f8;
+  border-radius: 12px 12px 0 0;
+}
+.evidence-panel > .panel-heading h2 svg {
+  color: var(--pink);
+}
+.report-details > summary,
+.contextual-help > summary {
+  padding: 20px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+}
+.report-details[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+.contextual-help {
+  padding: 0;
+  background: #f2f6fa;
+  border-radius: 12px;
+}
+.contextual-help > p {
+  padding: 0 24px 20px;
+}
+.knowledge-results {
+  background: #f4f9ff;
+}
+.knowledge-results > h3 {
+  color: var(--primary);
+}
+.knowledge-list > li:hover,
+.incident-list-row:hover {
+  background: #f1f7fc;
+}
+.metrics-strip > div:nth-child(1) > svg {
+  color: var(--primary);
+}
+.metrics-strip > div:nth-child(2) > svg {
+  color: #7651a8;
+}
+.metrics-strip > div:nth-child(3) > svg {
+  color: var(--pink);
+}
+::selection {
+  background: #c9e7fa;
+  color: #10243a;
+}
+input,
+textarea {
+  caret-color: var(--primary);
+}
+summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 
 .knowledge-layout,

@@ -116,7 +116,7 @@ export function AnalysisPanel({
       ) : history.error ? (
         <ErrorNotice message={history.error} retry={history.reload} />
       ) : !history.data?.items.length ? (
-        <section className="panel">
+        <section className="panel analysis-result">
           <EmptyState
             icon={Sparkles}
             title="Chưa có phân tích AI"
@@ -214,10 +214,21 @@ function Report({
   return (
     <div className="analysis-report-grid">
       <div className="report-main">
-        <section className="panel">
+        <section className="panel analysis-result">
           <div className="panel-heading">
             <h2>Kết quả phân tích</h2>
-            <StatusBadge status={analysis.status} />
+            <div className="toolbar-actions">
+              <StatusBadge status={analysis.status} />
+              {completed && (
+                <Button asChild variant="outline">
+                  <Link
+                    href={`/knowledge/new?incidentId=${analysis.incidentId}&analysisId=${analysis.id}`}
+                  >
+                    Thêm vào bản nháp tri thức
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
           {completed ? (
             <div className="report-sections">
@@ -253,12 +264,6 @@ function Report({
         </section>
         {completed && (
           <>
-            <Link
-              className="button button-outline"
-              href={`/knowledge/new?incidentId=${analysis.incidentId}&analysisId=${analysis.id}`}
-            >
-              Thêm vào bản nháp tri thức
-            </Link>
             <p className="analysis-caveat">
               Đây là đề xuất AI. Câu trích xác nhận nguồn văn bản, không chứng minh kết luận đã
               đúng.
@@ -268,7 +273,7 @@ function Report({
         )}
       </div>
       <aside className="context-column">
-        <section className="panel">
+        <section className="panel evidence-panel">
           <div className="panel-heading">
             <h2>
               <Quote size={17} />
@@ -277,10 +282,8 @@ function Report({
           </div>
           <AnalysisSources key={analysis.id} analysis={analysis} onLog={onEvidence} />
         </section>
-        <section className="panel">
-          <div className="panel-heading">
-            <h2>Mô hình & lượt gọi</h2>
-          </div>
+        <details className="panel report-details">
+          <summary>Mô hình & lượt gọi</summary>
           <dl className="report-metadata">
             <div>
               <dt>Nhà cung cấp</dt>
@@ -354,7 +357,7 @@ function Report({
               ))}
             </div>
           )}
-        </section>
+        </details>
       </aside>
     </div>
   );

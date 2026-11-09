@@ -533,5 +533,23 @@ for (const [width, height] of [
     ).toEqual([]);
     await page.keyboard.press("Escape");
     await expect(page.getByRole("button", { name: "Duyệt bài viết", exact: true })).toBeFocused();
+    await page.goto("/knowledge/search");
+    await page.getByLabel("Mô tả lỗi").fill("Không bind được socket");
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "Tìm trong kho kiến thức" }).click();
+    await expect(
+      page
+        .getByRole("region", { name: "Kết quả tra vector" })
+        .getByRole("link", { name: "Mở bài viết" }),
+    ).toBeVisible();
+    expect(
+      (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
+        .violations,
+    ).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: path.join(dir, `vector-${width}.png`), fullPage: true });
   });
 }

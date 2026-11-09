@@ -98,6 +98,7 @@ test("AI evidence opens matching text across log chunks and never executes log H
   await page.goto(`/incidents/${incidentId}`);
   await page.getByRole("tab", { name: "Phân tích AI", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Nguyên nhân nghi ngờ" })).toBeVisible();
+  await page.getByText("Mô hình & lượt gọi", { exact: true }).click();
   await expect(page.getByText("— / —", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Xem trong log đã che" }).click();
   await expect(page.locator(".log-content mark")).toHaveText(evidence);
@@ -172,6 +173,7 @@ for (const viewport of [
     await page.goto(`/incidents/${incidentId}`);
     await page.getByRole("tab", { name: "Phân tích AI", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Nguyên nhân nghi ngờ" })).toBeVisible();
+    await page.getByText("Mô hình & lượt gọi", { exact: true }).click();
     await expect(page.getByText("— / —", { exact: true })).toBeVisible();
     const axe = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
