@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.history-intro {
+  margin: 20px 24px 0;
+}
+
 .knowledge-layout,
 .knowledge-editor-layout {
   display: grid;

@@ -23,6 +23,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${incidents}(?:/${uuid}(?:/logs)?)?$`),
     new RegExp(`^${analyses}(?:/${uuid}(?:/usage|/feedback|/evidence)?)?$`),
     new RegExp(`^${knowledge}(?:/${uuid})?$`),
+    new RegExp(`^${knowledge}/search-history(?:/${uuid})?$`),
     new RegExp(`^${workspace}/quality$`),
     new RegExp(`^${workspace}/(?:audit-logs|operations(?:/outbox)?)$`),
     new RegExp(`^${workspace}/notifications(?:/stream)?$`),
@@ -42,7 +43,10 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${workspace}/notifications/${uuid}/read$`),
   ],
   PUT: [new RegExp(`^${analyses}/${uuid}/feedback$`)],
-  DELETE: [new RegExp(`^workspaces/${uuid}/members/${uuid}$`)],
+  DELETE: [
+    new RegExp(`^workspaces/${uuid}/members/${uuid}$`),
+    new RegExp(`^${knowledge}/search-history/${uuid}$`),
+  ],
 };
 
 async function handle(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {

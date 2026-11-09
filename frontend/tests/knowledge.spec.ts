@@ -40,11 +40,38 @@ async function fixture(
 ) {
   await mockSession(page, { role: options.role });
   let current = { ...article, createdBy: options.foreignDraft ? memberId : user.id };
+  let savedSearch: {
+    search: {
+      id: string;
+      query: string;
+      mode: string;
+      topK: number;
+      resultCount: number;
+      createdAt: string;
+    };
+    result: Record<string, unknown>;
+  } | null = null;
   const writes: { method: string; path: string; body: Record<string, unknown> }[] = [];
   await page.route("**/knowledge-articles**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
     const endpoint = url.pathname;
+    if (endpoint.includes("/search-history")) {
+      if (request.method() === "DELETE") {
+        savedSearch = null;
+        return route.fulfill({ status: 204 });
+      }
+      if (endpoint.endsWith("/search-history"))
+        return route.fulfill({
+          json: {
+            items: savedSearch ? [savedSearch.search] : [],
+            page: 0,
+            size: 10,
+            total: savedSearch ? 1 : 0,
+          },
+        });
+      return route.fulfill({ json: savedSearch });
+    }
     if (options.delay) await new Promise((resolve) => setTimeout(resolve, 600));
     if (endpoint.includes(otherWorkspace.id))
       return route.fulfill({ json: { items: [], page: 0, size: 20, total: 0 } });
@@ -62,23 +89,34 @@ async function fixture(
     }
     const body = request.postDataJSON();
     writes.push({ method: request.method(), path: endpoint, body });
-    if (endpoint.endsWith("/search"))
-      return route.fulfill({
-        json: {
-          items: [
-            {
-              id: "chunk",
-              articleId,
-              articleVersion: 2,
-              content: current.resolution,
-              contentSha256: "a".repeat(64),
-              similarity: 0.812,
-            },
-          ],
+    if (endpoint.endsWith("/search")) {
+      const result = {
+        items: [
+          {
+            id: "chunk",
+            articleId,
+            articleVersion: 2,
+            content: current.resolution,
+            contentSha256: "a".repeat(64),
+            similarity: 0.812,
+          },
+        ],
+        mode: body.mode,
+        embeddingModel: "fixture-embedding",
+      };
+      savedSearch = {
+        search: {
+          id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+          query: body.query,
           mode: body.mode,
-          embeddingModel: "fixture-embedding",
+          topK: body.topK,
+          resultCount: 1,
+          createdAt: article.createdAt,
         },
-      });
+        result,
+      };
+      return route.fulfill({ json: result });
+    }
     if (endpoint.endsWith("/approve")) {
       current = {
         ...current,
@@ -251,6 +289,25 @@ test("search sends only after consent and clears results on workspace change", a
   await expect(page.getByRole("heading", { name: "Chưa có bài viết" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Mở bài viết", exact: true })).toHaveCount(0);
   await expect(page.getByLabel("Mô tả lỗi")).toHaveValue("");
+});
+
+test("successful lookup is automatically saved and replayed without another provider call", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/knowledge");
+  await page.getByLabel("Mô tả lỗi").fill("Socket occupied");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Tìm trong kho kiến thức" }).click();
+  await expect(page.getByRole("button", { name: "Socket occupied", exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: "Socket occupied", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Kết quả đã lưu: Socket occupied" }),
+  ).toBeVisible();
+  expect(state.writes.filter((write) => write.path.endsWith("/search"))).toHaveLength(1);
+  await page.getByRole("button", { name: "Xóa lần tra này" }).click();
+  await expect(page.getByText("Chưa có lịch sử tra cứu.")).toBeVisible();
 });
 
 test("resolved incident links a new empty draft to its source, unresolved source is blocked", async ({

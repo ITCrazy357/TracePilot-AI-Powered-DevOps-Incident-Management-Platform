@@ -16,24 +16,31 @@ public class KnowledgeSearch {
     private final KnowledgeText text;
     private final EmbeddingClient embeddings;
     private final RagProperties properties;
+    private final SearchHistoryService history;
 
     public KnowledgeSearch(KnowledgeService service, KnowledgeRepository repository, KnowledgeText text,
-                           EmbeddingClient embeddings, RagProperties properties) {
+                           EmbeddingClient embeddings, RagProperties properties, SearchHistoryService history) {
         this.service = service;
         this.repository = repository;
         this.text = text;
         this.embeddings = embeddings;
         this.properties = properties;
+        this.history = history;
     }
 
     public KnowledgeDtos.SearchResponse search(UUID actorId, UUID workspaceId, KnowledgeDtos.SearchRequest request) {
         service.requireMember(actorId, workspaceId);
         service.requireRag();
+        var query = text.sanitize(request.query());
+        if (query.isBlank() || query.length() > 2000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Search query is empty or too long after redaction.");
+        }
         try {
-            var matches = retrieve(workspaceId, text.sanitize(request.query()), request.topK(), request.mode(),
+            var matches = retrieve(workspaceId, query, request.topK(), request.mode(),
                 Optional.empty(), 1);
-            service.requireMember(actorId, workspaceId);
-            return new KnowledgeDtos.SearchResponse(matches, request.mode(), RagProperties.MODEL);
+            var result = new KnowledgeDtos.SearchResponse(matches, request.mode(), RagProperties.MODEL);
+            history.save(actorId, workspaceId, query, request.topK(), result);
+            return result;
         } catch (AnalysisFailure failure) {
             var status = "AI_DAILY_LIMIT".equals(failure.code()) ? HttpStatus.TOO_MANY_REQUESTS : HttpStatus.BAD_GATEWAY;
             throw new ResponseStatusException(status, "Knowledge search could not be completed.");

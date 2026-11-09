@@ -119,7 +119,7 @@ class Phase06IntegrationTests {
         }
         GITHUB.reset();
         AI.reset();
-        for (var table : List.of("outbox_events", "analysis_evidence", "ai_usage_events",
+        for (var table : List.of("knowledge_search_history", "outbox_events", "analysis_evidence", "ai_usage_events",
             "knowledge_chunks", "knowledge_articles", "ai_analyses", "notifications",
             "incident_log_snippets", "incidents", "workflow_jobs", "workflow_runs", "webhook_deliveries",
             "repositories", "github_installations")) {
@@ -197,6 +197,35 @@ class Phase06IntegrationTests {
         assertThat(article(owner, WORKSPACE_ID, id).path("indexStatus").asString()).isEqualTo("READY");
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM ai_usage_events WHERE operation = 'EMBEDDING'", Integer.class))
             .isEqualTo(1);
+    }
+
+    @Test
+    void searchHistoryIsAnImmutablePrivateSnapshotAndReadingItNeverEmbedsAgain() throws Exception {
+        var articleId = create(owner, WORKSPACE_ID, "Port fix", "Socket occupied", "Stop the stale listener");
+        approve(owner, WORKSPACE_ID, articleId, 0);
+        var result = search("Socket occupied password=history-private-secret", "EXACT", 3);
+        assertThat(result.path("items").size()).isEqualTo(1);
+        var historyPath = knowledgePath(WORKSPACE_ID) + "/search-history";
+        var history = body(call("GET", historyPath, member.accessToken(), null));
+        assertThat(history.path("total").asLong()).isEqualTo(1);
+        assertThat(history.toString()).doesNotContain("history-private-secret");
+        var id = history.path("items").get(0).path("id").asString();
+        int embeddings = AI.embeddings.calls.get();
+        call("POST", knowledgePath(WORKSPACE_ID) + "/" + articleId + "/archive", owner.accessToken(), Map.of("version", 2));
+        var saved = call("GET", historyPath + "/" + id, member.accessToken(), null);
+        assertThat(saved.statusCode()).isEqualTo(200);
+        assertThat(body(saved).path("result")).isEqualTo(result);
+        assertThat(AI.embeddings.calls).hasValue(embeddings);
+        assertThat(body(call("GET", historyPath, owner.accessToken(), null)).path("total").asLong()).isZero();
+        assertThat(call("GET", historyPath + "/" + id, owner.accessToken(), null).statusCode()).isEqualTo(404);
+        assertThat(call("DELETE", historyPath + "/" + id, owner.accessToken(), null).statusCode()).isEqualTo(404);
+        assertThat(call("GET", knowledgePath(OTHER_WORKSPACE_ID) + "/search-history/" + id, outsider.accessToken(), null).statusCode()).isEqualTo(404);
+        assertThat(call("DELETE", historyPath + "/" + id, member.accessToken(), null).statusCode()).isEqualTo(204);
+        assertThat(call("GET", historyPath + "/" + id, member.accessToken(), null).statusCode()).isEqualTo(404);
+        search("No indexed knowledge remains", "EXACT", 3);
+        assertThat(body(call("GET", historyPath, member.accessToken(), null)).path("items").get(0).path("resultCount").asInt()).isZero();
+        assertThat(call("POST", knowledgePath(WORKSPACE_ID) + "/search", member.accessToken(), Map.of("query", " ", "mode", "EXACT", "topK", 3)).statusCode()).isEqualTo(400);
+        assertThat(body(call("GET", historyPath, member.accessToken(), null)).path("total").asLong()).isEqualTo(1);
     }
 
     @Test
