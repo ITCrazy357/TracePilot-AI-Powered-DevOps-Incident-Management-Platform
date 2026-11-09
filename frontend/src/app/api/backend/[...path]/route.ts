@@ -22,6 +22,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${incidents}(?:/${uuid}(?:/logs)?)?$`),
     new RegExp(`^${analyses}(?:/${uuid}(?:/usage|/feedback)?)?$`),
     new RegExp(`^${workspace}/quality$`),
+    new RegExp(`^${workspace}/(?:audit-logs|operations(?:/outbox)?)$`),
     new RegExp(`^${workspace}/notifications(?:/stream)?$`),
   ],
   POST: [
@@ -29,6 +30,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${workspace}/(members|github/sync)$`),
     new RegExp(`^${runs}/sync$`),
     new RegExp(`^${analyses}$`),
+    new RegExp(`^${workspace}/operations/outbox/${uuid}/retry$`),
   ],
   PATCH: [
     new RegExp(`^${workspace}/members/${uuid}$`),

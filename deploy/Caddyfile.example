@@ -1,0 +1,13 @@
+# Caddy runs on the same host as the loopback-bound Compose ports.
+# Set PUBLIC_DOMAIN to the real DNS name before validating and starting Caddy.
+{$PUBLIC_DOMAIN} {
+    @github path /webhooks/github
+    handle @github {
+        reverse_proxy 127.0.0.1:18081
+    }
+    handle {
+        reverse_proxy 127.0.0.1:13000 {
+            flush_interval -1
+        }
+    }
+}

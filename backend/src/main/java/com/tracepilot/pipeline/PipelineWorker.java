@@ -1,5 +1,8 @@
 package com.tracepilot.pipeline;
 
+import org.slf4j.MDC;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -14,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 @ConditionalOnProperty(prefix = "tracepilot.pipeline", name = "enabled", havingValue = "true")
 public class PipelineWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineWorker.class);
     private final OutboxRepository outboxRepository;
     private final PipelineAccess access;
     private final GitHubWorkflowClient workflowClient;
@@ -30,11 +34,18 @@ public class PipelineWorker {
     @RabbitListener(queues = PipelineQueues.SYNC_QUEUE, containerFactory = "pipelineListenerContainerFactory")
     public void receive(Message message) {
         var id = eventId(message);
+        try (var ignored = MDC.putCloseable("outboxId", id.toString())) {
+            process(id);
+        }
+    }
+
+    private void process(UUID id) {
         var pending = outboxRepository.claimProcessing(id);
         if (pending.isEmpty()) {
             return;
         }
         var claim = pending.orElseThrow();
+        LOGGER.info("Processing workflow sync attempt {}", claim.attempts());
         try {
             var scope = access.currentScope(claim.repositoryId());
             if (scope.isEmpty()) {

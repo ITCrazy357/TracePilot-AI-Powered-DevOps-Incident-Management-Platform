@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.within;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"RAG_ENABLED=false", "AI_ENABLED=false", "GITHUB_ENABLED=false", "PIPELINE_ENABLED=false",
+    properties = {"RATE_LIMIT_ENABLED=false", "RAG_ENABLED=false", "AI_ENABLED=false", "GITHUB_ENABLED=false", "PIPELINE_ENABLED=false",
         "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
         "AUTH_SIGNING_SECRET=phase07-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase07IntegrationTests {

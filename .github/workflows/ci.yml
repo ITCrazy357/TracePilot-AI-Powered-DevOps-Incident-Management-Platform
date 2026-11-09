@@ -1,0 +1,100 @@
+name: Verify TracePilot
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Verify with PostgreSQL and RabbitMQ Testcontainers
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -ntp verify
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: backend-test-results
+          path: |
+            backend/target/surefire-reports/TEST-*.xml
+            backend/target/phase06-recall.json
+          retention-days: 7
+
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install, build and check frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run format:check
+          npm run build
+          npm run typecheck
+          npx playwright install --with-deps chromium
+          npm run test:ui
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: browser-fixture-results
+          path: frontend/playwright-report/
+          retention-days: 7
+
+  shipping:
+    needs: [backend, frontend]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_REVISION: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+      - name: Build and start the shipping stack
+        shell: pwsh
+        run: ./scripts/shipping.ps1 -Task up -Project tracepilot-ci
+      - name: Verify actual container auth, audit and isolation
+        run: node scripts/shipping-smoke.mjs
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: container-smoke-results
+          path: .verification/phase09/smoke.json
+          include-hidden-files: true
+          retention-days: 7
+      - name: Stop the CI stack
+        if: always()
+        # Only this runner's disposable Compose project; no developer volumes.
+        run: docker compose --env-file .env.shipping -p tracepilot-ci -f compose.shipping.yaml down --volumes

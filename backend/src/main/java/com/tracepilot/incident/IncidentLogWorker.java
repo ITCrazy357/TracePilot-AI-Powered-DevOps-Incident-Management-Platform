@@ -1,5 +1,8 @@
 package com.tracepilot.incident;
 
+import org.slf4j.MDC;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -17,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 @ConditionalOnProperty(prefix = "tracepilot.pipeline", name = "enabled", havingValue = "true")
 public class IncidentLogWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IncidentLogWorker.class);
     private final OutboxRepository outboxRepository;
     private final PipelineAccess access;
     private final IncidentRepository incidentRepository;
@@ -35,11 +39,19 @@ public class IncidentLogWorker {
 
     @RabbitListener(queues = PipelineQueues.LOGS_QUEUE, containerFactory = "pipelineListenerContainerFactory")
     public void receive(Message message) {
-        var pending = outboxRepository.claimProcessing(eventId(message), "INCIDENT_LOG_CAPTURE");
+        var id = eventId(message);
+        try (var ignored = MDC.putCloseable("outboxId", id.toString())) {
+            process(id);
+        }
+    }
+
+    private void process(UUID id) {
+        var pending = outboxRepository.claimProcessing(id, "INCIDENT_LOG_CAPTURE");
         if (pending.isEmpty()) {
             return;
         }
         var claim = pending.orElseThrow();
+        LOGGER.info("Processing log capture attempt {}", claim.attempts());
         try {
             var scope = access.currentScope(claim.repositoryId());
             var incidentId = outboxRepository.logIncidentId(claim);

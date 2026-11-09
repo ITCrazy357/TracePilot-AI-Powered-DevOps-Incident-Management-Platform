@@ -1,0 +1,42 @@
+{
+  "checkedAt": "2026-11-09T07:58:27.737Z",
+  "scope": "Local container smoke; sequential requests; no provider calls or capacity claim",
+  "frontendOrigin": "http://127.0.0.1:13000",
+  "checks": [
+    "readiness",
+    "login and secure cookies",
+    "audit correlation",
+    "workspace isolation",
+    "manager RBAC",
+    "origin rejection",
+    "proxy allowlist",
+    "rate-limit headers",
+    "logout revocation"
+  ],
+  "metrics": [
+    {
+      "name": "backend readiness",
+      "samples": 25,
+      "concurrency": 1,
+      "p50Ms": 26.92,
+      "p95Ms": 50.31,
+      "maxMs": 73.57
+    },
+    {
+      "name": "Next BFF auth/me",
+      "samples": 25,
+      "concurrency": 1,
+      "p50Ms": 67.21,
+      "p95Ms": 170.37,
+      "maxMs": 360.69
+    },
+    {
+      "name": "Next BFF workspace operations",
+      "samples": 25,
+      "concurrency": 1,
+      "p50Ms": 92.11,
+      "p95Ms": 229.97,
+      "maxMs": 238.47
+    }
+  ]
+}

@@ -33,6 +33,14 @@ spring:
       enabled: true
 
 tracepilot:
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    auth-per-minute: ${RATE_AUTH_PER_MINUTE:60}
+    session-per-minute: ${RATE_SESSION_PER_MINUTE:120}
+    reads-per-minute: ${RATE_READS_PER_MINUTE:600}
+    writes-per-minute: ${RATE_WRITES_PER_MINUTE:120}
+    expensive-per-minute: ${RATE_EXPENSIVE_PER_MINUTE:10}
+    login-per-account: ${RATE_LOGIN_PER_ACCOUNT:10}
   auth:
     signing-secret: ${AUTH_SIGNING_SECRET}
   github:
@@ -84,3 +92,10 @@ management:
       show-details: never
       probes:
         enabled: true
+      group:
+        readiness:
+          include: readinessState,db,rabbit
+
+logging:
+  pattern:
+    level: "%5p [request=%X{requestId:-} outbox=%X{outboxId:-}]"

@@ -1,0 +1,15 @@
+{
+  "provenance": "Synthetic example aligned with frontend browser fixtures; not a real provider result",
+  "workflow": { "githubRunId": 482, "runAttempt": 2, "conclusion": "failure" },
+  "incident": { "status": "INVESTIGATING", "severity": "MEDIUM" },
+  "redactedLog": "[INFO] Compiling sources\nerror: invalid target release: 21\n[ERROR] Failed to execute goal maven-compiler-plugin:compile",
+  "analysis": {
+    "status": "SUCCEEDED",
+    "model": "fixture-model",
+    "summary": "Bước build dừng khi biên dịch mã nguồn Java.",
+    "suspectedRootCause": "Target release 21 không được trình biên dịch hiện tại hỗ trợ. Cần kiểm tra JDK thực tế của runner.",
+    "suggestedFix": "Đối chiếu setup-java với maven.compiler.release và chạy lại kiểm thử trên JDK phù hợp.",
+    "evidence": ["error: invalid target release: 21"]
+  },
+  "humanAction": "Inspect evidence and confirm the fix; the model cannot push or execute code"
+}

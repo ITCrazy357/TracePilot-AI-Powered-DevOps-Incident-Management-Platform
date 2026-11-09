@@ -119,11 +119,13 @@ NestJS → Spring Boot analogy: `@Controller` (Nest) ≈ `@RestController`; `@In
 - **Xong khi:** developer có thể đánh giá AI hữu ích/không; có metrics latency, success rate, token/cost; dashboard tổng hợp lý do thường gặp.
 
 ### Phase 08 — Hardening & reliability
+- **Hoàn tất kiểm chứng local ngày 09/11/2026:** audit cùng transaction, rate limit PostgreSQL, correlation ID, readiness, backlog metrics và retry workflow/log có kiểm quyền. Maven 133 test (19 Phase 08), 43 browser fixture và 9 live test đạt; container test/preview đã thu hồi. Đây là bằng chứng trên DB test riêng; DB Compose cũ chưa nâng cấp do lệch checksum V4. API, cách chạy preview và giới hạn bằng chứng ở [docs/phase-08.md](docs/phase-08.md).
 - **Kiến thức:** outbox/inbox pattern, consumer idempotency, bounded retry/DLQ, RBAC, audit, rate limiting, transaction boundaries.
 - **Model:** `audit_logs`, `outbox_events` (nếu chưa dùng), tối ưu index.
 - **Xong khi:** xử lý lại message không tạo bản ghi sai; tenant isolation được test; có tracing/health/metrics; GitHub API và AI provider lỗi vẫn phục hồi được.
 
 ### Phase 09 — Shipping & CV
+- **Đã triển khai bộ bàn giao local:** Docker multi-stage/non-root, Compose đầy đủ tách volume, cấu hình secret runtime, CI ba job, smoke qua container, ảnh fixture, ERD/API/ADR/demo và báo cáo latency. Cách chạy và kết quả ở [docs/phase-09.md](docs/phase-09.md). Chưa đóng điều kiện end-to-end với GitHub/AI thật hoặc triển khai public; không dùng ảnh synthetic để thay bằng chứng đó.
 - **Kiến thức:** Docker multi-stage build, CI/CD, deployment, observability, README, architecture decision records.
 - **Deliverables:** demo URL nếu host đủ tài nguyên; GitHub repo sạch; screenshot; ERD; API documentation; test results; sample incident; performance report.
 - **Xong khi:** reviewer có thể tự chạy stack bằng Docker Compose, tạo một workflow fail và thấy báo cáo AI với dẫn nguồn.

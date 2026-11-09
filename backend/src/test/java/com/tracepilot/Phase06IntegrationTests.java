@@ -43,7 +43,7 @@ import static org.awaitility.Awaitility.await;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"RAG_ENABLED=true", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "AI_ENABLED=true",
+    properties = {"RATE_LIMIT_ENABLED=false", "RAG_ENABLED=true", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "AI_ENABLED=true",
         "AUTH_SIGNING_SECRET=phase05-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase06IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();
@@ -126,6 +126,7 @@ class Phase06IntegrationTests {
             jdbcTemplate.update("DELETE FROM " + table);
         }
         jdbcTemplate.update("DELETE FROM workspace_members WHERE workspace_id IN (?, ?)", WORKSPACE_ID, OTHER_WORKSPACE_ID);
+        jdbcTemplate.update("DELETE FROM audit_logs WHERE workspace_id IN (?, ?)", WORKSPACE_ID, OTHER_WORKSPACE_ID);
         jdbcTemplate.update("DELETE FROM workspaces WHERE id IN (?, ?)", WORKSPACE_ID, OTHER_WORKSPACE_ID);
         insertWorkspace(WORKSPACE_ID, owner);
         insertWorkspace(OTHER_WORKSPACE_ID, outsider);

@@ -1,6 +1,9 @@
 package com.tracepilot.identity;
 
 import java.util.UUID;
+import java.util.Locale;
+import com.tracepilot.infrastructure.security.RateLimiter;
+import com.tracepilot.infrastructure.security.RateLimitProperties;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,9 +26,13 @@ import com.tracepilot.identity.AuthDtos.UserResponse;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
+    private final RateLimiter rateLimiter;
+    private final RateLimitProperties rateLimits;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, RateLimiter rateLimiter, RateLimitProperties rateLimits) {
         this.authService = authService;
+        this.rateLimiter = rateLimiter;
+        this.rateLimits = rateLimits;
     }
 
     @PostMapping("/register")
@@ -36,6 +43,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest request) {
+        rateLimiter.require("LOGIN_ACCOUNT", request.email().strip().toLowerCase(Locale.ROOT),
+            rateLimits.loginPerAccount(), 300);
         return authService.login(request);
     }
 
