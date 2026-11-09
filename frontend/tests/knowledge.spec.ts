@@ -187,6 +187,23 @@ test("create a draft from human-verified text and show the stored response", asy
   });
 });
 
+test("ordinary article filters are separate from vector lookup", async ({ page }) => {
+  const state = await fixture(page);
+  await page.goto("/knowledge");
+  await expect(page.getByLabel("Mô tả lỗi")).toHaveCount(0);
+  await page.getByLabel("Từ khóa bài viết").fill("socket");
+  await page.getByLabel("Trạng thái bài viết").selectOption("DRAFT");
+  const request = page.waitForRequest(
+    (request) => request.url().includes("q=socket") && request.url().includes("status=DRAFT"),
+  );
+  await page.getByRole("button", { name: "Lọc bài viết", exact: true }).click();
+  await request;
+  expect(state.writes).toHaveLength(0);
+  await page.getByRole("link", { name: "Tra lỗi bằng vector", exact: true }).click();
+  await expect(page.getByLabel("Mô tả lỗi")).toBeVisible();
+  await expect(page.getByLabel("Từ khóa bài viết")).toHaveCount(0);
+});
+
 test("prefill an editable AI draft from an unresolved incident without publishing", async ({
   page,
 }) => {
@@ -276,7 +293,7 @@ test("member can read another author's draft without management controls", async
 
 test("search sends only after consent and clears results on workspace change", async ({ page }) => {
   const state = await fixture(page);
-  await page.goto("/knowledge");
+  await page.goto("/knowledge/search");
   await page.getByLabel("Mô tả lỗi").fill("Không bind được socket");
   await expect(page.getByRole("button", { name: "Tìm trong kho kiến thức" })).toBeDisabled();
   expect(state.writes).toHaveLength(0);
@@ -288,17 +305,18 @@ test("search sends only after consent and clears results on workspace change", a
   await page.getByLabel("Workspace hiện tại", { exact: true }).selectOption(otherWorkspace.id);
   await expect(page.getByRole("heading", { name: "Chưa có bài viết" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Mở bài viết", exact: true })).toHaveCount(0);
-  await expect(page.getByLabel("Mô tả lỗi")).toHaveValue("");
+  await expect(page.getByLabel("Mô tả lỗi")).toHaveCount(0);
 });
 
 test("successful lookup is automatically saved and replayed without another provider call", async ({
   page,
 }) => {
   const state = await fixture(page);
-  await page.goto("/knowledge");
+  await page.goto("/knowledge/search");
   await page.getByLabel("Mô tả lỗi").fill("Socket occupied");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Tìm trong kho kiến thức" }).click();
+  await page.getByRole("link", { name: "Xem lịch sử tra cứu" }).click();
   await expect(page.getByRole("button", { name: "Socket occupied", exact: true })).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Socket occupied", exact: true }).click();
@@ -452,13 +470,14 @@ test("disabled RAG search explains failure while keeping the library usable", as
   await page.route("**/knowledge-articles/search", (route) =>
     route.fulfill({ status: 503, json: { detail: "RAG integration is not configured." } }),
   );
-  await page.goto("/knowledge");
+  await page.goto("/knowledge/search");
   await page.getByLabel("Mô tả lỗi").fill("Không mở được kết nối");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Tìm trong kho kiến thức" }).click();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "Tìm kiếm AI chưa được bật",
   );
+  await page.getByRole("link", { name: "Bài viết", exact: true }).click();
   await expect(page.getByRole("link", { name: article.title, exact: false })).toBeVisible();
   await expect(page.getByRole("link", { name: "Viết bài mới", exact: true })).toBeVisible();
 });

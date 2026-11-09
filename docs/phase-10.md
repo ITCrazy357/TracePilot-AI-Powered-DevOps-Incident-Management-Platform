@@ -19,3 +19,11 @@ POST tra vector thành công tự lưu truy vấn đã che, cách tìm, topK và
 API: GET knowledge-articles/search-history?page=0&size=10; GET/DELETE search-history/{id}. BFF chỉ mở đúng method/path, DELETE kiểm tra Origin. RAG dùng nội bộ để phân tích không được ghi thành lịch sử tra thủ công.
 
 Kiểm chứng phần 2: 17/17 UI, TypeScript và production build đạt. Verify chạy 135 test; test mới ban đầu kiểm tra nhầm tài khoản helper. Đã sửa và chạy lại toàn bộ Phase06: 16/16 đạt; các phase còn lại đạt trong verify. Kiểm tra snapshot sau archive, redaction, quyền riêng tư, workspace, xóa và kết quả rỗng bằng DB tạm/HTTP fixture.
+
+## 3. Tách tiêu chí nghiệp vụ và vector
+
+Sự cố hỗ trợ từ khóa tiêu đề, trạng thái, repositoryId, assignedTo, severity. SQL lọc trước count/phân trang, phạm vi toàn workspace. Kho tri thức lọc từ khóa trong tiêu đề/nguyên nhân/khắc phục và trạng thái. Dùng tham số SQL và substring literal, ký tự % không biến thành wildcard. Bộ lọc không gọi AI hoặc tạo lịch sử vector.
+
+Trang /knowledge chỉ hiển thị bài viết; /knowledge/search dành cho vector; /knowledge/history dành cho lịch sử. Navigation có nhãn rõ; đổi workspace xóa trạng thái cũ. BFF chuyển tiếp đúng danh sách query param được phép theo route.
+
+Kiểm chứng phần 3: 29/29 UI, TypeScript và production build đạt. Verify chạy 137 test; sửa fixture mới thiếu github_workflow_id và fixture stale worker chưa đặt thời điểm sẵn sàng. Chạy lại Phase08 + Phase10: 21/21 đạt; các nhóm khác đạt trong verify. Test tạo 23 sự cố để chứng minh lọc trước phân trang và kiểm tra tìm kiếm khi AI tắt.

@@ -41,9 +41,9 @@ public class IncidentService {
         this.audit = audit;
     }
 
-    public IncidentDtos.IncidentPage list(UUID actorId, UUID workspaceId, int page, int size) {
+    public IncidentDtos.IncidentPage list(UUID actorId, UUID workspaceId, int page, int size, IncidentFilters filters) {
         requireMember(actorId, workspaceId);
-        return incidentRepository.list(workspaceId, page, size);
+        return incidentRepository.list(workspaceId, page, size, filters);
     }
 
     public IncidentDtos.IncidentResponse get(UUID actorId, UUID workspaceId, UUID incidentId) {

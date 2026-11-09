@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Repository
@@ -18,13 +19,35 @@ public class IncidentRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public IncidentDtos.IncidentPage list(UUID workspaceId, int page, int size) {
-        var items = jdbcTemplate.query("""
-            SELECT * FROM incidents WHERE workspace_id = ?
-            ORDER BY detected_at DESC, id LIMIT ? OFFSET ?
-            """, (row, number) -> response(row), workspaceId, size, (long) page * size);
-        long total = jdbcTemplate.queryForObject(
-            "SELECT count(*) FROM incidents WHERE workspace_id = ?", Long.class, workspaceId);
+    public IncidentDtos.IncidentPage list(UUID workspaceId, int page, int size, IncidentFilters filters) {
+        var where = new StringBuilder(" WHERE workspace_id = ?");
+        var parameters = new ArrayList<Object>();
+        parameters.add(workspaceId);
+        if (filters.q() != null && !filters.q().isBlank()) {
+            where.append(" AND position(lower(?) in lower(title)) > 0");
+            parameters.add(filters.q().strip());
+        }
+        if (filters.status() != null) {
+            where.append(" AND status = ?");
+            parameters.add(filters.status().name());
+        }
+        if (filters.repositoryId() != null) {
+            where.append(" AND repository_id = ?");
+            parameters.add(filters.repositoryId());
+        }
+        if (filters.assignedTo() != null) {
+            where.append(" AND assigned_to = ?");
+            parameters.add(filters.assignedTo());
+        }
+        if (filters.severity() != null) {
+            where.append(" AND severity = ?");
+            parameters.add(filters.severity());
+        }
+        long total = jdbcTemplate.queryForObject("SELECT count(*) FROM incidents" + where, Long.class, parameters.toArray());
+        parameters.add(size);
+        parameters.add((long) page * size);
+        var items = jdbcTemplate.query("SELECT * FROM incidents" + where + " ORDER BY detected_at DESC, id LIMIT ? OFFSET ?",
+            (row, number) -> response(row), parameters.toArray());
         return new IncidentDtos.IncidentPage(items, page, size, total);
     }
 

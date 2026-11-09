@@ -48,9 +48,9 @@ public class KnowledgeService {
         this.audit = audit;
     }
 
-    public KnowledgeDtos.ArticlePage list(UUID actorId, UUID workspaceId, int page, int size) {
+    public KnowledgeDtos.ArticlePage list(UUID actorId, UUID workspaceId, int page, int size, KnowledgeFilters filters) {
         requireMember(actorId, workspaceId);
-        return repository.list(workspaceId, page, size);
+        return repository.list(workspaceId, page, size, filters);
     }
 
     public KnowledgeDtos.Article get(UUID actorId, UUID workspaceId, UUID articleId) {

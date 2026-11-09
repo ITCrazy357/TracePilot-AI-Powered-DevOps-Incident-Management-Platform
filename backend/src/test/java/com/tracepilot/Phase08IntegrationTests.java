@@ -446,7 +446,7 @@ class Phase08IntegrationTests {
             jdbcTemplate.update(
                 """
                 UPDATE outbox_events SET status = 'PENDING', processing_status = 'PENDING',
-                    processing_attempts = 0 WHERE id = ?
+                    processing_attempts = 0, available_at = now() - interval '1 minute' WHERE id = ?
                 """, id);
             return outboxRepository.claimProcessing(id).orElseThrow();
         });

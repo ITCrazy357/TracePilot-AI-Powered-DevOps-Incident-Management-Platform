@@ -8,7 +8,6 @@ import type { KnowledgeSearchMode, KnowledgeSearchResult } from "@/lib/contracts
 import { useWorkspace } from "./workspace-provider";
 import { Button } from "./ui/button";
 import { ErrorNotice, Loading } from "./ui/states";
-import { SearchHistory } from "./search-history";
 
 export function KnowledgeSearch() {
   const { selectedId } = useWorkspace();
@@ -20,7 +19,6 @@ export function KnowledgeSearch() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<KnowledgeSearchResult | null>(null);
   const [searchedQuery, setSearchedQuery] = useState("");
-  const [historyVersion, setHistoryVersion] = useState(0);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
 
@@ -44,7 +42,6 @@ export function KnowledgeSearch() {
       );
       if (!request.signal.aborted) {
         setResult(data);
-        setHistoryVersion((value) => value + 1);
       }
     } catch (failure) {
       if (!request.signal.aborted) setError(errorMessage(failure));
@@ -162,7 +159,14 @@ export function KnowledgeSearch() {
           </div>
         )}
       </section>
-      <SearchHistory refresh={historyVersion} />
+      {result && (
+        <p className="notice notice-info">
+          Đã tự lưu lần tra.{" "}
+          <Link className="text-link" href="/knowledge/history">
+            Xem lịch sử tra cứu
+          </Link>
+        </p>
+      )}
     </>
   );
 }

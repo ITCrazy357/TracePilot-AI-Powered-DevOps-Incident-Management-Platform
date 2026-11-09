@@ -93,7 +93,14 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   }
   const query = new URLSearchParams();
   if (request.method === "GET") {
-    for (const key of path.endsWith("/quality") ? ["days"] : ["page", "size"]) {
+    const keys = path.endsWith("/quality")
+      ? ["days"]
+      : new RegExp(`^${incidents}$`).test(path)
+        ? ["page", "size", "q", "status", "repositoryId", "assignedTo", "severity"]
+        : new RegExp(`^${knowledge}$`).test(path)
+          ? ["page", "size", "q", "status"]
+          : ["page", "size"];
+    for (const key of keys) {
       const value = request.nextUrl.searchParams.get(key);
       if (value !== null) query.set(key, value);
     }

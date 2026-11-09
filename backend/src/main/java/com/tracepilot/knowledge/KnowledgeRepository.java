@@ -36,12 +36,23 @@ public class KnowledgeRepository {
             (row, number) -> article(row), workspaceId, id).stream().findFirst();
     }
 
-    public KnowledgeDtos.ArticlePage list(UUID workspaceId, int page, int size) {
-        var items = jdbcTemplate.query("""
-            SELECT * FROM knowledge_articles WHERE workspace_id = ? ORDER BY updated_at DESC, id LIMIT ? OFFSET ?
-            """, (row, number) -> article(row), workspaceId, size, (long) page * size);
-        long total = jdbcTemplate.queryForObject(
-            "SELECT count(*) FROM knowledge_articles WHERE workspace_id = ?", Long.class, workspaceId);
+    public KnowledgeDtos.ArticlePage list(UUID workspaceId, int page, int size, KnowledgeFilters filters) {
+        var where = new StringBuilder(" WHERE workspace_id = ?");
+        var parameters = new ArrayList<Object>();
+        parameters.add(workspaceId);
+        if (filters.q() != null && !filters.q().isBlank()) {
+            where.append(" AND position(lower(?) in lower(title || chr(10) || root_cause || chr(10) || resolution)) > 0");
+            parameters.add(filters.q().strip());
+        }
+        if (filters.status() != null) {
+            where.append(" AND status = ?");
+            parameters.add(filters.status());
+        }
+        long total = jdbcTemplate.queryForObject("SELECT count(*) FROM knowledge_articles" + where, Long.class, parameters.toArray());
+        parameters.add(size);
+        parameters.add((long) page * size);
+        var items = jdbcTemplate.query("SELECT * FROM knowledge_articles" + where + " ORDER BY updated_at DESC, id LIMIT ? OFFSET ?",
+            (row, number) -> article(row), parameters.toArray());
         return new KnowledgeDtos.ArticlePage(items, page, size, total);
     }
 

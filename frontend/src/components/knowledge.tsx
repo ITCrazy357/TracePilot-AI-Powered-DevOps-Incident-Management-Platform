@@ -11,7 +11,7 @@ import { WorkspaceBoundary } from "./workspace-boundary";
 import { Button } from "./ui/button";
 import { EmptyState, ErrorNotice, Loading } from "./ui/states";
 import { PageHeading, Pagination, StatusBadge } from "./ui/operational";
-import { KnowledgeSearch } from "./knowledge-search";
+import { KnowledgeNavigation } from "./knowledge-navigation";
 
 export function Knowledge() {
   const { selectedId } = useWorkspace();
@@ -25,8 +25,11 @@ export function Knowledge() {
 function KnowledgeContent() {
   const { selectedId } = useWorkspace();
   const [page, setPage] = useState(0);
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("");
+  const [criteria, setCriteria] = useState("");
   const articles = useResource<DataPage<KnowledgeArticle>>(
-    `/api/backend/workspaces/${selectedId}/knowledge-articles?page=${page}&size=20`,
+    `/api/backend/workspaces/${selectedId}/knowledge-articles?page=${page}&size=20${criteria}`,
   );
   return (
     <>
@@ -42,7 +45,8 @@ function KnowledgeContent() {
           </Button>
         }
       />
-      <div className="knowledge-layout">
+      <KnowledgeNavigation />
+      <div>
         <section className="panel knowledge-library" aria-labelledby="library-heading">
           <div className="panel-heading">
             <h2 id="library-heading">
@@ -58,6 +62,48 @@ function KnowledgeContent() {
               <RefreshCw size={16} />
             </Button>
           </div>
+          <form
+            className="criteria-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setPage(0);
+              const params = new URLSearchParams();
+              if (q.trim()) params.set("q", q.trim());
+              if (status) params.set("status", status);
+              setCriteria(params.size ? `&${params}` : "");
+            }}
+          >
+            <label>
+              Từ khóa bài viết
+              <input maxLength={200} value={q} onChange={(event) => setQ(event.target.value)} />
+            </label>
+            <label>
+              Trạng thái bài viết
+              <select value={status} onChange={(event) => setStatus(event.target.value)}>
+                <option value="">Tất cả trạng thái</option>
+                <option value="DRAFT">Bản nháp</option>
+                <option value="APPROVED">Đã duyệt</option>
+                <option value="ARCHIVED">Đã lưu trữ</option>
+              </select>
+            </label>
+            <div className="toolbar-actions">
+              <Button type="submit">Lọc bài viết</Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setQ("");
+                  setStatus("");
+                  setCriteria("");
+                  setPage(0);
+                }}
+              >
+                Xóa bộ lọc
+              </Button>
+            </div>
+            <p className="field-hint">
+              Tìm trong tiêu đề, nguyên nhân và cách khắc phục. Không gọi AI.
+            </p>
+          </form>
           {articles.loading && !articles.data ? (
             <Loading label="Đang tải kho kiến thức…" />
           ) : articles.error ? (
@@ -67,7 +113,7 @@ function KnowledgeContent() {
           ) : !articles.data?.items.length ? (
             <EmptyState
               icon={BookOpen}
-              title="Chưa có bài viết"
+              title={criteria ? "Không có bài viết khớp tiêu chí" : "Chưa có bài viết"}
               description="Bắt đầu bằng cách ghi lại nguyên nhân và cách khắc phục mà bạn đã kiểm tra."
               action={
                 <Link className="text-link" href="/knowledge/new">
@@ -107,29 +153,6 @@ function KnowledgeContent() {
             </>
           )}
         </section>
-        <aside className="context-column">
-          <KnowledgeSearch />
-          <div className="knowledge-guide">
-            <h2>Từ kinh nghiệm đến nguồn tham khảo</h2>
-            <ol>
-              <li>
-                <strong>Ghi lại</strong>
-                <span>Nội dung do con người kiểm tra, lưu dưới dạng bản nháp.</span>
-              </li>
-              <li>
-                <strong>Duyệt</strong>
-                <span>OWNER/ADMIN duyệt và tạo chỉ mục bằng AI.</span>
-              </li>
-              <li>
-                <strong>Tra cứu</strong>
-                <span>
-                  Chỉ bài đã duyệt, có chỉ mục sẵn sàng mới được dùng để tìm kiếm và tham khảo cho
-                  AI.
-                </span>
-              </li>
-            </ol>
-          </div>
-        </aside>
       </div>
     </>
   );

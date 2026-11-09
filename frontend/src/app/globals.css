@@ -3,6 +3,45 @@
 .history-intro {
   margin: 20px 24px 0;
 }
+.section-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+.section-navigation a {
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.section-navigation a[aria-current="page"] {
+  color: var(--primary);
+  background: var(--blue-soft, #e2f2ff);
+  font-weight: 600;
+}
+.criteria-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+  padding: 24px;
+  background: #f8fbfd;
+  border-bottom: 1px solid var(--line);
+}
+.criteria-form > .field-hint,
+.criteria-form > .notice {
+  grid-column: 1 / -1;
+}
+.criteria-form .toolbar-actions {
+  align-self: end;
+  flex-wrap: wrap;
+}
+.lookup-layout {
+  max-width: 1000px;
+  display: grid;
+  gap: 20px;
+}
 
 .knowledge-layout,
 .knowledge-editor-layout {

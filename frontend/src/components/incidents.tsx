@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, CircleAlert, RefreshCw } from "lucide-react";
-import type { DataPage, Incident, IncidentStatus } from "@/lib/contracts";
+import type { DataPage, Incident, IncidentStatus, RepositoryPage } from "@/lib/contracts";
 import { useResource } from "@/lib/use-resource";
 import { dateTime, incidentLabels, shortId } from "@/lib/presentation";
 import { useAuth } from "./auth-provider";
@@ -30,13 +30,20 @@ export function Incidents() {
 
 function IncidentList() {
   const { user } = useAuth();
-  const { selectedId } = useWorkspace();
+  const { selectedId, members } = useWorkspace();
   const [page, setPage] = useState(0);
-  const [status, setStatus] = useState("");
-  const resource = useResource<DataPage<Incident>>(
-    `/api/backend/workspaces/${selectedId}/incidents?page=${page}&size=20`,
+  const empty = { q: "", status: "", repositoryId: "", assignedTo: "", severity: "" };
+  const [criteria, setCriteria] = useState(empty);
+  const [applied, setApplied] = useState(empty);
+  const filters = new URLSearchParams(Object.entries(applied).filter(([, value]) => value));
+  const repositories = useResource<RepositoryPage>(
+    `/api/backend/workspaces/${selectedId}/repositories?page=0&size=100`,
   );
-  const items = resource.data?.items.filter((item) => !status || item.status === status) ?? [];
+  const resource = useResource<DataPage<Incident>>(
+    `/api/backend/workspaces/${selectedId}/incidents?page=${page}&size=20&${filters}`,
+  );
+  const items = resource.data?.items ?? [];
+  const filtered = filters.size > 0;
   return (
     <section className="panel">
       <div className="panel-heading incident-list-toolbar">
@@ -49,30 +56,112 @@ function IncidentList() {
           </p>
         </div>
         <div className="toolbar-actions">
-          <label className="inline-filter">
-            <span className="sr-only">Trạng thái trên trang</span>
-            <select
-              aria-label="Trạng thái trên trang"
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
-            >
-              <option value="">Tất cả trạng thái</option>
-              {Object.entries(incidentLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
           <Button variant="outline" onClick={resource.reload} disabled={resource.loading}>
             <RefreshCw size={16} />
             Làm mới
           </Button>
         </div>
       </div>
-      {status && (
-        <p className="filter-scope">Bộ lọc áp dụng cho tối đa 20 sự cố trên trang hiện tại.</p>
-      )}
+      <form
+        className="criteria-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setPage(0);
+          setApplied({ ...criteria, q: criteria.q.trim() });
+        }}
+      >
+        <label>
+          Từ khóa tiêu đề
+          <input
+            maxLength={200}
+            value={criteria.q}
+            onChange={(event) => setCriteria({ ...criteria, q: event.target.value })}
+          />
+        </label>
+        <label>
+          Trạng thái sự cố
+          <select
+            value={criteria.status}
+            onChange={(event) => setCriteria({ ...criteria, status: event.target.value })}
+          >
+            <option value="">Tất cả trạng thái</option>
+            {Object.entries(incidentLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Kho mã
+          <select
+            value={criteria.repositoryId}
+            onChange={(event) => setCriteria({ ...criteria, repositoryId: event.target.value })}
+          >
+            <option value="">Tất cả kho mã</option>
+            {repositories.data?.items.map((repo) => (
+              <option key={repo.id} value={repo.id}>
+                {repo.fullName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Mức độ
+          <select
+            value={criteria.severity}
+            onChange={(event) => setCriteria({ ...criteria, severity: event.target.value })}
+          >
+            <option value="">Tất cả mức độ</option>
+            {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Người phụ trách
+          <select
+            value={criteria.assignedTo}
+            onChange={(event) => setCriteria({ ...criteria, assignedTo: event.target.value })}
+          >
+            <option value="">Tất cả người phụ trách</option>
+            {members.map((member) => (
+              <option key={member.userId} value={member.userId}>
+                {member.userId === user?.id ? "Bạn" : shortId(member.userId)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="toolbar-actions">
+          <Button type="submit" disabled={resource.loading}>
+            Tìm theo tiêu chí
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setCriteria(empty);
+              setApplied(empty);
+              setPage(0);
+            }}
+          >
+            Xóa bộ lọc
+          </Button>
+        </div>
+        <p className="field-hint">
+          Lọc trên toàn workspace, không gọi AI.{" "}
+          <Link className="text-link" href="/knowledge/search">
+            Tra lỗi bằng vector
+          </Link>
+        </p>
+        {repositories.error && (
+          <ErrorNotice
+            message="Không tải được danh sách kho mã. Bạn vẫn có thể dùng các tiêu chí khác."
+            retry={repositories.reload}
+          />
+        )}
+      </form>
       {resource.loading && !resource.data ? (
         <Loading label="Đang tải sự cố…" />
       ) : resource.error ? (
@@ -82,10 +171,10 @@ function IncidentList() {
       ) : !items.length ? (
         <EmptyState
           icon={CircleAlert}
-          title={status ? "Không có sự cố khớp trên trang này" : "Chưa có sự cố nào"}
+          title={filtered ? "Không có sự cố khớp tiêu chí" : "Chưa có sự cố nào"}
           description={
-            status
-              ? "Đổi trạng thái lọc hoặc chuyển sang trang khác."
+            filtered
+              ? "Đổi tiêu chí hoặc xóa bộ lọc để xem tất cả sự cố."
               : "Backend tự ghi nhận sự cố khi một workflow hoàn tất với kết quả thất bại."
           }
         />
