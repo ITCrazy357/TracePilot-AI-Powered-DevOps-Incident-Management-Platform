@@ -1,5 +1,10 @@
 package com.tracepilot.incident;
 
+import com.tracepilot.audit.AuditAction;
+import com.tracepilot.audit.AuditLog;
+import java.util.Map;
+import java.util.HashMap;
+
 import java.time.Clock;
 import java.util.Objects;
 import java.util.UUID;
@@ -23,15 +28,17 @@ public class IncidentService {
     private final WorkspaceMemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
     private final Clock clock;
+    private final AuditLog audit;
 
     public IncidentService(IncidentRepository incidentRepository, WorkspaceRepository workspaceRepository,
                            WorkspaceMemberRepository memberRepository, NotificationRepository notificationRepository,
-                           Clock clock) {
+                           Clock clock, AuditLog audit) {
         this.incidentRepository = incidentRepository;
         this.workspaceRepository = workspaceRepository;
         this.memberRepository = memberRepository;
         this.notificationRepository = notificationRepository;
         this.clock = clock;
+        this.audit = audit;
     }
 
     public IncidentDtos.IncidentPage list(UUID actorId, UUID workspaceId, int page, int size) {
@@ -69,6 +76,8 @@ public class IncidentService {
             throw staleVersion();
         }
         notificationRepository.notifyMembers(workspaceId, incidentId, "INCIDENT_STATUS_CHANGED", clock.instant());
+        audit.record(workspaceId, actorId, AuditAction.INCIDENT_STATUS_CHANGED, incidentId,
+            Map.of("fromStatus", incident.status(), "toStatus", request.status()));
         return find(workspaceId, incidentId);
     }
 
@@ -92,6 +101,15 @@ public class IncidentService {
             throw staleVersion();
         }
         notificationRepository.notifyMembers(workspaceId, incidentId, "INCIDENT_ASSIGNED", clock.instant());
+        var metadata = new HashMap<String, Object>();
+        metadata.put("assigned", request.assignedTo() != null);
+        if (request.assignedTo() != null) {
+            metadata.put("assigneeId", request.assignedTo());
+        }
+        if (incident.assignedTo() != null) {
+            metadata.put("previousAssigneeId", incident.assignedTo());
+        }
+        audit.record(workspaceId, actorId, AuditAction.INCIDENT_ASSIGNED, incidentId, metadata);
         return find(workspaceId, incidentId);
     }
 

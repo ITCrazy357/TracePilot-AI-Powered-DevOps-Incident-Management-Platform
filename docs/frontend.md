@@ -1,6 +1,6 @@
 # Frontend — Clean Precision và luồng điều tra sự cố
 
-Frontend có các luồng backend Phase 01–05 và feedback/dashboard Phase 07: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE, phân tích AI và Chất lượng AI. Quản trị knowledge/RAG Phase 06 hiện qua backend/API. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
+Frontend có các luồng backend Phase 01–05 feedback/dashboard Phase 07 và vận hành/audit Phase 08: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE, phân tích AI và Chất lượng AI. Quản trị knowledge/RAG Phase 06 hiện qua backend/API. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
 
 Áp dụng hướng dẫn tinh giản và hoàn thiện từ [Impeccable](https://github.com/pbakaus/impeccable/tree/924bbd194d02e5e15a227e75b5901fb0d7a4ecad/.agents/skills/impeccable). Bản clone local ở `.tools/impeccable`; dùng context loader và detector trực tiếp, không cài hook toàn cục hay thêm Impeccable vào runtime sản phẩm.
 
@@ -55,6 +55,8 @@ Phase 07 thêm **đánh giá cá nhân** bên dưới báo cáo SUCCEEDED và tr
 Quản trị knowledge/RAG trên UI, xuất CSV thành viên, đổi tên/xóa/chuyển OWNER và sửa mã/tạo PR chưa được triển khai. Không tạo nút giả hoặc lấy dữ liệu minh họa làm dữ liệu sản phẩm. Tài khoản/workspace mới có trạng thái trống cho đến khi GitHub đã được cấu hình và gửi dữ liệu.
 
 ## Luồng dữ liệu và bảo vệ phiên
+
+Phase 08 thêm **Vận hành & audit** cho OWNER/ADMIN: xem backlog/lịch sử tác vụ, xác nhận thử lại workflow/log theo quyền và xem audit có request ID. MEMBER không được tải các tài nguyên này; backend vẫn chặn request trực tiếp. Retry gửi replayCount đã đọc, 409 yêu cầu tải lại và quyết định lại; AI tạo phân tích mới thay vì reset lịch sử. Next giữ X-Request-ID và Retry-After hợp lệ từ backend, hiển thị thời gian chờ 429, không tự retry khi bị giới hạn. Xem [Phase 08](phase-08.md).
 
 ```mermaid
 sequenceDiagram
@@ -142,5 +144,5 @@ Kết quả local của lần sửa Clean Precision: build/TypeScript đạt, **
 - Đăng ký lỗi mật khẩu dù ít hơn 72 ký tự: giới hạn là byte UTF-8; tiếng Việt/emoji có thể dùng nhiều byte.
 - Workspace/membership trả 404: tài khoản không còn quyền hoặc UUID sai. Tải lại danh sách workspace; không suy luận workspace tồn tại từ lỗi 404.
 - Đồng bộ trả 503/409/502: xem [hướng dẫn GitHub](phase-02.md); frontend không tự tạo binding installation hoặc retry sync liên tục.
-- API mới trả 404 dù source có controller: kiểm tra tiến trình backend đã nạp code mới chưa. Nếu khởi động bị Flyway checksum mismatch, cần đối soát migration/schema trước; không repair hoặc reset chỉ để chạy UI. Ở lượt kiểm chứng này, database local có V4 applied `-702013013` khác source `6650674`; giữ nguyên DB và dùng snapshot Phase 05 `7cce48c` với Testcontainers riêng cho kiểm thử frontend.
+- API mới trả 404 dù source có controller: kiểm tra tiến trình backend đã nạp code mới chưa. Nếu khởi động bị Flyway checksum mismatch, cần đối soát migration/schema trước; không repair hoặc reset chỉ để chạy UI. Database local được ghi nhận có V4 applied `-702013013` khác source `6650674`. Để kiểm chứng Phase 08 hiện tại, dùng `.\scripts\backend.ps1 -Task preview` tại root, đặt `BACKEND_URL=http://127.0.0.1:18080` cho Next và khởi động lại frontend; xem [hướng dẫn preview và live test](phase-08.md#preview-bằng-database-test-riêng). Snapshot Phase 05 nói trên chỉ là bằng chứng lịch sử.
 - Chạy production local: `npm run build`, `npm start`. Production đặt Secure cookie; dùng HTTPS khi triển khai và cấu hình origin public chính xác.

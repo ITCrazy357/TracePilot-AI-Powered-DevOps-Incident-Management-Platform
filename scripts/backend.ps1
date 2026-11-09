@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'doctor', 'infra', 'verify', 'run', 'stop')]
+    [ValidateSet('setup', 'doctor', 'infra', 'verify', 'run', 'preview', 'stop')]
     [string]$Task = 'doctor'
 )
 
@@ -107,7 +107,7 @@ try {
             $env:MAVEN_USER_HOME = Join-Path $projectRoot '.tools\maven'
             $mavenRepo = Join-Path $projectRoot '.tools\m2'
             if ($Task -eq 'setup') { Start-Infrastructure }
-            if ($Task -eq 'verify') { Assert-Docker }
+            if ($Task -in @('verify', 'preview')) { Assert-Docker }
             Push-Location $backendRoot
             try {
                 $mavenArgs = @('-B', '-ntp', "-Dmaven.repo.local=$mavenRepo")
@@ -115,6 +115,14 @@ try {
                     'setup' { $mavenArgs += 'verify' }
                     'verify' { $mavenArgs += 'verify' }
                     'run' { $mavenArgs += 'spring-boot:run' }
+                    'preview' {
+                        # ServiceConnection uses disposable DB/broker containers instead of the local Compose volumes.
+                        $mavenArgs += @(
+                            '-Dspring-boot.run.main-class=com.tracepilot.TestTracePilotApplication',
+                            '-Dspring-boot.run.arguments=--server.port=18080 --tracepilot.github.enabled=false --tracepilot.pipeline.enabled=false --tracepilot.ai.enabled=false --tracepilot.rag.enabled=false --tracepilot.rate-limit.enabled=true',
+                            'spring-boot:test-run'
+                        )
+                    }
                 }
                 Invoke-Checked -Command '.\mvnw.cmd' -Arguments $mavenArgs
             }

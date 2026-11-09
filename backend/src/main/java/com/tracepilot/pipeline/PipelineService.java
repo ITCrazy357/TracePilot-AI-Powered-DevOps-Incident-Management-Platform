@@ -3,6 +3,9 @@ package com.tracepilot.pipeline;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Map;
+import com.tracepilot.audit.AuditAction;
+import com.tracepilot.audit.AuditLog;
 
 import com.tracepilot.github.GitHubProperties;
 import com.tracepilot.workspace.WorkspaceRepository;
@@ -21,16 +24,18 @@ public class PipelineService {
     private final OutboxRepository outboxRepository;
     private final WorkspaceRepository workspaceRepository;
     private final GitHubProperties gitHubProperties;
+    private final AuditLog audit;
 
     public PipelineService(PipelineAccess access, WorkflowRunRepository runRepository,
                            WorkflowJobRepository jobRepository, OutboxRepository outboxRepository,
-                           WorkspaceRepository workspaceRepository, GitHubProperties gitHubProperties) {
+                           WorkspaceRepository workspaceRepository, GitHubProperties gitHubProperties, AuditLog audit) {
         this.access = access;
         this.runRepository = runRepository;
         this.jobRepository = jobRepository;
         this.outboxRepository = outboxRepository;
         this.workspaceRepository = workspaceRepository;
         this.gitHubProperties = gitHubProperties;
+        this.audit = audit;
     }
 
     @Transactional
@@ -46,6 +51,9 @@ public class PipelineService {
         }
         var work = new PipelineDtos.Work(request.githubRunId(), request.runAttempt());
         var id = outboxRepository.enqueue(repositoryId, work, Optional.empty());
+        audit.record(workspaceId, actorId, AuditAction.WORKFLOW_SYNC_REQUESTED, id,
+            Map.of("repositoryId", repositoryId, "githubRunId", request.githubRunId(),
+                "runAttempt", request.runAttempt()));
         return outboxRepository.find(id);
     }
 

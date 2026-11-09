@@ -1,5 +1,8 @@
 package com.tracepilot.analysis;
 
+import org.slf4j.MDC;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnProperty(prefix = "tracepilot.ai", name = "enabled", havingValue = "true")
 public class AnalysisWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnalysisWorker.class);
     private final OutboxRepository outboxRepository;
     private final AnalysisStore analysisStore;
     private final AnalysisClient client;
@@ -35,11 +39,19 @@ public class AnalysisWorker {
     @RabbitListener(id = "incident-analysis", queues = PipelineQueues.AI_QUEUE,
         containerFactory = "analysisListenerContainerFactory")
     public void receive(Message message) {
-        var pending = outboxRepository.claimProcessing(eventId(message), "AI_ANALYSIS");
+        var id = eventId(message);
+        try (var ignored = MDC.putCloseable("outboxId", id.toString())) {
+            process(id);
+        }
+    }
+
+    private void process(UUID id) {
+        var pending = outboxRepository.claimProcessing(id, "AI_ANALYSIS");
         if (pending.isEmpty()) {
             return;
         }
         var claim = pending.orElseThrow();
+        LOGGER.info("Processing AI analysis attempt {}", claim.attempts());
         var analysisId = outboxRepository.analysisId(claim);
         Optional<AnalysisDtos.ProviderResult> result = Optional.empty();
         long started = System.nanoTime();

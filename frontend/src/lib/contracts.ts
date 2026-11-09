@@ -249,3 +249,36 @@ export interface QualityDashboard {
   usage: QualityUsage[];
   errors: { code: string; count: number }[];
 }
+
+export interface AuditEntry {
+  id: string;
+  actorUserId: string | null;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  metadata: Record<string, string | number | boolean>;
+  requestId: string | null;
+  createdAt: string;
+}
+
+export interface OutboxEvent {
+  id: string;
+  repositoryId: string;
+  eventType: string;
+  publicationStatus: string;
+  processingStatus: string;
+  attempts: number;
+  totalAttempts: number;
+  replayCount: number;
+  errorCode: string | null;
+  createdAt: string;
+  availableAt: string;
+  processedAt: string | null;
+}
+
+export interface Backlog {
+  eventType: string;
+  status: string;
+  count: number;
+  oldestAgeSeconds: number | null;
+}

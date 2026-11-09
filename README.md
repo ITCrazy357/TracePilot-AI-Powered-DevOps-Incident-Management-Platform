@@ -1,6 +1,6 @@
 # TracePilot
 
-Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–07: nền tảng local, tài khoản/workspace, GitHub App/webhook, workflow run/job, incident, log đã che dữ liệu nhạy cảm, SSE, phân tích AI, knowledge/RAG với pgvector và feedback/quality metrics**. AI và RAG mặc định tắt.
+Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backend hiện có **Phase 00–08: nền tảng local, tài khoản/workspace, GitHub App/webhook, workflow run/job, incident, log đã che dữ liệu nhạy cảm, SSE, phân tích AI, knowledge/RAG với pgvector, feedback/quality metrics và audit/rate limiting/reliability**. AI và RAG mặc định tắt.
 
 Hướng dẫn học, API và chạy thử: [Phase 01 — Identity & Workspace](docs/phase-01.md).
 
@@ -16,7 +16,9 @@ Knowledge do con người duyệt, embedding 1.536 chiều, exact/HNSW/hybrid se
 
 Feedback cá nhân theo báo cáo, dashboard success/helpfulness/latency/token/cost và bộ tham chiếu đánh giá: [Phase 07 — Feedback & quality](docs/phase-07.md). Dashboard giữ rõ dữ liệu chưa biết và phần chi phí ước tính; không coi helpfulness là accuracy hoặc nhãn người dùng là false-positive rate.
 
-Frontend Next.js có luồng Phase 01–05 và feedback/dashboard Phase 07: [hướng dẫn chạy và học frontend](docs/frontend.md). Thiết kế theo `Design_TracePilot`/Clean Precision và Impeccable; có tài khoản/workspace, kho mã, lần chạy/jobs, sự cố/log/AI, thông báo trực tiếp và trang Chất lượng AI. Quản trị knowledge Phase 06 hiện qua backend/API. Chạy backend, sau đó tại `frontend/` dùng `npm ci` và `npm run dev`, mở http://127.0.0.1:3000. Yêu cầu Node.js 22+.
+Audit cùng transaction, rate limit PostgreSQL, request/outbox correlation, readiness và thao tác thử lại có kiểm quyền: [Phase 08 — Hardening & reliability](docs/phase-08.md). OWNER/ADMIN xem **Vận hành & audit**; workflow replay vẫn chỉ OWNER. Không reset lịch sử AI để thử lại.
+
+Frontend Next.js có luồng Phase 01–05 feedback/dashboard Phase 07 và vận hành/audit Phase 08: [hướng dẫn chạy và học frontend](docs/frontend.md). Thiết kế theo `Design_TracePilot`/Clean Precision và Impeccable; có tài khoản/workspace, kho mã, lần chạy/jobs, sự cố/log/AI, thông báo trực tiếp và trang Chất lượng AI. Quản trị knowledge Phase 06 hiện qua backend/API. Chạy backend, sau đó tại `frontend/` dùng `npm ci` và `npm run dev`, mở http://127.0.0.1:3000. Yêu cầu Node.js 22+.
 
 Quy tắc code cho các phase: [AGENTS.md](AGENTS.md). Ưu tiên code rõ nghĩa, đơn giản và hiệu năng có căn cứ; `.editorconfig` thống nhất định dạng Java.
 
@@ -82,6 +84,9 @@ Tất cả port chỉ bind loopback. Các port có thể sửa trong `.env`. Cre
 # Chạy backend sau khi bật hạ tầng
 .\scripts\backend.ps1 -Task run
 
+# Preview Phase 08 với DB/broker tạm riêng, tắt các provider, backend ở port 18080
+.\scripts\backend.ps1 -Task preview
+
 # Dừng hai dịch vụ của dự án, giữ dữ liệu trong volume
 .\scripts\backend.ps1 -Task stop
 ```
@@ -105,6 +110,7 @@ backend/
     db/migration/V6__ai_analysis_and_usage.sql
     db/migration/V7__knowledge_vectors_and_evidence.sql
     db/migration/V8__feedback_and_quality.sql
+    db/migration/V9__audit_and_reliability.sql
   src/test/java/com/tracepilot/    # Integration tests + Testcontainers
 scripts/backend.ps1               # Chọn JDK và chạy các tác vụ local
 compose.yaml                      # PostgreSQL/pgvector và RabbitMQ

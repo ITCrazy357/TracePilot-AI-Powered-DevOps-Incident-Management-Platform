@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Bell,
+  Activity,
   ChartNoAxesCombined,
   CirclePlay,
   CircleAlert,
@@ -32,6 +33,7 @@ const links = [
   { href: "/runs", label: "Lần chạy", icon: CirclePlay },
   { href: "/incidents", label: "Sự cố", icon: CircleAlert },
   { href: "/quality", label: "Chất lượng AI", icon: ChartNoAxesCombined },
+  { href: "/operations", label: "Vận hành & audit", icon: Activity },
   { href: "/notifications", label: "Thông báo", icon: Bell },
   { href: "/members", label: "Thành viên", icon: Users },
   { href: "/account", label: "Tài khoản", icon: UserRound },
@@ -152,27 +154,29 @@ function Shell({ children }: { children: ReactNode }) {
         </div>
         <div className="sidebar-label nav-label">QUẢN LÝ</div>
         <nav aria-label="Điều hướng chính" className="main-nav">
-          {links.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-current={
-                pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
-                  ? "page"
-                  : undefined
-              }
-              className={
-                pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
-                  ? "nav-active"
-                  : ""
-              }
-              onClick={() => setMenuOpen(false)}
-            >
-              <Icon size={18} />
-              <span>{label}</span>
-              {pathname === href && <span className="nav-dot" />}
-            </Link>
-          ))}
+          {links
+            .filter((item) => item.href !== "/operations" || role === "OWNER" || role === "ADMIN")
+            .map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                aria-current={
+                  pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
+                    ? "page"
+                    : undefined
+                }
+                className={
+                  pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
+                    ? "nav-active"
+                    : ""
+                }
+                onClick={() => setMenuOpen(false)}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+                {pathname === href && <span className="nav-dot" />}
+              </Link>
+            ))}
         </nav>
         <div className="sidebar-note">
           <div className="trace-motif" aria-hidden="true">

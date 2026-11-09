@@ -2555,6 +2555,39 @@ dd {
   display: grid;
   gap: 20px;
 }
+.operations-list,
+.operations-backlog {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.operations-list > li {
+  padding: 20px;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.operations-list h3 {
+  font-size: 14px;
+}
+.operations-entry-heading,
+.operations-backlog li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.operations-backlog li {
+  margin-bottom: 16px;
+}
+.operations-metadata {
+  display: block;
+  margin: 8px 0;
+  white-space: pre-wrap;
+}
+.operations-list .button {
+  margin-top: 12px;
+}
 .quality-toolbar,
 .feedback-votes,
 .quality-errors li,

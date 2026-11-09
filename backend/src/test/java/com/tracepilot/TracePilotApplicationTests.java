@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"RAG_ENABLED=false", "AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "GITHUB_ENABLED=false",
+    properties = {"RATE_LIMIT_ENABLED=false", "RAG_ENABLED=false", "AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "GITHUB_ENABLED=false",
         "AUTH_SIGNING_SECRET=phase01-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class TracePilotApplicationTests {
 
@@ -44,7 +44,7 @@ class TracePilotApplicationTests {
     }
 
     @Test
-    void flywayMigratesFreshDatabaseThroughPhase07() {
+    void flywayMigratesFreshDatabaseThroughPhase08() {
         assertThat(jdbcTemplate.queryForObject(
             "SELECT count(*) FROM flyway_schema_history WHERE version = '1' AND success", Integer.class))
             .isEqualTo(1);
@@ -83,6 +83,12 @@ class TracePilotApplicationTests {
             """, String.class)).containsExactlyInAnyOrder("knowledge_articles", "knowledge_chunks", "analysis_evidence");
         assertThat(jdbcTemplate.queryForObject(
             "SELECT count(*) FROM flyway_schema_history WHERE version = '8' AND success", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM flyway_schema_history WHERE version = '9' AND success", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForList("""
+            SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
+                AND table_name IN ('audit_logs', 'rate_limit_buckets')
+            """, String.class)).containsExactlyInAnyOrder("audit_logs", "rate_limit_buckets");
         assertThat(jdbcTemplate.queryForObject("SELECT to_regclass('public.incident_feedback')::text", String.class))
             .isEqualTo("incident_feedback");
     }
@@ -123,8 +129,8 @@ class TracePilotApplicationTests {
         Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).target("6").load().migrate();
         Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load().migrate();
         assertThat(jdbcTemplate.queryForObject(
-            "SELECT count(*) FROM " + schema + ".flyway_schema_history WHERE version IN ('1', '2', '3', '4', '5', '6', '7', '8') AND success",
-            Integer.class)).isEqualTo(8);
+            "SELECT count(*) FROM " + schema + ".flyway_schema_history WHERE version IN ('1', '2', '3', '4', '5', '6', '7', '8', '9') AND success",
+            Integer.class)).isEqualTo(9);
         assertThat(jdbcTemplate.queryForObject(
             "SELECT count(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = 'users'",
             Integer.class, schema)).isEqualTo(1);

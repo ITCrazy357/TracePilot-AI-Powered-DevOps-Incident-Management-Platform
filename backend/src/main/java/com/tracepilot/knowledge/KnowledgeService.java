@@ -1,5 +1,9 @@
 package com.tracepilot.knowledge;
 
+import com.tracepilot.audit.AuditAction;
+import com.tracepilot.audit.AuditLog;
+import java.util.Map;
+
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
@@ -28,10 +32,11 @@ public class KnowledgeService {
     private final RagProperties properties;
     private final AiProperties aiProperties;
     private final Clock clock;
+    private final AuditLog audit;
 
     public KnowledgeService(KnowledgeRepository repository, WorkspaceRepository workspaceRepository,
                             WorkspaceMemberRepository memberRepository, IncidentRepository incidentRepository,
-                            KnowledgeText text, RagProperties properties, AiProperties aiProperties, Clock clock) {
+                            KnowledgeText text, RagProperties properties, AiProperties aiProperties, Clock clock, AuditLog audit) {
         this.repository = repository;
         this.workspaceRepository = workspaceRepository;
         this.memberRepository = memberRepository;
@@ -40,6 +45,7 @@ public class KnowledgeService {
         this.properties = properties;
         this.aiProperties = aiProperties;
         this.clock = clock;
+        this.audit = audit;
     }
 
     public KnowledgeDtos.ArticlePage list(UUID actorId, UUID workspaceId, int page, int size) {
@@ -66,6 +72,7 @@ public class KnowledgeService {
         var clean = new KnowledgeDtos.CreateRequest(request.sourceIncidentId(), sanitize(request.title(), 160),
             sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000));
         repository.insert(id, workspaceId, actorId, clean, clock.instant());
+        audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_CREATED, id, Map.of());
         return find(workspaceId, id);
     }
 
@@ -82,6 +89,8 @@ public class KnowledgeService {
         var clean = new KnowledgeDtos.EditRequest(request.version(), sanitize(request.title(), 160),
             sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000));
         repository.edit(articleId, clean, clock.instant());
+        audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_EDITED, articleId,
+            Map.of("previousContentVersion", article.contentVersion()));
         return find(workspaceId, articleId);
     }
 
@@ -103,6 +112,8 @@ public class KnowledgeService {
         }
         var token = UUID.randomUUID();
         repository.approve(articleId, actorId, token, clock.instant());
+        audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_APPROVED, articleId,
+            Map.of("contentVersion", article.contentVersion()));
         return new KnowledgeDtos.Publication(find(workspaceId, articleId), token, text.chunks(article));
     }
 
@@ -135,6 +146,7 @@ public class KnowledgeService {
         requireVersion(article, version);
         if (!"ARCHIVED".equals(article.status())) {
             repository.archive(articleId, clock.instant());
+            audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_ARCHIVED, articleId, Map.of());
         }
         return find(workspaceId, articleId);
     }
