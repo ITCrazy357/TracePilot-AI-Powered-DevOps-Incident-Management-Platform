@@ -131,6 +131,7 @@ export async function mockOperations(
     if (path.endsWith("/analyses") && method === "GET")
       return route.fulfill({ json: { items: [analysis], page: 0, size: 20, total: 1 } });
     if (path.endsWith(`/analyses/${analysisId}`)) return route.fulfill({ json: analysis });
+    if (path.endsWith("/evidence")) return route.fulfill({ json: [] });
     if (path.endsWith("/usage"))
       return route.fulfill({
         json: [
@@ -138,6 +139,9 @@ export async function mockOperations(
             id: "usage1",
             analysisId,
             attempt: 1,
+            operation: "CHAT",
+            provider: "openai",
+            model: "fixture-model",
             status: "UNKNOWN",
             inputTokens: null,
             outputTokens: null,

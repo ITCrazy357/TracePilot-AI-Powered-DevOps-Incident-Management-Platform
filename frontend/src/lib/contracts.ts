@@ -1,4 +1,4 @@
-// JSON contracts from AuthDtos, WorkspaceDtos and GitHubDtos in the Spring backend.
+// JSON contracts mirrored from the Spring backend DTO records.
 export interface User {
   id: string;
   email: string;
@@ -166,6 +166,9 @@ export interface AnalysisUsage {
   id: string;
   analysisId: string;
   attempt: number;
+  operation: string;
+  provider: string;
+  model: string;
   status: string;
   inputTokens: number | null;
   outputTokens: number | null;
@@ -281,4 +284,51 @@ export interface Backlog {
   status: string;
   count: number;
   oldestAgeSeconds: number | null;
+}
+
+export interface KnowledgeArticle {
+  id: string;
+  workspaceId: string;
+  sourceIncidentId: string | null;
+  title: string;
+  rootCause: string;
+  resolution: string;
+  status: "DRAFT" | "APPROVED" | "ARCHIVED";
+  indexStatus: "NONE" | "RUNNING" | "READY" | "FAILED";
+  version: number;
+  contentVersion: number;
+  createdBy: string;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  indexErrorCode: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type KnowledgeSearchMode = "EXACT" | "APPROXIMATE" | "HYBRID";
+
+export interface KnowledgeSearchResult {
+  items: {
+    id: string;
+    articleId: string;
+    articleVersion: number;
+    content: string;
+    contentSha256: string;
+    similarity: number;
+  }[];
+  mode: KnowledgeSearchMode;
+  embeddingModel: string;
+}
+
+export interface AnalysisEvidence {
+  id: string;
+  sourceType: "LOG" | "KNOWLEDGE";
+  logSnippetId: string | null;
+  logChunkIndex: number | null;
+  knowledgeChunkId: string | null;
+  articleId: string | null;
+  articleVersion: number | null;
+  quote: string;
+  sourceSha256: string;
+  similarityScore: number | null;
 }

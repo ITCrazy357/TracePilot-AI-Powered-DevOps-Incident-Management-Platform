@@ -87,6 +87,14 @@ function IncidentContent({ incidentId }: { incidentId: string }) {
         }
       />
       {notice && <SuccessNotice>{notice}</SuccessNotice>}
+      {incident.status === "RESOLVED" && (
+        <p className="knowledge-incident-link">
+          Cách khắc phục đã được kiểm tra?
+          <Link className="text-link" href={`/knowledge/new?incidentId=${incident.id}`}>
+            Ghi vào kho kiến thức <ArrowRight size={14} />
+          </Link>
+        </p>
+      )}
       <Tabs.Root value={tab} onValueChange={setTab} className="incident-tabs">
         <Tabs.List aria-label="Nội dung sự cố" className="tab-list">
           <Tabs.Trigger value="overview">

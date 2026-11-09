@@ -13,6 +13,11 @@ import { incidentLabels } from "@/lib/presentation";
 import type { IncidentStatus } from "@/lib/contracts";
 
 const labels: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  APPROVED: "Đã duyệt",
+  ARCHIVED: "Đã lưu trữ",
+  NONE: "Chưa tạo chỉ mục",
+  READY: "Sẵn sàng",
   success: "Thành công",
   failure: "Thất bại",
   timed_out: "Hết thời gian",
@@ -33,7 +38,7 @@ const labels: Record<string, string> = {
 };
 
 export function StatusBadge({ status, incident = false }: { status: string; incident?: boolean }) {
-  const success = ["success", "SUCCEEDED", "RESOLVED"].includes(status);
+  const success = ["success", "SUCCEEDED", "RESOLVED", "READY"].includes(status);
   const failed = ["failure", "timed_out", "startup_failure", "FAILED", "INVESTIGATING"].includes(
     status,
   );

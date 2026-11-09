@@ -13,6 +13,7 @@ const workspace = `workspaces/${uuid}`;
 const runs = `${workspace}/repositories/${uuid}/workflow-runs`;
 const incidents = `${workspace}/incidents`;
 const analyses = `${incidents}/${uuid}/analyses`;
+const knowledge = `${workspace}/knowledge-articles`;
 const routes: Record<string, RegExp[]> = {
   GET: [
     /^workspaces$/,
@@ -20,7 +21,8 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^workspaces/${uuid}/(members|repositories)$`),
     new RegExp(`^${runs}(?:/sync-requests|/${uuid}(?:/jobs)?)?$`),
     new RegExp(`^${incidents}(?:/${uuid}(?:/logs)?)?$`),
-    new RegExp(`^${analyses}(?:/${uuid}(?:/usage|/feedback)?)?$`),
+    new RegExp(`^${analyses}(?:/${uuid}(?:/usage|/feedback|/evidence)?)?$`),
+    new RegExp(`^${knowledge}(?:/${uuid})?$`),
     new RegExp(`^${workspace}/quality$`),
     new RegExp(`^${workspace}/(?:audit-logs|operations(?:/outbox)?)$`),
     new RegExp(`^${workspace}/notifications(?:/stream)?$`),
@@ -30,9 +32,11 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${workspace}/(members|github/sync)$`),
     new RegExp(`^${runs}/sync$`),
     new RegExp(`^${analyses}$`),
+    new RegExp(`^${knowledge}(?:/search|/${uuid}/(?:approve|archive))?$`),
     new RegExp(`^${workspace}/operations/outbox/${uuid}/retry$`),
   ],
   PATCH: [
+    new RegExp(`^${knowledge}/${uuid}$`),
     new RegExp(`^${workspace}/members/${uuid}$`),
     new RegExp(`^${incidents}/${uuid}/(status|assignee)$`),
     new RegExp(`^${workspace}/notifications/${uuid}/read$`),
@@ -79,7 +83,7 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
     !path.endsWith("github/sync") &&
     !path.endsWith("/read")
   ) {
-    const payload = await readJson(request);
+    const payload = await readJson(request, path.includes("/knowledge-articles") ? 65_536 : 8192);
     if (payload.error) return payload.error;
     body = JSON.stringify(payload.body);
   }

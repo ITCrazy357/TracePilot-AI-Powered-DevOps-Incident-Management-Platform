@@ -37,12 +37,17 @@ export function checkOrigin(request: NextRequest) {
 
 export async function backend(path: string, init: RequestInit = {}) {
   const base = process.env.BACKEND_URL ?? "http://127.0.0.1:8080";
+  const timeout = path.endsWith("github/sync")
+    ? 180_000
+    : /\/knowledge-articles\/(?:search|[0-9a-f-]+\/approve)$/i.test(path)
+      ? 45_000
+      : 15_000;
   try {
     return await fetch(`${base}/api/v1/${path}`, {
       ...init,
       cache: "no-store",
       redirect: "error",
-      signal: init.signal ?? AbortSignal.timeout(path.endsWith("github/sync") ? 180_000 : 15_000),
+      signal: init.signal ?? AbortSignal.timeout(timeout),
       headers: { "Content-Type": "application/json", ...init.headers },
     });
   } catch {
@@ -143,7 +148,7 @@ export async function refreshSession(token: string) {
   return (await pending).clone();
 }
 
-export async function readJson(request: NextRequest) {
+export async function readJson(request: NextRequest, maxBytes = 8192) {
   if (!request.headers.get("content-type")?.startsWith("application/json")) {
     return { error: problem(415, "Expected application/json.") };
   }
@@ -156,7 +161,7 @@ export async function readJson(request: NextRequest) {
     const chunk = await reader.read();
     if (chunk.done) break;
     bytes += chunk.value.byteLength;
-    if (bytes > 8192) {
+    if (bytes > maxBytes) {
       await reader.cancel();
       return { error: problem(413, "Request body is too large.") };
     }

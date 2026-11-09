@@ -1,6 +1,6 @@
 # Frontend — Clean Precision và luồng điều tra sự cố
 
-Frontend có các luồng backend Phase 01–05 feedback/dashboard Phase 07 và vận hành/audit Phase 08: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE, phân tích AI và Chất lượng AI. Quản trị knowledge/RAG Phase 06 hiện qua backend/API. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
+Frontend có các luồng backend Phase 01–08: tài khoản, workspace/thành viên, repository, workflow run/jobs, incident/log đã che, thông báo/SSE, phân tích AI, kho kiến thức/RAG, Chất lượng AI và vận hành/audit. Giao diện bám `Design_TracePilot` và [hệ thống Clean Precision](../DESIGN.md): trắng/xanh băng, xanh dương cho thao tác, hồng cho điều tra/bằng chứng. Font Be Vietnam Pro và JetBrains Mono được tự host, không tải CDN khi mở ứng dụng.
 
 Áp dụng hướng dẫn tinh giản và hoàn thiện từ [Impeccable](https://github.com/pbakaus/impeccable/tree/924bbd194d02e5e15a227e75b5901fb0d7a4ecad/.agents/skills/impeccable). Bản clone local ở `.tools/impeccable`; dùng context loader và detector trực tiếp, không cài hook toàn cục hay thêm Impeccable vào runtime sản phẩm.
 
@@ -52,7 +52,9 @@ APP_ORIGIN=http://127.0.0.1:3000
 
 Phase 07 thêm **đánh giá cá nhân** bên dưới báo cáo SUCCEEDED và trang **Chất lượng AI**: success rate, helpful rate, độ phủ review, latency, lý do đánh giá, lỗi và token/cost theo operation/model. Thành viên ACTIVE có thể chấm dù chưa được phân công; 409 yêu cầu tải lại phiếu. Xem [định nghĩa mẫu số và hướng dẫn thử](phase-07.md).
 
-Quản trị knowledge/RAG trên UI, xuất CSV thành viên, đổi tên/xóa/chuyển OWNER và sửa mã/tạo PR chưa được triển khai. Không tạo nút giả hoặc lấy dữ liệu minh họa làm dữ liệu sản phẩm. Tài khoản/workspace mới có trạng thái trống cho đến khi GitHub đã được cấu hình và gửi dữ liệu.
+**Kho kiến thức Phase 06:** tạo bài hoặc ghi cách khắc phục từ sự cố RESOLVED, sửa bản nháp có version, OWNER/ADMIN duyệt và lưu trữ, tìm lỗi tương tự sau khi đồng ý gửi truy vấn tới AI. Báo cáo phân biệt nguồn log/knowledge và giữ thông tin revision lịch sử. Xem [luồng sử dụng, quyền và kiểm chứng](frontend-knowledge.md).
+
+Xuất CSV thành viên, đổi tên/xóa/chuyển OWNER và sửa mã/tạo PR chưa được triển khai. Không tạo nút giả hoặc lấy dữ liệu minh họa làm dữ liệu sản phẩm. Tài khoản/workspace mới có trạng thái trống cho đến khi GitHub đã được cấu hình và gửi dữ liệu.
 
 ## Luồng dữ liệu và bảo vệ phiên
 

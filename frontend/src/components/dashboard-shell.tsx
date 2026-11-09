@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Bell,
+  BookOpen,
   Activity,
   ChartNoAxesCombined,
   CirclePlay,
@@ -32,6 +33,7 @@ const links = [
   { href: "/repositories", label: "Kho mã", icon: GitBranch },
   { href: "/runs", label: "Lần chạy", icon: CirclePlay },
   { href: "/incidents", label: "Sự cố", icon: CircleAlert },
+  { href: "/knowledge", label: "Kho kiến thức", icon: BookOpen },
   { href: "/quality", label: "Chất lượng AI", icon: ChartNoAxesCombined },
   { href: "/operations", label: "Vận hành & audit", icon: Activity },
   { href: "/notifications", label: "Thông báo", icon: Bell },
@@ -137,6 +139,7 @@ function Shell({ children }: { children: ReactNode }) {
                 setMenuOpen(false);
                 if (pathname.startsWith("/incidents/")) router.push("/incidents");
                 if (pathname.startsWith("/runs/")) router.push("/runs");
+                if (pathname.startsWith("/knowledge/")) router.push("/knowledge");
               }}
               disabled={loading || workspaces.length === 0}
             >

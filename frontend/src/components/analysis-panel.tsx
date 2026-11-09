@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Sparkles, RefreshCw, Quote, ShieldCheck } from "lucide-react";
+import { Sparkles, RefreshCw, Quote, ShieldCheck } from "lucide-react";
 import { api, errorMessage } from "@/lib/api";
 import type { Analysis, AnalysisUsage, DataPage, Incident, IncidentLogs } from "@/lib/contracts";
 import { useResource } from "@/lib/use-resource";
@@ -12,6 +12,7 @@ import { Dialog } from "./ui/dialog";
 import { EmptyState, ErrorNotice, Loading, SuccessNotice } from "./ui/states";
 import { Pagination, StatusBadge } from "./ui/operational";
 import { FeedbackPanel } from "./feedback-panel";
+import { AnalysisSources } from "./analysis-sources";
 
 export function AnalysisPanel({
   incident,
@@ -178,7 +179,8 @@ export function AnalysisPanel({
         <div className="notice notice-info">
           <ShieldCheck size={18} />
           <span>
-            Chỉ tạo báo cáo và các câu trích từ log. Không tự chạy lệnh, sửa mã hoặc triển khai.
+            Báo cáo có thể tham khảo knowledge đã duyệt khi RAG được bật. Không tự chạy lệnh, sửa mã
+            hoặc triển khai.
           </span>
         </div>
         <div className="dialog-actions">
@@ -263,25 +265,10 @@ function Report({
           <div className="panel-heading">
             <h2>
               <Quote size={17} />
-              Bằng chứng từ log
+              Bằng chứng và nguồn
             </h2>
           </div>
-          {analysis.evidence.length ? (
-            <ol className="evidence-list">
-              {analysis.evidence.map((quote, index) => (
-                <li key={index}>
-                  <span className="evidence-number">[{index + 1}]</span>
-                  <blockquote>{quote}</blockquote>
-                  <button className="text-link" onClick={() => onEvidence(quote)}>
-                    Xem trong log đã che
-                    <ArrowRight size={14} />
-                  </button>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <div className="quiet-empty">Chưa có câu trích dẫn cho lần phân tích này.</div>
-          )}
+          <AnalysisSources key={analysis.id} analysis={analysis} onLog={onEvidence} />
         </section>
         <section className="panel">
           <div className="panel-heading">
@@ -328,6 +315,9 @@ function Report({
                   <strong>
                     Attempt {item.attempt} <span className="muted">{item.status}</span>
                   </strong>
+                  <p className="field-hint">
+                    {item.operation ?? "CHAT"} · {item.model ?? analysis.model}
+                  </p>
                   <dl>
                     <div>
                       <dt>Input / output tokens</dt>

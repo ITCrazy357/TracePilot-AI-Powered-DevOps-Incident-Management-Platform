@@ -21,6 +21,18 @@ const messages: Record<number, string> = {
 };
 
 const details: Record<string, string> = {
+  "RAG integration is not configured.":
+    "Tìm kiếm AI chưa được bật. Bạn vẫn có thể tạo, sửa và đọc bài viết; nhờ người vận hành bật AI/RAG để duyệt hoặc tìm kiếm.",
+  "Knowledge changed. Reload before updating.":
+    "Bài viết vừa thay đổi. Tải lại bài viết trước khi cập nhật.",
+  "Knowledge indexing failed. Reload before retrying approval.":
+    "Tạo chỉ mục chưa thành công. Tải lại bài viết để kiểm tra trạng thái trước khi duyệt lại.",
+  "Indexing is already in progress.":
+    "Bài viết đang tạo chỉ mục. Làm mới để kiểm tra; chỉ thử lại sau khi lượt xử lý cũ hết hạn (120 giây).",
+  "Knowledge is already indexed.":
+    "Bài viết đã sẵn sàng tìm kiếm. Tải lại để xem trạng thái mới nhất.",
+  "Confirm the incident as RESOLVED before recording its fix.":
+    "Sự cố cần ở trạng thái Đã giải quyết trước khi lưu cách khắc phục vào kho kiến thức.",
   "GitHub integration is not configured.":
     "Tích hợp GitHub chưa sẵn sàng. OWNER cần kiểm tra cấu hình với người vận hành.",
   "Rate limiting is temporarily unavailable.":

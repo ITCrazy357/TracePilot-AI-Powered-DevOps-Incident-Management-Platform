@@ -1,6 +1,6 @@
 # Phase 06 — Knowledge, pgvector và RAG
 
-Phạm vi triển khai/kiểm chứng ở đây là backend/API. Phase này thêm knowledge do con người xác nhận, embedding, tìm kiếm và nguồn dẫn chứng cho báo cáo AI. Tích hợp RAG mặc định tắt; kiểm thử dùng HTTP fixture, chưa gửi dữ liệu đến provider thật hoặc xác nhận giao diện knowledge.
+Phase này thêm knowledge do con người xác nhận, embedding, tìm kiếm và nguồn dẫn chứng cho báo cáo AI. Tích hợp RAG mặc định tắt; kiểm thử backend dùng HTTP fixture, chưa gửi dữ liệu đến provider thật. Frontend đã bổ sung [kho kiến thức, quyền duyệt và dẫn nguồn](frontend-knowledge.md); bằng chứng UI/live được ghi riêng, không thay cho kiểm chứng provider thật.
 
 ## 1. Model và dimension được khóa
 
