@@ -83,9 +83,16 @@ final class AiApiFixture implements AutoCloseable {
             }
             var request = mapper.readTree(exchange.getRequestBody());
             var messages = request.path("messages");
+            if (request.path("tools").isMissingNode()
+                && (!request.path("tool_choice").isMissingNode()
+                    || !request.path("parallel_tool_calls").isMissingNode())) {
+                problems.add("Tool options require a tools array");
+                respond(exchange, 400, mapper.writeValueAsString(Map.of("error", Map.of(
+                    "message", "Tool options require a tools array", "type", "invalid_request_error"))));
+                return;
+            }
             if (!request.path("model").asString().equals("fixture-model")
                 || !request.path("response_format").path("json_schema").path("strict").asBoolean()
-                || !"none".equals(request.path("tool_choice").asString())
                 || request.path("store").asBoolean() || !request.path("tools").isMissingNode()
                 || request.path("max_completion_tokens").asInt() > 2048 || messages.size() != 2
                 || !"system".equals(messages.get(0).path("role").asString())

@@ -9,6 +9,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $envPath = Join-Path $projectRoot '.env.shipping'
+$localComposePath = Join-Path $projectRoot 'compose.shipping.local.yaml'
 
 function New-LocalSecret {
     $bytes = New-Object byte[] 32
@@ -41,11 +42,16 @@ function Initialize-ShippingEnvironment {
 function Invoke-Compose {
     param([string[]]$ComposeArguments)
     Get-Command docker -ErrorAction Stop | Out-Null
+    $composeFiles = @('-f', 'compose.shipping.yaml')
+    if (Test-Path -LiteralPath $localComposePath) {
+        $composeFiles += @('-f', $localComposePath)
+        Write-Host 'Loading compose.shipping.local.yaml.'
+    }
     $previousPreference = $ErrorActionPreference
     try {
         # Windows PowerShell 5.1 treats redirected native stderr as ErrorRecords, including normal Docker progress.
         $ErrorActionPreference = 'Continue'
-        & docker compose --env-file $envPath -p $Project -f compose.shipping.yaml @ComposeArguments 2>&1 |
+        & docker compose --env-file $envPath -p $Project @composeFiles @ComposeArguments 2>&1 |
             ForEach-Object { $_.ToString() }
         $composeExitCode = $LASTEXITCODE
     }

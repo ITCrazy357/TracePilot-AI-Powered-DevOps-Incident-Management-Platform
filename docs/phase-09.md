@@ -20,6 +20,8 @@ Tại root:
 - `.env.shipping` được tạo với secret ngẫu nhiên, bị Git ignore; chạy `init` lại giữ nguyên file. Không commit file đó. `.env.shipping.example` là mẫu được track.
 - Project mặc định `tracepilot-shipping`, volume riêng; không dùng volume `tracepilot_postgres_data`/`tracepilot_rabbitmq_data` của `compose.yaml`. Database local có lệch checksum V4 vẫn được giữ nguyên.
 
+Muốn DBeaver xem đúng dữ liệu của frontend 13000, bật [truy cập database local tại 127.0.0.1:15433](database.md). Copy `compose.shipping.local.example.yaml` thành `compose.shipping.local.yaml`; helper tự nạp override này ở các lần chạy sau. Chỉ override local mới publish port PostgreSQL; không dùng override khi triển khai public.
+
 Không cần JDK/Maven/npm install trên host để build image. Dùng đầy đủ `--env-file .env.shipping -f compose.shipping.yaml` khi gọi Docker trực tiếp; không ghép file shipping vào Compose phát triển.
 
 ```powershell

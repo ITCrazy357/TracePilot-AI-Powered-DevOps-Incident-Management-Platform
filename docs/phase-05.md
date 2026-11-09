@@ -65,6 +65,12 @@ Composite FK bảo đảm analysis → incident và usage → analysis cùng wor
 
 ## 3. Request và kiểm tra output
 
+Không khai báo tools thì phải bỏ cả `tool_choice` và `parallel_tool_calls` khỏi request. Provider thật đã từ chối request có `tool_choice=none` nhưng không có `tools` bằng HTTP 400; `AnalysisClient` ánh xạ thành `AI_PROVIDER_REJECTED`. Fixture hiện cũng trả 400 cho tổ hợp này để kiểm thử bắt được lỗi. Không đăng ký tool/callback; việc kiểm tra output/tool calls, JSON Schema và giới hạn request vẫn được giữ.
+
+Đối chiếu local ngày 09/11/2026: key đang cấu hình đọc được metadata `gpt-5.4-mini` (HTTP 200). Một request Chat Completions với dữ liệu giả tái hiện HTTP 400 ở `tool_choice`; cùng request sau khi bỏ các tùy chọn tool nhận HTTP 200, `finish_reason=stop`. Đây là kiểm chứng provider thật với dữ liệu giả, chưa thay cho một báo cáo incident thật. Khi áp dụng bản sửa phải build/recreate backend; các analysis FAILED cũ giữ nguyên, người dùng yêu cầu một analysis mới qua giao diện sau khi cập nhật.
+
+Bản sửa đã qua `.\scripts\backend.ps1 -Task verify`: 133 test, không failure/error/skipped. Backend shipping local đã được build/recreate và readiness UP; frontend login trả HTTP 200, port PostgreSQL vẫn 15433. Hai bản FAILED cũ được đối chiếu giữ nguyên. Sau khi người dùng yêu cầu lại trên giao diện, báo cáo `gpt-5.4-mini` cho run GitHub thật `42643019453`, attempt 1 đã SUCCEEDED, lưu 5 câu trích và 5 nguồn LOG tương ứng. Run này cố ý thất bại với `test_alert=true`; kết quả xác nhận luồng tích hợp trên một ca thử, không phải đánh giá độ đúng của AI trên các lỗi production. Log riêng ở `.verification/ai-tool-options-*.log`, báo cáo ở `.verification/ai-tool-options-report.json`.
+
 System prompt cố định yêu cầu báo cáo thận trọng bằng tiếng Việt. Log nằm trong user message riêng và được xem là dữ liệu không đáng tin. Model được yêu cầu bỏ qua chỉ dẫn, URL, role giả và yêu cầu chạy lệnh trong log.
 
 Provider nhận JSON Schema với bốn field bắt buộc:

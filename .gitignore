@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 !.env.shipping.example
+compose.shipping.local.yaml
 .tools/
 .verification/
 **/target/

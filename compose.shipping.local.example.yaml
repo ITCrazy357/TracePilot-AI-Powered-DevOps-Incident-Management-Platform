@@ -1,0 +1,6 @@
+# Optional desktop database access. Copy to compose.shipping.local.yaml;
+# scripts/shipping.ps1 automatically loads that local file on subsequent runs.
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:15433:5432"

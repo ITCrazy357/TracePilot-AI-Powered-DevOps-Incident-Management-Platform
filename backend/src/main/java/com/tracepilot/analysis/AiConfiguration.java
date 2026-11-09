@@ -65,9 +65,10 @@ public class AiConfiguration {
     OpenAiChatModel incidentChatModel(AiProperties properties, OpenAIClient incidentAiClient) {
         var format = OpenAiChatModel.ResponseFormat.builder().type(OpenAiChatModel.ResponseFormat.Type.JSON_SCHEMA)
             .jsonSchema(AnalysisPrompt.SCHEMA).strict(true).build();
+        // No tools are registered. The API rejects tool options when the tools field is absent.
         var options = OpenAiChatOptions.builder().apiKey(properties.apiKey()).baseUrl(properties.baseUrl().toString())
             .model(properties.model()).timeout(properties.timeout()).maxCompletionTokens(properties.maxOutputTokens())
-            .temperature(null).responseFormat(format).toolChoice("none").parallelToolCalls(false)
+            .temperature(null).responseFormat(format)
             .store(false).n(1).maxRetries(0).build();
         return OpenAiChatModel.builder().openAiClient(incidentAiClient).openAiClientAsync(incidentAiClient.async())
             .options(options).build();

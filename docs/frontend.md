@@ -6,6 +6,8 @@ Frontend có các luồng backend Phase 01–08: tài khoản, workspace/thành 
 
 ## Chạy local
 
+Nếu dùng stack shipping tại frontend 13000/backend 18081, DBeaver cần kết nối đúng [database shipping tại port 15433](database.md), dùng credential trong `.env.shipping`. Port 15432 thuộc database phát triển cũ và không tự chia sẻ dữ liệu với shipping.
+
 Yêu cầu Node.js 22+, npm, JDK 21 và Docker Desktop. Tại root, bật hạ tầng và backend:
 
 ```powershell
