@@ -119,8 +119,8 @@ class Phase06IntegrationTests {
         }
         GITHUB.reset();
         AI.reset();
-        for (var table : List.of("outbox_events", "analysis_evidence", "ai_usage_events", "ai_analyses",
-            "knowledge_chunks", "knowledge_articles", "notifications",
+        for (var table : List.of("outbox_events", "analysis_evidence", "ai_usage_events",
+            "knowledge_chunks", "knowledge_articles", "ai_analyses", "notifications",
             "incident_log_snippets", "incidents", "workflow_jobs", "workflow_runs", "webhook_deliveries",
             "repositories", "github_installations")) {
             jdbcTemplate.update("DELETE FROM " + table);
@@ -149,6 +149,29 @@ class Phase06IntegrationTests {
         AI.close();
         GITHUB.close();
         httpClient.close();
+    }
+
+    @Test
+    void successfulAnalysisCanSeedADraftBeforeResolutionWithoutPublishingIt() throws Exception {
+        var incidentId = incident();
+        setLog(incidentId, AiApiFixture.QUOTE);
+        var analysisId = request(owner, incidentId, UUID.randomUUID());
+        waitFor(analysisId, "SUCCEEDED");
+        int calls = AI.embeddings.calls.get();
+        var payload = Map.of("sourceIncidentId", incidentId, "sourceAnalysisId", analysisId,
+            "title", "AI proposal", "rootCause", "Investigate socket owner", "resolution", "Review stale processes");
+        var created = call("POST", knowledgePath(WORKSPACE_ID), member.accessToken(), payload);
+        assertThat(created.statusCode()).isEqualTo(201);
+        assertThat(body(created).path("status").asString()).isEqualTo("DRAFT");
+        assertThat(body(created).path("indexStatus").asString()).isEqualTo("NONE");
+        assertThat(body(created).path("sourceAnalysisId").asString()).isEqualTo(analysisId.toString());
+        assertThat(AI.embeddings.calls).hasValue(calls);
+        assertThat(call("POST", knowledgePath(OTHER_WORKSPACE_ID), outsider.accessToken(), payload).statusCode()).isEqualTo(404);
+        var invalid = new java.util.HashMap<String, Object>(payload);
+        invalid.put("sourceAnalysisId", UUID.randomUUID());
+        assertThat(call("POST", knowledgePath(WORKSPACE_ID), member.accessToken(), invalid).statusCode()).isEqualTo(404);
+        jdbcTemplate.update("UPDATE ai_analyses SET status = 'FAILED' WHERE id = ?", analysisId);
+        assertThat(call("POST", knowledgePath(WORKSPACE_ID), member.accessToken(), payload).statusCode()).isEqualTo(404);
     }
 
     @Test

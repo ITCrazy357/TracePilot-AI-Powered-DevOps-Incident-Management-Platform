@@ -62,7 +62,12 @@ public class KnowledgeService {
     public KnowledgeDtos.Article create(UUID actorId, UUID workspaceId, KnowledgeDtos.CreateRequest request) {
         lock(workspaceId);
         requireMember(actorId, workspaceId);
-        if (request.sourceIncidentId() != null) {
+        if (request.sourceAnalysisId() != null) {
+            if (request.sourceIncidentId() == null || !repository.hasSuccessfulAnalysis(
+                workspaceId, request.sourceIncidentId(), request.sourceAnalysisId())) {
+                throw notFound();
+            }
+        } else if (request.sourceIncidentId() != null) {
             var incident = incidentRepository.find(workspaceId, request.sourceIncidentId()).orElseThrow(this::notFound);
             if (incident.status() != IncidentStatus.RESOLVED) {
                 throw conflict("Confirm the incident as RESOLVED before recording its fix.");
@@ -70,7 +75,7 @@ public class KnowledgeService {
         }
         var id = UUID.randomUUID();
         var clean = new KnowledgeDtos.CreateRequest(request.sourceIncidentId(), sanitize(request.title(), 160),
-            sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000));
+            sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000), request.sourceAnalysisId());
         repository.insert(id, workspaceId, actorId, clean, clock.instant());
         audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_CREATED, id, Map.of());
         return find(workspaceId, id);

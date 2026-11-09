@@ -169,12 +169,25 @@ function ArticleContent({
                   />
                 ) : (
                   <div className="report-sections">
+                    {article.sourceAnalysisId && article.status === "DRAFT" && (
+                      <p className="notice notice-info">
+                        Bản nháp từ đề xuất AI. Nội dung cần được kiểm tra trước khi duyệt.
+                      </p>
+                    )}
                     <section>
-                      <h2>Nguyên nhân đã xác nhận</h2>
+                      <h2>
+                        {article.sourceAnalysisId && article.status === "DRAFT"
+                          ? "Nguyên nhân cần kiểm tra"
+                          : "Nguyên nhân đã xác nhận"}
+                      </h2>
                       <p className="report-copy">{article.rootCause}</p>
                     </section>
                     <section>
-                      <h2>Cách khắc phục đã kiểm tra</h2>
+                      <h2>
+                        {article.sourceAnalysisId && article.status === "DRAFT"
+                          ? "Cách khắc phục đề xuất"
+                          : "Cách khắc phục đã kiểm tra"}
+                      </h2>
                       <p className="report-copy">{article.resolution}</p>
                     </section>
                   </div>

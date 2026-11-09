@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Sparkles, RefreshCw, Quote, ShieldCheck } from "lucide-react";
 import { api, errorMessage } from "@/lib/api";
 import type { Analysis, AnalysisUsage, DataPage, Incident, IncidentLogs } from "@/lib/contracts";
@@ -252,6 +253,12 @@ function Report({
         </section>
         {completed && (
           <>
+            <Link
+              className="button button-outline"
+              href={`/knowledge/new?incidentId=${analysis.incidentId}&analysisId=${analysis.id}`}
+            >
+              Thêm vào bản nháp tri thức
+            </Link>
             <p className="analysis-caveat">
               Đây là đề xuất AI. Câu trích xác nhận nguồn văn bản, không chứng minh kết luận đã
               đúng.

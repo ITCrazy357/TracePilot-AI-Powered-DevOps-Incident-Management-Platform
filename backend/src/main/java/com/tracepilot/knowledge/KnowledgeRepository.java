@@ -48,10 +48,10 @@ public class KnowledgeRepository {
     public void insert(UUID id, UUID workspaceId, UUID actorId, KnowledgeDtos.CreateRequest request, Instant now) {
         jdbcTemplate.update("""
             INSERT INTO knowledge_articles (id, workspace_id, source_incident_id, title, root_cause, resolution,
-                created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                created_by, created_at, updated_at, source_analysis_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, id, workspaceId, request.sourceIncidentId(), request.title(),
             request.rootCause(), request.resolution(), actorId,
-            Timestamp.from(now), Timestamp.from(now));
+            Timestamp.from(now), Timestamp.from(now), request.sourceAnalysisId());
     }
 
     public void edit(UUID id, KnowledgeDtos.EditRequest request, Instant now) {
@@ -212,6 +212,14 @@ public class KnowledgeRepository {
             row.getString("resolution"), row.getString("status"), row.getString("index_status"), row.getLong("version"),
             row.getLong("content_version"), row.getObject("created_by", UUID.class),
             row.getObject("approved_by", UUID.class), approvedAt == null ? null : approvedAt.toInstant(),
-            row.getString("index_error_code"), row.getTimestamp("created_at").toInstant(), row.getTimestamp("updated_at").toInstant());
+            row.getString("index_error_code"), row.getTimestamp("created_at").toInstant(), row.getTimestamp("updated_at").toInstant(),
+            row.getObject("source_analysis_id", UUID.class));
+    }
+
+    public boolean hasSuccessfulAnalysis(UUID workspaceId, UUID incidentId, UUID analysisId) {
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject("""
+            SELECT EXISTS (SELECT 1 FROM ai_analyses
+                WHERE workspace_id = ? AND incident_id = ? AND id = ? AND status = 'SUCCEEDED')
+            """, Boolean.class, workspaceId, incidentId, analysisId));
     }
 }

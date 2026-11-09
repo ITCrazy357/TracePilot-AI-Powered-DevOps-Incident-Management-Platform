@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { ApiError, api, errorMessage } from "@/lib/api";
-import type { Incident, KnowledgeArticle } from "@/lib/contracts";
+import type { Analysis, Incident, KnowledgeArticle } from "@/lib/contracts";
 import { useResource } from "@/lib/use-resource";
 import { useWorkspace } from "./workspace-provider";
 import { WorkspaceBoundary } from "./workspace-boundary";
@@ -13,23 +13,39 @@ import { Button } from "./ui/button";
 import { ErrorNotice, Loading } from "./ui/states";
 import { PageHeading } from "./ui/operational";
 
-export function KnowledgeCreate({ incidentId }: { incidentId?: string }) {
+export function KnowledgeCreate({
+  incidentId,
+  analysisId,
+}: {
+  incidentId?: string;
+  analysisId?: string;
+}) {
   const { selectedId } = useWorkspace();
   return (
     <WorkspaceBoundary>
-      <CreateContent key={`${selectedId}:${incidentId ?? ""}`} incidentId={incidentId} />
+      <CreateContent
+        key={`${selectedId}:${incidentId ?? ""}:${analysisId ?? ""}`}
+        incidentId={incidentId}
+        analysisId={analysisId}
+      />
     </WorkspaceBoundary>
   );
 }
 
-function CreateContent({ incidentId }: { incidentId?: string }) {
+function CreateContent({ incidentId, analysisId }: { incidentId?: string; analysisId?: string }) {
   const { selectedId } = useWorkspace();
   const router = useRouter();
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const validId =
-    !incidentId ||
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(incidentId);
+    (!incidentId || uuid.test(incidentId)) &&
+    (!analysisId || Boolean(incidentId && uuid.test(analysisId)));
   const source = useResource<Incident>(
     incidentId && validId ? `/api/backend/workspaces/${selectedId}/incidents/${incidentId}` : null,
+  );
+  const report = useResource<Analysis>(
+    analysisId && incidentId && validId
+      ? `/api/backend/workspaces/${selectedId}/incidents/${incidentId}/analyses/${analysisId}`
+      : null,
   );
   return (
     <>
@@ -43,15 +59,25 @@ function CreateContent({ incidentId }: { incidentId?: string }) {
       />
       {!validId ? (
         <ErrorNotice message="ID sự cố không hợp lệ. Quay lại kho kiến thức để tạo bài mới." />
-      ) : source.loading ? (
+      ) : source.loading || report.loading ? (
         <Loading label="Đang kiểm tra sự cố nguồn…" />
       ) : source.error ? (
         <ErrorNotice message={source.error} retry={source.reload} />
-      ) : incidentId && source.data?.status !== "RESOLVED" ? (
+      ) : report.error ? (
+        <ErrorNotice message={report.error} retry={report.reload} />
+      ) : analysisId && report.data?.status !== "SUCCEEDED" ? (
+        <ErrorNotice message="Chỉ báo cáo phân tích thành công mới có thể điền vào bản nháp." />
+      ) : incidentId && !analysisId && source.data?.status !== "RESOLVED" ? (
         <ErrorNotice message="Sự cố phải được đánh dấu Đã giải quyết trước khi ghi lại cách khắc phục." />
       ) : (
         <div className="knowledge-editor-layout">
           <section className="panel knowledge-editor-panel">
+            {report.data && (
+              <p className="notice notice-info">
+                Đã điền từ đề xuất AI. Hãy kiểm tra và chỉnh sửa trước khi lưu. Lưu nháp chưa đưa
+                nội dung vào tra cứu.
+              </p>
+            )}
             {source.data && (
               <p className="knowledge-source">
                 Sự cố nguồn:{" "}
@@ -61,7 +87,22 @@ function CreateContent({ incidentId }: { incidentId?: string }) {
               </p>
             )}
             <KnowledgeEditor
+              key={report.data?.id ?? "manual"}
               sourceIncidentId={incidentId}
+              sourceAnalysisId={analysisId}
+              initial={
+                report.data
+                  ? {
+                      title: (
+                        source.data?.title ??
+                        report.data.summary ??
+                        "Bản nháp từ phân tích AI"
+                      ).slice(0, 160),
+                      rootCause: (report.data.suspectedRootCause ?? "").slice(0, 3000),
+                      resolution: (report.data.suggestedFix ?? "").slice(0, 6000),
+                    }
+                  : undefined
+              }
               onSaved={(article) => router.push(`/knowledge/${article.id}`)}
             />
           </section>
@@ -84,12 +125,16 @@ function CreateContent({ incidentId }: { incidentId?: string }) {
 export function KnowledgeEditor({
   article,
   sourceIncidentId,
+  sourceAnalysisId,
+  initial,
   onSaved,
   onCancel,
   onReload,
 }: {
   article?: KnowledgeArticle;
   sourceIncidentId?: string;
+  sourceAnalysisId?: string;
+  initial?: Pick<KnowledgeArticle, "title" | "rootCause" | "resolution">;
   onSaved: (article: KnowledgeArticle) => void;
   onCancel?: () => void;
   onReload?: () => void;
@@ -97,9 +142,9 @@ export function KnowledgeEditor({
   const { selectedId } = useWorkspace();
   // Keep the version captured when editing began; never silently rebase a user's draft.
   const [version] = useState(article?.version);
-  const [title, setTitle] = useState(article?.title ?? "");
-  const [rootCause, setRootCause] = useState(article?.rootCause ?? "");
-  const [resolution, setResolution] = useState(article?.resolution ?? "");
+  const [title, setTitle] = useState(article?.title ?? initial?.title ?? "");
+  const [rootCause, setRootCause] = useState(article?.rootCause ?? initial?.rootCause ?? "");
+  const [resolution, setResolution] = useState(article?.resolution ?? initial?.resolution ?? "");
   const [busy, setBusy] = useState(false);
   const [conflict, setConflict] = useState(false);
   const [error, setError] = useState("");
@@ -116,7 +161,12 @@ export function KnowledgeEditor({
           title: title.trim(),
           rootCause: rootCause.trim(),
           resolution: resolution.trim(),
-          ...(article ? { version } : { sourceIncidentId: sourceIncidentId ?? null }),
+          ...(article
+            ? { version }
+            : {
+                sourceIncidentId: sourceIncidentId ?? null,
+                sourceAnalysisId: sourceAnalysisId ?? null,
+              }),
         }),
       });
       onSaved(saved);
@@ -152,7 +202,9 @@ export function KnowledgeEditor({
           />
         </label>
         <label>
-          Nguyên nhân đã xác nhận
+          {sourceAnalysisId || article?.sourceAnalysisId
+            ? "Nguyên nhân cần kiểm tra"
+            : "Nguyên nhân đã xác nhận"}
           <textarea
             value={rootCause}
             onChange={(event) => setRootCause(event.target.value)}
@@ -163,7 +215,9 @@ export function KnowledgeEditor({
           <span className="field-hint">{rootCause.length}/3.000 ký tự</span>
         </label>
         <label>
-          Cách khắc phục đã kiểm tra
+          {sourceAnalysisId || article?.sourceAnalysisId
+            ? "Cách khắc phục đề xuất"
+            : "Cách khắc phục đã kiểm tra"}
           <textarea
             value={resolution}
             onChange={(event) => setResolution(event.target.value)}

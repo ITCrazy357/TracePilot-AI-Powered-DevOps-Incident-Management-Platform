@@ -290,6 +290,7 @@ export interface KnowledgeArticle {
   id: string;
   workspaceId: string;
   sourceIncidentId: string | null;
+  sourceAnalysisId?: string | null;
   title: string;
   rootCause: string;
   resolution: string;

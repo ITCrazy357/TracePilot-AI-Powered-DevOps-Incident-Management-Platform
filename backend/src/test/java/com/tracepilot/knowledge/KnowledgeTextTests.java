@@ -59,6 +59,6 @@ class KnowledgeTextTests {
     private KnowledgeDtos.Article article(String resolution) {
         return new KnowledgeDtos.Article(UUID.randomUUID(), UUID.randomUUID(), null, "Reviewed fix",
             "Investigated root cause", resolution, "DRAFT", "NONE", 0, 0, UUID.randomUUID(),
-            null, null, null, Instant.EPOCH, Instant.EPOCH);
+            null, null, null, Instant.EPOCH, Instant.EPOCH, null);
     }
 }

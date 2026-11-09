@@ -149,6 +149,32 @@ test("create a draft from human-verified text and show the stored response", asy
   });
 });
 
+test("prefill an editable AI draft from an unresolved incident without publishing", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.route(`**/incidents/${incidentId}`, (route) => route.fulfill({ json: incident }));
+  await page.route(`**/analyses/${analysis.id}`, (route) => route.fulfill({ json: analysis }));
+  await page.goto(`/knowledge/new?incidentId=${incidentId}&analysisId=${analysis.id}`);
+  await expect(page.getByLabel("Tiêu đề", { exact: true })).toHaveValue(incident.title);
+  await expect(page.getByLabel("Nguyên nhân cần kiểm tra", { exact: false })).toHaveValue(
+    analysis.suspectedRootCause!,
+  );
+  await expect(page.getByLabel("Cách khắc phục đề xuất", { exact: false })).toHaveValue(
+    analysis.suggestedFix!,
+  );
+  expect(state.writes).toHaveLength(0);
+  await page.getByLabel("Tiêu đề", { exact: true }).fill("Đề xuất đã xem lại");
+  await page.getByRole("button", { name: "Lưu bản nháp" }).click();
+  await expect(page).toHaveURL(new RegExp(`/knowledge/${articleId}$`));
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0].body).toMatchObject({
+    sourceIncidentId: incidentId,
+    sourceAnalysisId: analysis.id,
+    title: "Đề xuất đã xem lại",
+  });
+});
+
 test("approval requires confirmation and archive keeps its current version", async ({ page }) => {
   const state = await fixture(page);
   await page.goto(`/knowledge/${articleId}`);

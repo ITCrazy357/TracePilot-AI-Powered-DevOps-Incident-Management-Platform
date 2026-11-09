@@ -20,7 +20,7 @@ public final class KnowledgeDtos {
 
     public record CreateRequest(UUID sourceIncidentId, @NotBlank @Size(max = 160) String title,
                                 @NotBlank @Size(max = 3000) String rootCause,
-                                @NotBlank @Size(max = 6000) String resolution) {
+                                @NotBlank @Size(max = 6000) String resolution, UUID sourceAnalysisId) {
     }
 
     public record EditRequest(@NotNull @Min(0) Long version, @NotBlank @Size(max = 160) String title,
@@ -38,7 +38,7 @@ public final class KnowledgeDtos {
     public record Article(UUID id, UUID workspaceId, UUID sourceIncidentId, String title, String rootCause,
                           String resolution, String status, String indexStatus, long version, long contentVersion,
                           UUID createdBy, UUID approvedBy, Instant approvedAt, String indexErrorCode,
-                          Instant createdAt, Instant updatedAt) {
+                          Instant createdAt, Instant updatedAt, UUID sourceAnalysisId) {
     }
 
     public record ArticlePage(List<Article> items, int page, int size, long total) {
