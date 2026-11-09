@@ -12,6 +12,7 @@ import { refreshWorkspace } from "./realtime-provider";
 import { Button } from "./ui/button";
 import { EmptyState, ErrorNotice, Loading } from "./ui/states";
 import { PageHeading, StatusBadge } from "./ui/operational";
+import { ActivityCharts } from "./activity-charts";
 
 export function Overview() {
   const { selectedId, workspace } = useWorkspace();
@@ -72,6 +73,7 @@ function WorkspaceOverview() {
           <strong>{incidents.data?.total ?? "—"}</strong>
         </div>
       </div>
+      <ActivityCharts />
       <div className="overview-grid">
         <section className="panel">
           <div className="panel-heading">

@@ -33,3 +33,11 @@ Kiểm chứng phần 3: 29/29 UI, TypeScript và production build đạt. Verif
 Báo cáo tách vùng tóm tắt, nguyên nhân nghi ngờ, đề xuất khắc phục và bằng chứng. Nút tạo nháp nằm ngay tiêu đề kết quả. Metadata mô hình/lượt gọi và hướng dẫn viết bài mở khi cần. Tra vector chia vùng nhập và vùng kết quả ở desktop, xếp dọc trên mobile. Xem nguồn thiết kế và thư viện trong docs/ui-improvements.md.
 
 Kiểm chứng phần 4: nhóm UI tổng hợp 61 test, 57 đạt ban đầu; cập nhật test mở metadata theo luồng mới rồi toàn bộ operations 11/11 đạt. Knowledge 18/18 đạt, gồm axe/không tràn ngang ở 1440/390/320 px cho editor, dialog và vector. Đã xem ảnh render desktop/mobile; production build và TypeScript đạt. Các ảnh dùng dữ liệu fixture được gắn nhãn fixture, không đưa dữ liệu mẫu vào sản phẩm.
+
+## 5. Biểu đồ hoạt động
+
+GET /dashboard?days=7|30|90 tổng hợp toàn workspace trong một snapshot: run thành công/thất bại theo ngày ghi nhận, sự cố theo ngày phát hiện và trạng thái hiện tại của sự cố trong kỳ. Điền ngày không hoạt động bằng 0; nhóm theo UTC, gồm ngày hiện tại đến lúc gọi. Không suy ra tổng từ danh sách 5/20 mục. Ngừng theo dõi repo không xóa lịch sử khỏi thống kê.
+
+Frontend dùng Recharts 3.10.1 và react-is 19.3.1; run hiển thị cột xếp chồng, sự cố là đường riêng, có bảng số liệu theo ngày và số lượng theo trạng thái. Thêm analytics.spec.ts vào test:ui/CI. Giữ license của thư viện ở frontend/THIRD_PARTY_NOTICES.md.
+
+Kiểm chứng phần 5: Phase10 3/3 đạt với PostgreSQL tạm; TypeScript/build đạt. UI tổng quan/nghiệp vụ 27/28 đạt ban đầu; sửa locator trùng route announcer, analytics 5/5 đạt. Đã xem render 1440/320 và kiểm tra axe/overflow ở 1440/390/320 px. Có test đổi kỳ, workspace, trống, lỗi/thử lại, bảng số liệu.

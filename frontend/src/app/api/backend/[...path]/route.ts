@@ -25,6 +25,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${knowledge}(?:/${uuid})?$`),
     new RegExp(`^${knowledge}/search-history(?:/${uuid})?$`),
     new RegExp(`^${workspace}/quality$`),
+    new RegExp(`^${workspace}/dashboard$`),
     new RegExp(`^${workspace}/(?:audit-logs|operations(?:/outbox)?)$`),
     new RegExp(`^${workspace}/notifications(?:/stream)?$`),
   ],
@@ -93,13 +94,14 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   }
   const query = new URLSearchParams();
   if (request.method === "GET") {
-    const keys = path.endsWith("/quality")
-      ? ["days"]
-      : new RegExp(`^${incidents}$`).test(path)
-        ? ["page", "size", "q", "status", "repositoryId", "assignedTo", "severity"]
-        : new RegExp(`^${knowledge}$`).test(path)
-          ? ["page", "size", "q", "status"]
-          : ["page", "size"];
+    const keys =
+      path.endsWith("/quality") || path.endsWith("/dashboard")
+        ? ["days"]
+        : new RegExp(`^${incidents}$`).test(path)
+          ? ["page", "size", "q", "status", "repositoryId", "assignedTo", "severity"]
+          : new RegExp(`^${knowledge}$`).test(path)
+            ? ["page", "size", "q", "status"]
+            : ["page", "size"];
     for (const key of keys) {
       const value = request.nextUrl.searchParams.get(key);
       if (value !== null) query.set(key, value);

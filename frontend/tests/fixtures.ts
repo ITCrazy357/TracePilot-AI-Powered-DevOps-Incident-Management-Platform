@@ -67,6 +67,16 @@ export async function mockSession(
     const path = url.pathname;
     if (options.delay) await new Promise((resolve) => setTimeout(resolve, options.delay));
     if (path.endsWith("/notifications/stream")) return route.abort();
+    if (path.endsWith("/dashboard"))
+      return route.fulfill({
+        json: {
+          from: "2026-11-01T00:00:00Z",
+          to: "2026-11-10T00:00:00Z",
+          timeZone: "UTC",
+          daily: [],
+          statuses: [],
+        },
+      });
     if (path.endsWith("/notifications"))
       return route.fulfill({ json: { items: [], page: 0, size: 5, total: 0 } });
     if (path.endsWith("/incidents"))

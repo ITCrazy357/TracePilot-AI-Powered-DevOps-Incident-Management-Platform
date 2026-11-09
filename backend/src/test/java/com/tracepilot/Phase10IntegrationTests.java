@@ -59,6 +59,34 @@ class Phase10IntegrationTests {
     }
 
     @Test
+    void dashboardAggregatesAllRowsScopesWorkspaceAndFillsEmptyUtcDays() throws Exception {
+        incident(0, "Open incident", "OPEN");
+        incident(1, "Resolved incident", "RESOLVED");
+        jdbc.update("UPDATE workflow_runs SET conclusion = 'success' WHERE repository_id = ? AND github_run_id = 2", repositoryId);
+        var response = call("GET", base() + "/dashboard?days=7", null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var data = body(response);
+        assertThat(data.path("daily").size()).isEqualTo(7);
+        assertThat(data.path("timeZone").asString()).isEqualTo("UTC");
+        long incidents = 0;
+        long successes = 0;
+        long failures = 0;
+        for (var day : data.path("daily")) {
+            incidents += day.path("incidents").asLong();
+            successes += day.path("successfulRuns").asLong();
+            failures += day.path("failedRuns").asLong();
+        }
+        assertThat(incidents).isEqualTo(2);
+        assertThat(successes).isEqualTo(1);
+        assertThat(failures).isEqualTo(1);
+        assertThat(data.path("statuses").size()).isEqualTo(2);
+        assertThat(call("GET", base() + "/dashboard?days=91", null).statusCode()).isEqualTo(400);
+        assertThat(call("GET", "/api/v1/workspaces/" + UUID.randomUUID() + "/dashboard", null).statusCode()).isEqualTo(404);
+        jdbc.update("UPDATE workspace_members SET status = 'REMOVED' WHERE workspace_id = ? AND user_id = ?", workspaceId, actorId);
+        assertThat(call("GET", base() + "/dashboard", null).statusCode()).isEqualTo(404);
+    }
+
+    @Test
     void ordinaryKnowledgeSearchWorksWithoutAiAndTreatsWildcardsLiterally() throws Exception {
         assertThat(call("POST", base() + "/knowledge-articles", Map.of("title", "Socket fix", "rootCause", "100% occupied", "resolution", "Inspect listeners")).statusCode()).isEqualTo(201);
         assertThat(call("POST", base() + "/knowledge-articles", Map.of("title", "Heap fix", "rootCause", "Memory pressure", "resolution", "Inspect allocations")).statusCode()).isEqualTo(201);

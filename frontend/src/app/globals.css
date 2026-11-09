@@ -1,5 +1,106 @@
 @import "tailwindcss";
 
+.analytics-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.analytics-toolbar .toolbar-actions {
+  align-items: end;
+}
+.activity-analytics {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.charts-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.charts-grid > *,
+.chart-canvas {
+  min-width: 0;
+}
+.chart-canvas {
+  margin: 0;
+  padding: 16px;
+}
+.chart-canvas .recharts-default-tooltip {
+  color: #10243a;
+  border-radius: 8px;
+}
+.chart-data {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+}
+.chart-data > summary {
+  cursor: pointer;
+  color: var(--primary);
+  font-weight: 500;
+}
+.chart-caption {
+  padding: 16px 24px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.chart-status-list {
+  margin: 0;
+  padding: 0 24px 24px;
+}
+.chart-status-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+}
+.chart-status-list dd {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.chart-data table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 16px;
+}
+.chart-data caption {
+  text-align: left;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.chart-data th,
+.chart-data td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.chart-data th:first-child {
+  text-align: left;
+}
+@media (max-width: 1050px) {
+  .charts-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .analytics-toolbar .toolbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .chart-canvas {
+    padding: 12px 4px;
+  }
+}
+
 .history-intro {
   margin: 20px 24px 0;
 }
@@ -387,6 +488,10 @@ summary:focus-visible {
   }
 }
 :root {
+  --chart-blue: #087db5;
+  --chart-pink: #b52d7b;
+  --chart-green: #17816b;
+  --chart-amber: #a8650b;
   --background: #f5fafe;
   --surface: #ffffff;
   --ink: #10243a;

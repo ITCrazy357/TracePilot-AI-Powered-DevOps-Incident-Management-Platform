@@ -10,7 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
-    "test:ui": "playwright test tests/ui.spec.ts tests/operations.spec.ts tests/quality.spec.ts tests/reliability.spec.ts tests/knowledge.spec.ts",
+    "test:ui": "playwright test tests/ui.spec.ts tests/operations.spec.ts tests/quality.spec.ts tests/reliability.spec.ts tests/knowledge.spec.ts tests/analytics.spec.ts",
     "test:live": "playwright test tests/live.spec.ts tests/live-operations.spec.ts tests/live-reliability.spec.ts tests/live-knowledge.spec.ts"
   },
   "dependencies": {
@@ -23,6 +23,8 @@
     "radix-ui": "1.8.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "react-is": "19.3.1",
+    "recharts": "3.10.1",
     "server-only": "0.0.1",
     "tailwind-merge": "3.6.0"
   },
