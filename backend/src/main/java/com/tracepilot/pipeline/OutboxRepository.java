@@ -147,8 +147,7 @@ public class OutboxRepository {
         var token = UUID.randomUUID();
         return jdbcTemplate.query("""
                 UPDATE outbox_events SET processing_status = 'RUNNING', processing_token = ?,
-                    processing_lease_until = ?, processing_attempts = processing_attempts + 1,
-                    total_processing_attempts = total_processing_attempts + 1
+                    processing_lease_until = ?, processing_attempts = processing_attempts + 1
                 WHERE id = ? AND event_type = ? AND available_at <= ?
                     AND processing_status IN ('PENDING', 'RETRY') AND processing_attempts < ?
                 RETURNING id, aggregate_id, payload->>'runId' AS run_id, payload->>'runAttempt' AS run_attempt,

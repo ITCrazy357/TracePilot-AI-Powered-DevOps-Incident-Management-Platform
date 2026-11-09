@@ -1,9 +1,5 @@
 package com.tracepilot.quality;
 
-import com.tracepilot.audit.AuditAction;
-import com.tracepilot.audit.AuditLog;
-import java.util.Map;
-
 import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
@@ -27,17 +23,15 @@ public class FeedbackService {
     private final LogRedactor redactor;
     private final AiProperties ai;
     private final Clock clock;
-    private final AuditLog audit;
 
     public FeedbackService(FeedbackRepository repository, AnalysisService analyses, WorkspaceRepository workspaces,
-                           LogRedactor redactor, AiProperties ai, Clock clock, AuditLog audit) {
+                           LogRedactor redactor, AiProperties ai, Clock clock) {
         this.repository = repository;
         this.analyses = analyses;
         this.workspaces = workspaces;
         this.redactor = redactor;
         this.ai = ai;
         this.clock = clock;
-        this.audit = audit;
     }
 
     public QualityDtos.MyFeedback mine(UUID actorId, UUID workspaceId, UUID incidentId, UUID analysisId) {
@@ -78,11 +72,7 @@ public class FeedbackService {
             }
             repository.update(workspaceId, analysisId, actorId, clean, clock.instant());
         }
-        var saved = repository.find(workspaceId, analysisId, actorId).orElseThrow();
-        audit.record(workspaceId, actorId, AuditAction.FEEDBACK_SAVED, saved.id(),
-            Map.of("analysisId", analysisId, "helpful", saved.helpful(), "reason", saved.reason(),
-                "version", saved.version()));
-        return saved;
+        return repository.find(workspaceId, analysisId, actorId).orElseThrow();
     }
 
     private String sanitize(String comment) {

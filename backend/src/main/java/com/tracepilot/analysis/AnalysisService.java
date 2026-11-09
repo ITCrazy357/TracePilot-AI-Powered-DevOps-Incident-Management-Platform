@@ -1,9 +1,5 @@
 package com.tracepilot.analysis;
 
-import com.tracepilot.audit.AuditAction;
-import com.tracepilot.audit.AuditLog;
-import java.util.Map;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
@@ -29,12 +25,11 @@ public class AnalysisService {
     private final WorkspaceRepository workspaceRepository;
     private final AiProperties properties;
     private final Clock clock;
-    private final AuditLog audit;
     private final EvidenceRepository evidenceRepository;
 
     public AnalysisService(AnalysisRepository analysisRepository, AnalysisAccess access, AnalysisInput input,
                            OutboxRepository outboxRepository, WorkspaceRepository workspaceRepository,
-                           AiProperties properties, Clock clock, EvidenceRepository evidenceRepository, AuditLog audit) {
+                           AiProperties properties, Clock clock, EvidenceRepository evidenceRepository) {
         this.analysisRepository = analysisRepository;
         this.access = access;
         this.input = input;
@@ -42,7 +37,6 @@ public class AnalysisService {
         this.workspaceRepository = workspaceRepository;
         this.properties = properties;
         this.clock = clock;
-        this.audit = audit;
         this.evidenceRepository = evidenceRepository;
     }
 
@@ -65,7 +59,6 @@ public class AnalysisService {
             analysisRepository.insert(id, workspaceId, incidentId, actorId, requestId, "MANUAL",
                 properties.model(), prepared.sha256(), clock.instant());
             outboxRepository.enqueueAnalysis(incident.repositoryId(), id);
-            audit.record(workspaceId, actorId, AuditAction.ANALYSIS_REQUESTED, id, Map.of("incidentId", incidentId));
             return analysisRepository.find(id).orElseThrow().analysis();
         } catch (AnalysisFailure exception) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Redacted logs are not available for analysis.");

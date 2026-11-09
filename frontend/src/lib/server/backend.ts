@@ -56,42 +56,25 @@ export async function backend(path: string, init: RequestInit = {}) {
   }
 }
 
-function responseHeaders(response: Response) {
-  const headers: Record<string, string> = { "Cache-Control": "no-store" };
-  const requestId = response.headers.get("x-request-id");
-  if (
-    requestId &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)
-  )
-    headers["X-Request-ID"] = requestId;
-  const retryAfter = response.headers.get("retry-after");
-  if (retryAfter && /^\d{1,6}$/.test(retryAfter)) headers["Retry-After"] = retryAfter;
-  return headers;
-}
-
 export async function forward(response: Response) {
-  const headers = responseHeaders(response);
   if (response.status === 204) {
-    return new NextResponse(null, { status: 204, headers });
+    return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   }
   // Forward only Problem Detail fields. Never relay arbitrary upstream HTML or headers.
   const body = await response.json().catch(() => null);
   if (!response.ok) {
-    return NextResponse.json(
-      { status: response.status, detail: typeof body?.detail === "string" ? body.detail : "" },
-      { status: response.status, headers },
-    );
+    return problem(response.status, typeof body?.detail === "string" ? body.detail : "");
   }
   return NextResponse.json(body, {
     status: response.status,
-    headers,
+    headers: { "Cache-Control": "no-store" },
   });
 }
 
 export async function establishSession(upstream: Response) {
   if (!upstream.ok) return forward(upstream);
   const tokens: Tokens = await upstream.json();
-  const response = NextResponse.json(tokens.user, { headers: responseHeaders(upstream) });
+  const response = NextResponse.json(tokens.user, { headers: { "Cache-Control": "no-store" } });
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

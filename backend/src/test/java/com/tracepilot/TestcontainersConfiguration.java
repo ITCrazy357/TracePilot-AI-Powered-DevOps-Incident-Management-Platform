@@ -10,19 +10,17 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
-    @Bean
-    @ServiceConnection
-    PostgreSQLContainer postgresContainer() {
-        return new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:0.8.7-pg16-trixie")
-                .asCompatibleSubstituteFor("postgres"))
-                .withLabel("com.tracepilot.test", "true");
-    }
+	@Bean
+	@ServiceConnection
+	PostgreSQLContainer postgresContainer() {
+		return new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:0.8.7-pg16-trixie")
+				.asCompatibleSubstituteFor("postgres"));
+	}
 
-    @Bean
-    @ServiceConnection
-    RabbitMQContainer rabbitContainer() {
-        return new RabbitMQContainer(DockerImageName.parse("rabbitmq:4.4.0-management"))
-                .withLabel("com.tracepilot.test", "true");
-    }
+	@Bean
+	@ServiceConnection
+	RabbitMQContainer rabbitContainer() {
+		return new RabbitMQContainer(DockerImageName.parse("rabbitmq:4.4.0-management"));
+	}
 
 }

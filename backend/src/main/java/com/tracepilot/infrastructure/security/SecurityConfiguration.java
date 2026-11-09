@@ -8,9 +8,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.tracepilot.identity.TokenService;
-import tools.jackson.databind.ObjectMapper;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +34,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.http.HttpStatus;
 
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({AuthProperties.class, RateLimitProperties.class})
+@EnableConfigurationProperties(AuthProperties.class)
 public class SecurityConfiguration {
     @Bean
     Clock clock() {
@@ -85,25 +82,12 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    RateLimitFilter rateLimitFilter(RateLimiter limiter, RateLimitProperties properties, ObjectMapper mapper) {
-        return new RateLimitFilter(limiter, properties, mapper);
-    }
-
-    @Bean
-    FilterRegistrationBean<RateLimitFilter> rateLimitRegistration(RateLimitFilter filter) {
-        var registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
-        return registration;
-    }
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, RateLimitFilter rateLimitFilter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             // JSON + Authorization Bearer only; no authentication cookies or HTTP sessions.
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .requestCache(cache -> cache.disable())
-            .addFilterAfter(rateLimitFilter, BearerTokenAuthenticationFilter.class)
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/liveness",
                     "/actuator/health/readiness").permitAll()

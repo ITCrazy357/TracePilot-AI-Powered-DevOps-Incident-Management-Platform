@@ -1,9 +1,5 @@
 package com.tracepilot.workspace;
 
-import com.tracepilot.audit.AuditAction;
-import com.tracepilot.audit.AuditLog;
-import java.util.Map;
-
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
@@ -29,15 +25,13 @@ public class WorkspaceService {
     private final WorkspaceMemberRepository memberRepository;
     private final UserRepository userRepository;
     private final Clock clock;
-    private final AuditLog audit;
 
     public WorkspaceService(WorkspaceRepository workspaceRepository, WorkspaceMemberRepository memberRepository,
-                            UserRepository userRepository, Clock clock, AuditLog audit) {
+                            UserRepository userRepository, Clock clock) {
         this.workspaceRepository = workspaceRepository;
         this.memberRepository = memberRepository;
         this.userRepository = userRepository;
         this.clock = clock;
-        this.audit = audit;
     }
 
     @Transactional
@@ -49,7 +43,6 @@ public class WorkspaceService {
         var newWorkspace = new Workspace(request.name().strip(), request.slug(), actorId, now);
         var workspace = workspaceRepository.saveAndFlush(newWorkspace);
         memberRepository.save(new WorkspaceMember(workspace.getId(), actorId, OWNER, now));
-        audit.record(workspace.getId(), actorId, AuditAction.WORKSPACE_CREATED, workspace.getId(), Map.of());
         return WorkspaceResponse.from(workspace);
     }
 
@@ -80,18 +73,13 @@ public class WorkspaceService {
         var existing = memberRepository.findByWorkspaceIdAndUserId(workspaceId, request.userId());
         if (existing.isEmpty()) {
             var member = new WorkspaceMember(workspaceId, request.userId(), request.role(), clock.instant());
-            memberRepository.save(member);
-            audit.record(workspaceId, actorId, AuditAction.MEMBER_ADDED, request.userId(),
-                Map.of("role", request.role(), "reactivated", false));
-            return MemberResponse.from(member);
+            return MemberResponse.from(memberRepository.save(member));
         }
         var member = existing.orElseThrow();
         if (member.getStatus() == MembershipStatus.ACTIVE) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already a member.");
         }
         member.reactivate(request.role(), clock.instant());
-        audit.record(workspaceId, actorId, AuditAction.MEMBER_ADDED, request.userId(),
-            Map.of("role", request.role(), "reactivated", true));
         return MemberResponse.from(member);
     }
 
@@ -102,12 +90,7 @@ public class WorkspaceService {
         var member = requireMembership(workspaceId, targetUserId);
         requireCanManageRole(actorMembership.getRole(), member.getRole());
         requireCanManageRole(actorMembership.getRole(), request.role());
-        if (member.getRole() != request.role()) {
-            var previousRole = member.getRole();
-            member.changeRole(request.role());
-            audit.record(workspaceId, actorId, AuditAction.MEMBER_ROLE_CHANGED, targetUserId,
-                Map.of("fromRole", previousRole, "toRole", request.role()));
-        }
+        member.changeRole(request.role());
         return MemberResponse.from(member);
     }
 
@@ -118,7 +101,6 @@ public class WorkspaceService {
         var member = requireMembership(workspaceId, targetUserId);
         requireCanManageRole(actorMembership.getRole(), member.getRole());
         member.remove();
-        audit.record(workspaceId, actorId, AuditAction.MEMBER_REMOVED, targetUserId, Map.of());
     }
 
     private WorkspaceMember requireMembership(UUID workspaceId, UUID userId) {

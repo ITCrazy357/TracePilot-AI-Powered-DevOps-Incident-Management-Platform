@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import(TestcontainersConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"RATE_LIMIT_ENABLED=false", "RAG_ENABLED=false", "AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "PIPELINE_ENABLED=false",
+    properties = {"RAG_ENABLED=false", "AI_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only", "PIPELINE_ENABLED=false",
         "AUTH_SIGNING_SECRET=phase02-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase02IntegrationTests {
     private static final UUID WORKSPACE_ID = UUID.randomUUID();
@@ -82,7 +82,6 @@ class Phase02IntegrationTests {
         jdbcTemplate.update("DELETE FROM repositories");
         jdbcTemplate.update("DELETE FROM github_installations");
         jdbcTemplate.update("DELETE FROM workspace_members WHERE workspace_id IN (?, ?)", WORKSPACE_ID, OTHER_WORKSPACE_ID);
-        jdbcTemplate.update("DELETE FROM audit_logs WHERE workspace_id IN (?, ?)", WORKSPACE_ID, OTHER_WORKSPACE_ID);
         jdbcTemplate.update("DELETE FROM workspaces WHERE id IN (?, ?)", WORKSPACE_ID, OTHER_WORKSPACE_ID);
         insertWorkspace(WORKSPACE_ID, owner);
         insertWorkspace(OTHER_WORKSPACE_ID, outsider);

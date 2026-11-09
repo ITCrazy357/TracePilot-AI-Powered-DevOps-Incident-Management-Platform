@@ -86,10 +86,7 @@ export async function mockSession(
       return route.fulfill({ json: { items: repositories, page: 0, size: 20, totalElements: 3 } });
     }
     if (path.endsWith("/github/sync"))
-      return route.fulfill({
-        status: 503,
-        json: { detail: "GitHub integration is not configured." },
-      });
+      return route.fulfill({ status: 503, json: { detail: "GitHub integration disabled" } });
     return route.fulfill({ json: path.includes(otherWorkspace.id) ? otherWorkspace : workspace });
   });
 }

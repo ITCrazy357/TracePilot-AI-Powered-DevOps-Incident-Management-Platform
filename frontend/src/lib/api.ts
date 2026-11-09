@@ -2,8 +2,6 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
-    public readonly retryAfterSeconds: number | null = null,
-    public readonly requestId: string | null = null,
   ) {
     super(message);
   }
@@ -17,26 +15,12 @@ const messages: Record<number, string> = {
   409: "Dữ liệu đã tồn tại hoặc vừa thay đổi. Tải lại rồi thử lại.",
   429: "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
   502: "Không kết nối được dịch vụ. Kiểm tra backend rồi thử lại.",
-  503: "Dịch vụ tạm thời chưa sẵn sàng. Vui lòng thử lại sau.",
+  503: "Tích hợp GitHub chưa sẵn sàng. OWNER cần kiểm tra cấu hình với người vận hành.",
 };
 
 const details: Record<string, string> = {
-  "GitHub integration is not configured.":
-    "Tích hợp GitHub chưa sẵn sàng. OWNER cần kiểm tra cấu hình với người vận hành.",
-  "Rate limiting is temporarily unavailable.":
-    "Bộ giới hạn yêu cầu tạm thời chưa sẵn sàng. Vui lòng thử lại sau.",
-  "Storage is temporarily unavailable.":
-    "Dịch vụ dữ liệu tạm thời chưa sẵn sàng. Vui lòng thử lại sau.",
-  "Repository is inactive or installation is unavailable.":
-    "Kho mã đã ngừng theo dõi hoặc kết nối GitHub không còn khả dụng. Kiểm tra nguồn trước khi thử lại.",
   "Feedback changed. Reload before updating.":
     "Đánh giá vừa thay đổi. Tải lại đánh giá trước khi lưu.",
-  "Request a new analysis to preserve report and usage history.":
-    "Mở sự cố và yêu cầu phân tích mới để giữ lịch sử báo cáo.",
-  "Only a failed task delivered to the DLQ with the current replay count can be retried.":
-    "Tác vụ đã thay đổi hoặc chưa vào hàng đợi lỗi. Tải lại trước khi quyết định thử lại.",
-  "Pipeline integration is not configured.":
-    "Pipeline chưa được bật. Nhờ người vận hành kiểm tra cấu hình.",
   "Only a completed successful report can receive feedback.":
     "Chỉ có thể đánh giá báo cáo đã phân tích thành công.",
   "AI integration is not configured.":
@@ -87,16 +71,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     const body = await response.json().catch(() => null);
     const message =
       details[body?.detail] ?? messages[response.status] ?? "Có lỗi xảy ra. Vui lòng thử lại.";
-    const retryHeader = response.headers.get("retry-after");
-    const retryAfter = retryHeader && /^\d{1,6}$/.test(retryHeader) ? Number(retryHeader) : null;
-    throw new ApiError(
-      response.status,
-      response.status === 429 && retryAfter !== null
-        ? `Quá nhiều yêu cầu. Vui lòng thử lại sau ${retryAfter} giây.`
-        : message,
-      retryAfter,
-      response.headers.get("x-request-id"),
-    );
+    throw new ApiError(response.status, message);
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
