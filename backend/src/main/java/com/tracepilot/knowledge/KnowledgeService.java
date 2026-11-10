@@ -77,7 +77,9 @@ public class KnowledgeService {
         }
         var id = UUID.randomUUID();
         var clean = new KnowledgeDtos.CreateRequest(request.sourceIncidentId(), sanitize(request.title(), 160),
-            sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000), request.sourceAnalysisId());
+            sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000), request.sourceAnalysisId(),
+            optionalText(request.symptoms(), 1000), optionalText(request.applicability(), 1000),
+            optionalText(request.verification(), 1500));
         repository.insert(id, workspaceId, actorId, clean, clock.instant());
         audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_CREATED, id, Map.of());
         return find(workspaceId, id);
@@ -94,7 +96,10 @@ public class KnowledgeService {
         }
         requireVersion(article, request.version());
         var clean = new KnowledgeDtos.EditRequest(request.version(), sanitize(request.title(), 160),
-            sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000));
+            sanitize(request.rootCause(), 3000), sanitize(request.resolution(), 6000),
+            optionalText(request.symptoms() == null ? article.symptoms() : request.symptoms(), 1000),
+            optionalText(request.applicability() == null ? article.applicability() : request.applicability(), 1000),
+            optionalText(request.verification() == null ? article.verification() : request.verification(), 1500));
         repository.edit(articleId, clean, clock.instant());
         audit.record(workspaceId, actorId, AuditAction.KNOWLEDGE_EDITED, articleId,
             Map.of("previousContentVersion", article.contentVersion()));
@@ -102,12 +107,19 @@ public class KnowledgeService {
     }
 
     @Transactional
-    public KnowledgeDtos.Publication beginApproval(UUID actorId, UUID workspaceId, UUID articleId, long version) {
+    public KnowledgeDtos.Publication beginApproval(UUID actorId, UUID workspaceId, UUID articleId, long version,
+                                                   boolean verified) {
         lock(workspaceId);
         requireManager(actorId, workspaceId);
         requireRag();
         var article = find(workspaceId, articleId);
         requireVersion(article, version);
+        if (!verified) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirm that the fix has been verified before approval.");
+        }
+        if (article.symptoms().isBlank() || article.applicability().isBlank() || article.verification().isBlank()) {
+            throw conflict("Add symptoms, applicability and verification before approval.");
+        }
         if ("ARCHIVED".equals(article.status())) {
             throw conflict("Edit archived knowledge into a new draft before approval.");
         }
@@ -185,6 +197,13 @@ public class KnowledgeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Knowledge text is empty or too long after redaction.");
         }
         return clean;
+    }
+
+    private String optionalText(String value, int maximum) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return sanitize(value, maximum);
     }
 
     private void requireVersion(KnowledgeDtos.Article article, long version) {

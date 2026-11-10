@@ -18,8 +18,8 @@ public class KnowledgePublication {
         this.embeddings = embeddings;
     }
 
-    public KnowledgeDtos.Article approve(UUID actorId, UUID workspaceId, UUID articleId, long version) {
-        var publication = service.beginApproval(actorId, workspaceId, articleId, version);
+    public KnowledgeDtos.Article approve(UUID actorId, UUID workspaceId, UUID articleId, long version, boolean verified) {
+        var publication = service.beginApproval(actorId, workspaceId, articleId, version, verified);
         try {
             var vectors = embeddings.embed(workspaceId, Optional.empty(), Optional.of(articleId), 1, publication.chunks());
             return service.publish(actorId, publication, vectors);

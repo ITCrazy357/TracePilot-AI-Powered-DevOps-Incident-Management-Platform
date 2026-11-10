@@ -489,6 +489,22 @@ summary:focus-visible {
 .knowledge-fields textarea:disabled {
   background: #edf3f8;
 }
+.verification-confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-block: 1rem;
+  line-height: 1.6;
+}
+
+.verification-confirmation input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 auto;
+  margin-top: 0.25rem;
+  accent-color: var(--primary);
+}
+
 .knowledge-fields {
   display: flex;
   flex-direction: column;

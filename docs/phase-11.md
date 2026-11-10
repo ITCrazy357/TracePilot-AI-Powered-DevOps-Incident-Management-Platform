@@ -35,3 +35,24 @@ người dùng có thể cung cấp qua ô bổ sung. Prompt v3 yêu cầu khôn
 Kiểm chứng phần 2: Maven verify 146/146 đạt; sau guard khi giảm ngân sách prompt,
 chạy thêm AnalysisInputTests/RagContextTests 3/3 đạt (2 ca hash/ngân sách mới).
 UI operations 12/12 đạt, gồm giữ nguyên context khi retry và xem snapshot; production build đạt.
+
+## 3. Tri thức có cấu trúc và xác nhận của người duyệt
+
+V13 bổ sung `symptoms` (1.000 ký tự), `applicability` (1.000), `verification` (1.500).
+Draft cho phép để trống; PATCH bỏ qua trường mới giữ giá trị hiện có, gửi chuỗi rỗng thì xóa.
+Mọi trường được redaction trước khi lưu/chunking; lọc nghiệp vụ cũng tìm trong các trường mới.
+Bản nháp AI điền triệu chứng từ tóm tắt, không tự xác nhận phạm vi hoặc kết quả kiểm chứng.
+
+POST approve yêu cầu `{version, verified:true}` và đủ ba trường. Kiểm quyền OWNER/ADMIN,
+version/khóa workspace vẫn áp dụng trước xử lý; thiếu xác nhận trả 400, thiếu nội dung trả 409,
+không gọi embedding. UI có checkbox xác nhận riêng cho từng lần duyệt. Người duyệt chịu trách nhiệm
+về dữ kiện; checkbox không chứng minh cách sửa đã chạy thành công. Chunks gắn nhãn triệu chứng,
+phạm vi, nguyên nhân, khắc phục và kiểm chứng để RAG đọc đúng vai trò.
+
+Giữ nguyên bài APPROVED/chunks đã có từ trước migration; không gán kết quả kiểm chứng giả,
+không tự tạo embedding hoặc thu hồi bài cũ. Lần sửa/duyệt tiếp theo phải bổ sung các trường mới.
+Như trước, sửa bài đã duyệt đưa về DRAFT và loại revision cũ khỏi truy xuất ngay.
+
+Kiểm chứng phần 3: Maven verify 149/149 đạt sau khi sửa DTO cho request không có verified;
+knowledge UI 23/23 và hồi quy knowledge/operations/quality 45/45 đạt, production build đạt.
+Đã xem ảnh editor 320px; axe và kiểm tra tràn ngang ở 1440/390/320px đạt.

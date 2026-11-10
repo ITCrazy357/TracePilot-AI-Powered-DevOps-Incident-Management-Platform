@@ -175,6 +175,34 @@ class Phase06IntegrationTests {
     }
 
     @Test
+    void approvalRequiresCompleteVerifiedKnowledgeAndRedactsItsNewFields() throws Exception {
+        var created = call("POST", knowledgePath(WORKSPACE_ID), owner.accessToken(),
+            Map.of("title", "Draft requiring verification", "rootCause", "Investigate the failing service",
+                "resolution", "Proposed fix to review"));
+        assertThat(created.statusCode()).isEqualTo(201);
+        var id = UUID.fromString(body(created).path("id").asString());
+        var target = knowledgePath(WORKSPACE_ID) + "/" + id;
+        assertThat(call("POST", target + "/approve", owner.accessToken(), Map.of("version", 0)).statusCode()).isEqualTo(400);
+        assertThat(call("POST", target + "/approve", owner.accessToken(),
+            Map.of("version", 0, "verified", true)).statusCode()).isEqualTo(409);
+        assertThat(AI.embeddings.calls).hasValue(0);
+        var edited = call("PATCH", target, owner.accessToken(), Map.of("version", 0,
+            "title", "Reviewed service fix", "rootCause", "Service could not start", "resolution", "Correct the endpoint",
+            "symptoms", "Connection refused", "applicability", "Fixture runtime\npassword=private-new-field",
+            "verification", "Retest passed after correcting the endpoint"));
+        assertThat(edited.statusCode()).isEqualTo(200);
+        assertThat(edited.body()).contains("[REDACTED]").doesNotContain("private-new-field");
+        approve(owner, WORKSPACE_ID, id, 1);
+        assertThat(String.join("\n", AI.embeddings.inputs)).contains("Symptoms:", "Applies to:", "Verification:",
+            "Retest passed after correcting the endpoint").doesNotContain("private-new-field");
+        assertThat(call("PATCH", target, owner.accessToken(), Map.of("version", 3, "title", "Reviewed service fix",
+            "rootCause", "Service could not start", "resolution", "Correct the endpoint", "verification", "")).statusCode()).isEqualTo(200);
+        assertThat(call("POST", target + "/approve", owner.accessToken(),
+            Map.of("version", 4, "verified", true)).statusCode()).isEqualTo(409);
+        assertThat(article(owner, WORKSPACE_ID, id).path("indexStatus").asString()).isEqualTo("NONE");
+    }
+
+    @Test
     void onlyManagersApproveAndOnlyResolvedIncidentsCanBeUsedAsConfirmedFixes() throws Exception {
         var incidentId = incident();
         var invalid = call("POST", knowledgePath(WORKSPACE_ID), member.accessToken(),
@@ -186,11 +214,12 @@ class Phase06IntegrationTests {
         assertThat(call("PATCH", incidentPath, owner.accessToken(), Map.of("status", "RESOLVED", "version", 1)).statusCode()).isEqualTo(200);
         var created = call("POST", knowledgePath(WORKSPACE_ID), member.accessToken(),
             Map.of("sourceIncidentId", incidentId, "title", "Port conflict", "rootCause", "A socket is occupied.",
-                "resolution", "Stop the stale process."));
+                "resolution", "Stop the stale process.", "symptoms", "Bind failed", "applicability", "Fixture CI",
+                "verification", "Retest passed in isolated fixture"));
         assertThat(created.statusCode()).isEqualTo(201);
         var id = UUID.fromString(body(created).path("id").asString());
         assertThat(call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve", member.accessToken(),
-            Map.of("version", 0)).statusCode()).isEqualTo(403);
+            Map.of("version", 0, "verified", true)).statusCode()).isEqualTo(403);
         assertThat(call("GET", knowledgePath(WORKSPACE_ID) + "/" + id, outsider.accessToken(), null).statusCode()).isEqualTo(404);
         assertThat(AI.embeddings.calls).hasValue(0);
         approve(owner, WORKSPACE_ID, id, 0);
@@ -270,7 +299,7 @@ class Phase06IntegrationTests {
         var id = create(owner, WORKSPACE_ID, "Port socket fix", "The port is occupied.",
             "Inspect socket owners. ".repeat(100));
         AI.embeddings.duplicateIndex = true;
-        var failed = call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve", owner.accessToken(), Map.of("version", 0));
+        var failed = call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve", owner.accessToken(), Map.of("version", 0, "verified", true));
         assertThat(failed.statusCode()).isEqualTo(502);
         assertThat(article(owner, WORKSPACE_ID, id).path("indexStatus").asString()).isEqualTo("FAILED");
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM knowledge_chunks", Integer.class)).isZero();
@@ -289,7 +318,7 @@ class Phase06IntegrationTests {
             AI.embeddings.wrongModel = variant == 1;
             AI.embeddings.zeroVector = variant == 2;
             assertThat(call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve", owner.accessToken(),
-                Map.of("version", 0)).statusCode()).isEqualTo(502);
+                Map.of("version", 0, "verified", true)).statusCode()).isEqualTo(502);
         }
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM knowledge_chunks", Integer.class)).isZero();
     }
@@ -300,7 +329,7 @@ class Phase06IntegrationTests {
         AI.embeddings.pause = true;
         try (var executor = java.util.concurrent.Executors.newSingleThreadExecutor()) {
             var pending = executor.submit(() -> call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve",
-                owner.accessToken(), Map.of("version", 0)));
+                owner.accessToken(), Map.of("version", 0, "verified", true)));
             try {
                 assertThat(AI.embeddings.requested.await(5, TimeUnit.SECONDS)).isTrue();
                 assertThat(search("Socket is occupied.", "EXACT", 5).path("items")).isEmpty();
@@ -387,7 +416,7 @@ class Phase06IntegrationTests {
     void embeddingProviderFailureLeavesIncidentAndKnowledgeRecoverableWithoutLeakingErrorDetails() throws Exception {
         var id = create(owner, WORKSPACE_ID, "Socket fix", "The port is occupied.", "Stop stale listeners.");
         AI.embeddings.unavailable = true;
-        var failure = call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve", owner.accessToken(), Map.of("version", 0));
+        var failure = call("POST", knowledgePath(WORKSPACE_ID) + "/" + id + "/approve", owner.accessToken(), Map.of("version", 0, "verified", true));
         assertThat(failure.statusCode()).isEqualTo(502);
         assertThat(failure.body()).doesNotContain("embedding-provider-private-detail", AiApiFixture.KEY);
         assertThat(article(owner, WORKSPACE_ID, id).path("indexStatus").asString()).isEqualTo("FAILED");
@@ -492,7 +521,8 @@ class Phase06IntegrationTests {
 
     private UUID create(Account actor, UUID workspaceId, String title, String root, String resolution) throws Exception {
         var response = call("POST", knowledgePath(workspaceId), actor.accessToken(),
-            Map.of("title", title, "rootCause", root, "resolution", resolution));
+            Map.of("title", title, "rootCause", root, "resolution", resolution, "symptoms", "Observed failure",
+                "applicability", "Fixture CI", "verification", "Retest passed in isolated fixture"));
         assertThat(response.statusCode()).isEqualTo(201);
         return UUID.fromString(body(response).path("id").asString());
     }
@@ -504,7 +534,7 @@ class Phase06IntegrationTests {
     }
 
     private void approve(Account actor, UUID workspaceId, UUID id, long version) throws Exception {
-        var response = call("POST", knowledgePath(workspaceId) + "/" + id + "/approve", actor.accessToken(), Map.of("version", version));
+        var response = call("POST", knowledgePath(workspaceId) + "/" + id + "/approve", actor.accessToken(), Map.of("version", version, "verified", true));
         assertThat(response.statusCode()).isEqualTo(200);
     }
 

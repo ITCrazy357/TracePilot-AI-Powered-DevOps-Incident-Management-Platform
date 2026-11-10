@@ -62,6 +62,7 @@ function ArticleContent({
   const editing = editingArticle !== null;
   const [action, setAction] = useState<"approve" | "archive" | null>(null);
   const [actionVersion, setActionVersion] = useState(0);
+  const [verified, setVerified] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mustReload, setMustReload] = useState(false);
   const [error, setError] = useState("");
@@ -71,6 +72,9 @@ function ArticleContent({
   const canEdit = manager || (article?.status === "DRAFT" && article.createdBy === user?.id);
   const canApprove =
     manager && article && article.status !== "ARCHIVED" && article.indexStatus !== "READY";
+  const complete = Boolean(
+    article?.symptoms?.trim() && article?.applicability?.trim() && article?.verification?.trim(),
+  );
 
   function reload() {
     setEditingArticle(null);
@@ -82,17 +86,21 @@ function ArticleContent({
   function confirm(next: "approve" | "archive") {
     if (!article) return;
     setActionVersion(article.version);
+    setVerified(false);
     setError("");
     setSuccess("");
     setAction(next);
   }
   async function execute() {
-    if (!action || busy) return;
+    if (!action || busy || (action === "approve" && !verified)) return;
     setBusy(true);
     try {
       await api<KnowledgeArticle>(`${base}/${action}`, {
         method: "POST",
-        body: JSON.stringify({ version: actionVersion }),
+        body: JSON.stringify({
+          version: actionVersion,
+          ...(action === "approve" ? { verified } : {}),
+        }),
       });
       setSuccess(
         action === "approve"
@@ -170,6 +178,15 @@ function ArticleContent({
                   />
                 ) : (
                   <div className="report-sections">
+                    {[
+                      ["Triệu chứng và dấu hiệu lỗi", article.symptoms],
+                      ["Phạm vi áp dụng", article.applicability],
+                    ].map(([label, value]) => (
+                      <section key={label}>
+                        <h2>{label}</h2>
+                        <p className="report-copy">{value || "Chưa bổ sung"}</p>
+                      </section>
+                    ))}
                     {article.sourceAnalysisId && article.status === "DRAFT" && (
                       <p className="notice notice-info">
                         Bản nháp từ đề xuất AI. Nội dung cần được kiểm tra trước khi duyệt.
@@ -191,6 +208,10 @@ function ArticleContent({
                       </h2>
                       <p className="report-copy">{article.resolution}</p>
                     </section>
+                    <section>
+                      <h2>Cách kiểm chứng và kết quả</h2>
+                      <p className="report-copy">{article.verification || "Chưa bổ sung"}</p>
+                    </section>
                   </div>
                 )}
               </section>
@@ -201,6 +222,12 @@ function ArticleContent({
                   </div>
                   <div className="knowledge-context">
                     <p>{usageDescription(article)}</p>
+                    {!complete && (
+                      <p className="notice notice-info">
+                        Bổ sung triệu chứng, phạm vi áp dụng và cách kiểm chứng trước khi duyệt. Bài
+                        đã duyệt từ phiên bản cũ giữ trạng thái hiện có.
+                      </p>
+                    )}
                     {article.indexErrorCode && (
                       <code className="error-code">{article.indexErrorCode}</code>
                     )}
@@ -238,7 +265,7 @@ function ArticleContent({
                         )}
                         {canApprove && (
                           <Button
-                            disabled={busy || mustReload || resource.loading}
+                            disabled={busy || mustReload || resource.loading || !complete}
                             onClick={() => confirm("approve")}
                           >
                             <CheckCircle2 size={16} />
@@ -283,11 +310,22 @@ function ArticleContent({
             : "Nội dung bài viết đã che sẽ được gửi tới nhà cung cấp AI để tạo chỉ mục; có thể phát sinh chi phí. Xác nhận bạn đã kiểm tra cách khắc phục trước khi duyệt."
         }
       >
+        {action === "approve" && (
+          <label className="verification-confirmation">
+            <input
+              type="checkbox"
+              checked={verified}
+              onChange={(event) => setVerified(event.target.checked)}
+              disabled={busy}
+            />
+            Tôi đã kiểm tra nguyên nhân, cách sửa và kết quả kiểm chứng trong phạm vi áp dụng.
+          </label>
+        )}
         <div className="dialog-actions">
           <Button variant="outline" disabled={busy} onClick={() => setAction(null)}>
             Hủy
           </Button>
-          <Button disabled={busy} onClick={execute}>
+          <Button disabled={busy || (action === "approve" && !verified)} onClick={execute}>
             {busy ? "Đang xử lý…" : action === "archive" ? "Xác nhận lưu trữ" : "Xác nhận duyệt"}
           </Button>
         </div>

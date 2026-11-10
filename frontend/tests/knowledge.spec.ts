@@ -8,6 +8,9 @@ import { analysis, incident, incidentId, mockOperations } from "./operations-fix
 
 const articleId = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const article: KnowledgeArticle = {
+  symptoms: "EADDRINUSE khi mở cổng 8080",
+  applicability: "Node 22 trên Ubuntu, một instance dịch vụ",
+  verification: "Chạy lại dịch vụ và health check đạt HTTP 200.",
   id: articleId,
   workspaceId: workspace.id,
   sourceIncidentId: null,
@@ -36,10 +39,13 @@ async function fixture(
     approvalFailure?: boolean;
     foreignDraft?: boolean;
     delay?: boolean;
+    incomplete?: boolean;
   } = {},
 ) {
   await mockSession(page, { role: options.role });
   let current = { ...article, createdBy: options.foreignDraft ? memberId : user.id };
+  if (options.incomplete)
+    current = { ...current, symptoms: "", applicability: "", verification: "" };
   let savedSearch: {
     search: {
       id: string;
@@ -360,10 +366,12 @@ test("approval requires confirmation and archive keeps its current version", asy
   await page.getByRole("button", { name: "Duyệt bài viết", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("nhà cung cấp AI");
   expect(state.writes).toHaveLength(0);
+  await expect(page.getByRole("button", { name: "Xác nhận duyệt" })).toBeDisabled();
+  await page.getByRole("checkbox", { name: /Tôi đã kiểm tra nguyên nhân/ }).check();
   await page.getByRole("button", { name: "Xác nhận duyệt" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã duyệt bài viết" })).toBeVisible();
   await expect(page.getByText("Sẵn sàng", { exact: true })).toBeVisible();
-  expect(state.writes[0].body).toEqual({ version: 4 });
+  expect(state.writes[0].body).toEqual({ version: 4, verified: true });
   await expect(page.getByRole("button", { name: "Duyệt bài viết", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Lưu trữ bài", exact: true }).click();
   await page.getByRole("button", { name: "Xác nhận lưu trữ" }).click();
@@ -377,6 +385,7 @@ test("approval failure blocks another mutation until a fresh article is loaded",
   const state = await fixture(page, { approvalFailure: true });
   await page.goto(`/knowledge/${articleId}`);
   await page.getByRole("button", { name: "Duyệt bài viết", exact: true }).click();
+  await page.getByRole("checkbox", { name: /Tôi đã kiểm tra nguyên nhân/ }).check();
   await page.getByRole("button", { name: "Xác nhận duyệt" }).click();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "Tạo chỉ mục chưa thành công",
@@ -385,9 +394,31 @@ test("approval failure blocks another mutation until a fresh article is loaded",
   await page.getByRole("button", { name: "Tải lại bài viết" }).click();
   await expect(page.getByText("AI_TIMEOUT", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Thử tạo lại chỉ mục" }).click();
+  await page.getByRole("checkbox", { name: /Tôi đã kiểm tra nguyên nhân/ }).check();
   await page.getByRole("button", { name: "Xác nhận duyệt" }).click();
   await expect.poll(() => state.writes.length).toBe(2);
-  expect(state.writes[1].body).toEqual({ version: 5 });
+  expect(state.writes[1].body).toEqual({ version: 5, verified: true });
+});
+
+test("incomplete knowledge remains editable as a draft and cannot be approved", async ({
+  page,
+}) => {
+  const state = await fixture(page, { incomplete: true });
+  await page.goto(`/knowledge/${articleId}`);
+  await expect(page.getByRole("button", { name: "Duyệt bài viết", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Chỉnh sửa bài" }).click();
+  await page.getByLabel("Triệu chứng và dấu hiệu lỗi", { exact: false }).fill("EADDRINUSE");
+  await page.getByLabel("Phạm vi áp dụng", { exact: true }).fill("Node 22 / Ubuntu");
+  await page
+    .getByLabel("Cách kiểm chứng và kết quả", { exact: false })
+    .fill("Health check returned HTTP 200 after retest");
+  await page.getByRole("button", { name: "Lưu bản nháp" }).click();
+  await expect(page.getByRole("button", { name: "Duyệt bài viết", exact: true })).toBeEnabled();
+  expect(state.writes[0].body).toMatchObject({
+    symptoms: "EADDRINUSE",
+    applicability: "Node 22 / Ubuntu",
+    verification: "Health check returned HTTP 200 after retest",
+  });
 });
 
 test("edit conflict preserves input and requires explicitly loading the newer revision", async ({
@@ -648,9 +679,13 @@ for (const [width, height] of [
     await page.screenshot({ path: path.join(dir, `editor-${width}.png`), fullPage: true });
     await page.getByRole("button", { name: "Hủy chỉnh sửa" }).click();
     await page.getByRole("button", { name: "Duyệt bài viết", exact: true }).click();
+    await expect(page.getByRole("checkbox", { name: /Tôi đã kiểm tra nguyên nhân/ })).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
     await expect(page.getByRole("button", { name: "Đóng", exact: true })).toBeFocused();
     await page.keyboard.press("Shift+Tab");
-    await expect(page.getByRole("button", { name: "Xác nhận duyệt" })).toBeFocused();
+    await expect(page.getByRole("button", { name: "Hủy", exact: true })).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(page.getByRole("checkbox", { name: /Tôi đã kiểm tra nguyên nhân/ })).toBeFocused();
     expect(
       (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
         .violations,

@@ -62,8 +62,9 @@ public class KnowledgeController {
     @PostMapping("/{articleId}/approve")
     public KnowledgeDtos.Article approve(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
                                           @PathVariable UUID articleId,
-                                          @Valid @RequestBody KnowledgeDtos.VersionRequest request) {
-        return publication.approve(UUID.fromString(jwt.getSubject()), workspaceId, articleId, request.version());
+                                          @Valid @RequestBody KnowledgeDtos.ApprovalRequest request) {
+        return publication.approve(UUID.fromString(jwt.getSubject()), workspaceId, articleId, request.version(),
+            Boolean.TRUE.equals(request.verified()));
     }
 
     @PostMapping("/{articleId}/archive")

@@ -28,7 +28,9 @@ public class KnowledgeText {
     }
 
     public List<String> chunks(KnowledgeDtos.Article article) {
-        var text = sanitize(article.title() + "\n" + article.rootCause() + "\n" + article.resolution());
+        var text = sanitize(article.title() + "\nSymptoms:\n" + article.symptoms()
+            + "\nApplies to:\n" + article.applicability() + "\nRoot cause:\n" + article.rootCause()
+            + "\nResolution:\n" + article.resolution() + "\nVerification:\n" + article.verification());
         var chunks = new ArrayList<String>();
         int start = 0;
         while (start < text.length()) {

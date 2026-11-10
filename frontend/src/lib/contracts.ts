@@ -288,6 +288,9 @@ export interface Backlog {
 }
 
 export interface KnowledgeArticle {
+  symptoms?: string;
+  applicability?: string;
+  verification?: string;
   id: string;
   workspaceId: string;
   sourceIncidentId: string | null;

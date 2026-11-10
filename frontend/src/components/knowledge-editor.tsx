@@ -88,6 +88,7 @@ function CreateContent({ incidentId, analysisId }: { incidentId?: string; analys
                       ),
                       rootCause: (report.suspectedRootCause ?? "").slice(0, 3000),
                       resolution: (report.suggestedFix ?? "").slice(0, 6000),
+                      symptoms: (report.summary ?? "").slice(0, 1000),
                     }
                   : undefined
               }
@@ -164,7 +165,8 @@ export function KnowledgeEditor({
   article?: KnowledgeArticle;
   sourceIncidentId?: string;
   sourceAnalysisId?: string;
-  initial?: Pick<KnowledgeArticle, "title" | "rootCause" | "resolution">;
+  initial?: Pick<KnowledgeArticle, "title" | "rootCause" | "resolution"> &
+    Partial<Pick<KnowledgeArticle, "symptoms" | "applicability" | "verification">>;
   onSaved: (article: KnowledgeArticle) => void;
   onCancel?: () => void;
   onReload?: () => void;
@@ -175,6 +177,13 @@ export function KnowledgeEditor({
   const [title, setTitle] = useState(article?.title ?? initial?.title ?? "");
   const [rootCause, setRootCause] = useState(article?.rootCause ?? initial?.rootCause ?? "");
   const [resolution, setResolution] = useState(article?.resolution ?? initial?.resolution ?? "");
+  const [symptoms, setSymptoms] = useState(article?.symptoms ?? initial?.symptoms ?? "");
+  const [applicability, setApplicability] = useState(
+    article?.applicability ?? initial?.applicability ?? "",
+  );
+  const [verification, setVerification] = useState(
+    article?.verification ?? initial?.verification ?? "",
+  );
   const [busy, setBusy] = useState(false);
   const [conflict, setConflict] = useState(false);
   const [error, setError] = useState("");
@@ -191,6 +200,9 @@ export function KnowledgeEditor({
           title: title.trim(),
           rootCause: rootCause.trim(),
           resolution: resolution.trim(),
+          symptoms: symptoms.trim(),
+          applicability: applicability.trim(),
+          verification: verification.trim(),
           ...(article
             ? { version }
             : {
@@ -232,6 +244,28 @@ export function KnowledgeEditor({
           />
         </label>
         <label>
+          Triệu chứng và dấu hiệu lỗi
+          <textarea
+            value={symptoms}
+            onChange={(event) => setSymptoms(event.target.value)}
+            maxLength={1000}
+            rows={3}
+          />
+          <span className="field-hint">
+            Mã lỗi hoặc biểu hiện quan sát được. Có thể bổ sung sau khi lưu nháp.
+          </span>
+        </label>
+        <label>
+          Phạm vi áp dụng
+          <textarea
+            value={applicability}
+            onChange={(event) => setApplicability(event.target.value)}
+            maxLength={1000}
+            rows={3}
+            placeholder="Dịch vụ, phiên bản Java/Node, hệ điều hành và điều kiện áp dụng…"
+          />
+        </label>
+        <label>
           {sourceAnalysisId || article?.sourceAnalysisId
             ? "Nguyên nhân cần kiểm tra"
             : "Nguyên nhân đã xác nhận"}
@@ -256,6 +290,19 @@ export function KnowledgeEditor({
             rows={9}
           />
           <span className="field-hint">{resolution.length}/6.000 ký tự</span>
+        </label>
+        <label>
+          Cách kiểm chứng và kết quả
+          <textarea
+            value={verification}
+            onChange={(event) => setVerification(event.target.value)}
+            maxLength={1500}
+            rows={4}
+            placeholder="Bước kiểm tra đã thực hiện, kết quả quan sát và giới hạn còn lại…"
+          />
+          <span className="field-hint">
+            Cần điền cả triệu chứng, phạm vi và kiểm chứng trước khi duyệt vào kho tri thức.
+          </span>
         </label>
       </fieldset>
       <p className="field-hint">

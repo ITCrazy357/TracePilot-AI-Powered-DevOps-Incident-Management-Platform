@@ -46,6 +46,13 @@ test("live knowledge UI persists long Vietnamese text, versions, roles and tenan
     8192,
   );
   await page.getByLabel("Tiêu đề", { exact: true }).fill("Bài kiểm thử giao diện và lưu trữ");
+  await page
+    .getByLabel("Triệu chứng và dấu hiệu lỗi", { exact: false })
+    .fill("Kết nối bị từ chối trong kiểm thử");
+  await page.getByLabel("Phạm vi áp dụng", { exact: true }).fill("Local fixture, Java 21");
+  await page
+    .getByLabel("Cách kiểm chứng và kết quả", { exact: false })
+    .fill("Đã chạy lại kiểm thử trên môi trường tạm");
   await page.getByLabel("Nguyên nhân đã xác nhận", { exact: false }).fill(rootCause);
   await page.getByLabel("Cách khắc phục đã kiểm tra", { exact: false }).fill(resolution);
   await page.getByRole("button", { name: "Lưu bản nháp" }).click();
@@ -75,6 +82,7 @@ test("live knowledge UI persists long Vietnamese text, versions, roles and tenan
     ).status(),
   ).toBe(409);
   await page.getByRole("button", { name: "Duyệt bài viết", exact: true }).click();
+  await page.getByRole("checkbox", { name: /Tôi đã kiểm tra nguyên nhân/ }).check();
   await page.getByRole("button", { name: "Xác nhận duyệt" }).click();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "Tìm kiếm AI chưa được bật",

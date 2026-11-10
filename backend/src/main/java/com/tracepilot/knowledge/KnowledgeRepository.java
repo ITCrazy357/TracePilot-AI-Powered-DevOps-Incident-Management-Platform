@@ -41,7 +41,8 @@ public class KnowledgeRepository {
         var parameters = new ArrayList<Object>();
         parameters.add(workspaceId);
         if (filters.q() != null && !filters.q().isBlank()) {
-            where.append(" AND position(lower(?) in lower(title || chr(10) || root_cause || chr(10) || resolution)) > 0");
+            where.append(" AND position(lower(?) in lower(title || chr(10) || root_cause || chr(10) || resolution"
+                + " || chr(10) || symptoms || chr(10) || applicability || chr(10) || verification)) > 0");
             parameters.add(filters.q().strip());
         }
         if (filters.status() != null) {
@@ -59,10 +60,12 @@ public class KnowledgeRepository {
     public void insert(UUID id, UUID workspaceId, UUID actorId, KnowledgeDtos.CreateRequest request, Instant now) {
         jdbcTemplate.update("""
             INSERT INTO knowledge_articles (id, workspace_id, source_incident_id, title, root_cause, resolution,
-                created_by, created_at, updated_at, source_analysis_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                created_by, created_at, updated_at, source_analysis_id, symptoms, applicability, verification)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, id, workspaceId, request.sourceIncidentId(), request.title(),
             request.rootCause(), request.resolution(), actorId,
-            Timestamp.from(now), Timestamp.from(now), request.sourceAnalysisId());
+            Timestamp.from(now), Timestamp.from(now), request.sourceAnalysisId(), request.symptoms(),
+            request.applicability(), request.verification());
     }
 
     public void edit(UUID id, KnowledgeDtos.EditRequest request, Instant now) {
@@ -71,9 +74,10 @@ public class KnowledgeRepository {
             UPDATE knowledge_articles SET title = ?, root_cause = ?, resolution = ?, status = 'DRAFT',
                 index_status = 'NONE', approved_by = NULL, approved_at = NULL, index_token = NULL,
                 index_lease_until = NULL, index_error_code = NULL, version = version + 1,
-                content_version = content_version + 1, updated_at = ? WHERE id = ? AND version = ?
+                content_version = content_version + 1, symptoms = ?, applicability = ?, verification = ?,
+                updated_at = ? WHERE id = ? AND version = ?
             """, request.title(), request.rootCause(), request.resolution(),
-            Timestamp.from(now), id, request.version());
+            request.symptoms(), request.applicability(), request.verification(), Timestamp.from(now), id, request.version());
     }
 
     public boolean indexing(UUID id, Instant now) {
@@ -224,7 +228,8 @@ public class KnowledgeRepository {
             row.getLong("content_version"), row.getObject("created_by", UUID.class),
             row.getObject("approved_by", UUID.class), approvedAt == null ? null : approvedAt.toInstant(),
             row.getString("index_error_code"), row.getTimestamp("created_at").toInstant(), row.getTimestamp("updated_at").toInstant(),
-            row.getObject("source_analysis_id", UUID.class));
+            row.getObject("source_analysis_id", UUID.class), row.getString("symptoms"),
+            row.getString("applicability"), row.getString("verification"));
     }
 
     public boolean hasSuccessfulAnalysis(UUID workspaceId, UUID incidentId, UUID analysisId) {
