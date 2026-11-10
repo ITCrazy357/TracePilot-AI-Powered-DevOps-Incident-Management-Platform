@@ -32,6 +32,7 @@ export interface Member {
 }
 
 export interface Repository {
+  trackingEnabled?: boolean;
   id: string;
   githubRepositoryId: number;
   fullName: string;

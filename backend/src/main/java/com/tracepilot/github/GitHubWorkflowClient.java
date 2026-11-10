@@ -25,7 +25,7 @@ public class GitHubWorkflowClient {
     }
 
     public PipelineDtos.Snapshot fetch(PipelineDtos.RepositoryScope scope, PipelineDtos.Work work) {
-        var token = apiClient.createInstallationToken();
+        var token = apiClient.createInstallationToken(scope.githubInstallationId());
         var path = "/repos/" + scope.fullName() + "/actions/runs/" + work.runId() + "/attempts/" + work.runAttempt();
         try {
             var run = apiClient.getRepositoryResource(path, token);

@@ -176,10 +176,16 @@ class TracePilotApplicationTests {
         assertThat(article.get("index_status")).isEqualTo("READY");
         assertThat(article.get("root_cause")).isEqualTo("Legacy verified cause");
         assertThat(article.get("verification")).isEqualTo("");
+        assertThat(jdbcTemplate.queryForObject("SELECT tracking_enabled FROM " + schema + ".repositories WHERE id = ?",
+            Boolean.class, repositoryId)).isTrue();
+        assertThat(jdbcTemplate.queryForObject("SELECT is_active FROM " + schema + ".repositories WHERE id = ?",
+            Boolean.class, repositoryId)).isTrue();
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM " + schema + ".knowledge_chunks WHERE article_id = ?",
             Integer.class, articleId)).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM " + schema
             + ".flyway_schema_history WHERE version IN ('12','13','14') AND success", Integer.class)).isEqualTo(3);
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM " + schema
+            + ".flyway_schema_history WHERE version = '15' AND success", Integer.class)).isEqualTo(1);
     }
 
     @Test

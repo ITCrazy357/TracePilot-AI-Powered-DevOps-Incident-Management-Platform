@@ -296,6 +296,12 @@ Năm phần nâng chất lượng phân tích được mô tả tại [Phase 11]
 Giữ cách ly workspace, che bí mật và người dùng duyệt tri thức. Đo trên bộ tham chiếu trước khi
 tuyên bố tăng độ chính xác; test fixture không thay cho đánh giá model thật.
 
+## 12. GitHub cho nhiều workspace
+
+Xem [Phase 12](docs/phase-12.md): liên kết được cấp quyền và lựa chọn repository theo workspace,
+webhook fan-out, token theo installation và migration V15 giữ lịch sử cũ. Binding environment chỉ
+làm bootstrap; không tự cho mọi OWNER truy cập installation bằng cách biết ID.
+
 ---
 
 **Tổng quan:** 20 model là **schema mục tiêu**, không phải yêu cầu phải viết toàn bộ trong Phase 01. Hãy code từng nhóm nhỏ, tạo migration cho từng phase, test xong rồi mới học phần sau.

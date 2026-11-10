@@ -18,7 +18,7 @@ public final class PipelineDtos {
     }
 
     public record RepositoryScope(UUID repositoryId, UUID workspaceId, UUID installationId,
-                                  long githubRepositoryId, String fullName, long installationVersion) {
+                                  long githubRepositoryId, String fullName, long installationVersion, long githubInstallationId) {
     }
 
     public record RunData(long id, int attempt, long workflowId, String name, String branch, String headSha,

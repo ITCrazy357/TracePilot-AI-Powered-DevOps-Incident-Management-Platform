@@ -3,9 +3,9 @@ package com.tracepilot.github;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
-import com.tracepilot.workspace.WorkspaceRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,25 +20,23 @@ public class GitHubWebhookService {
     private final WebhookDeliveryRepository deliveryRepository;
     private final GitHubInstallationRepository installationRepository;
     private final TrackedRepositoryRepository repositoryRepository;
-    private final WorkspaceRepository workspaceRepository;
     private final ObjectMapper objectMapper;
     private final Clock clock;
-    private final GitHubProperties properties;
     private final GitHubWorkflowIngestion workflowIngestion;
+    private final GitHubBindingAccess access;
 
     public GitHubWebhookService(WebhookDeliveryRepository deliveryRepository,
                                 GitHubInstallationRepository installationRepository,
                                 TrackedRepositoryRepository repositoryRepository,
-                                WorkspaceRepository workspaceRepository, ObjectMapper objectMapper, Clock clock,
-                                GitHubProperties properties, GitHubWorkflowIngestion workflowIngestion) {
+                                ObjectMapper objectMapper, Clock clock,
+                                GitHubWorkflowIngestion workflowIngestion, GitHubBindingAccess access) {
         this.deliveryRepository = deliveryRepository;
         this.installationRepository = installationRepository;
         this.repositoryRepository = repositoryRepository;
-        this.workspaceRepository = workspaceRepository;
         this.objectMapper = objectMapper;
         this.clock = clock;
-        this.properties = properties;
         this.workflowIngestion = workflowIngestion;
+        this.access = access;
     }
 
     @Transactional
@@ -56,14 +54,14 @@ public class GitHubWebhookService {
             if (!deliveryRepository.begin(deliveryId, eventType, action, payloadHash)) {
                 return duplicate(deliveryId, eventType, payloadHash);
             }
-            var installation = findInstallation(payload);
+            var installations = findInstallations(payload);
             boolean processed = "ping".equals(eventType);
-            if (installation.isPresent()) {
-                var current = installation.orElseThrow();
-                processed = process(current, eventType, action, payload, deliveryId);
+            for (var installation : installations) {
+                processed = process(installation, eventType, action, payload, deliveryId) || processed;
             }
             var status = processed ? "PROCESSED" : "IGNORED";
-            deliveryRepository.complete(deliveryId, installation.map(GitHubInstallation::getId), status);
+            var singleTarget = installations.size() == 1 ? Optional.of(installations.getFirst().getId()) : Optional.<UUID>empty();
+            deliveryRepository.complete(deliveryId, singleTarget, status);
             return new GitHubDtos.WebhookResponse(status, false);
         } catch (JacksonException | IllegalArgumentException exception) {
             throw invalidPayload();
@@ -79,17 +77,13 @@ public class GitHubWebhookService {
         return new GitHubDtos.WebhookResponse(existing.status(), true);
     }
 
-    private Optional<GitHubInstallation> findInstallation(JsonNode payload) {
+    private List<GitHubInstallation> findInstallations(JsonNode payload) {
         if (!payload.hasNonNull("installation")) {
-            return Optional.empty();
+            return List.of();
         }
         long id = GitHubPayloads.positiveId(payload.path("installation").path("id"));
-        if (id != properties.installationId()) {
-            return Optional.empty();
-        }
-        // Lock before loading entities so the JPA persistence context cannot cache stale status/version data.
-        workspaceRepository.findForUpdate(properties.workspaceId()).orElseThrow(this::invalidPayload);
-        return installationRepository.findByGithubInstallationId(id);
+        access.lockWebhookTargets(id);
+        return installationRepository.findAllByGithubInstallationIdOrderByWorkspaceIdAsc(id);
     }
 
     private boolean process(GitHubInstallation installation, String eventType, String action, JsonNode payload,
@@ -159,8 +153,8 @@ public class GitHubWebhookService {
             var data = GitHubPayloads.repository(item);
             var repository = existing.get(data.id());
             if (repository == null) {
-                repository = repositoryRepository.save(new TrackedRepository(installation, data, now));
-                existing.put(data.id(), repository);
+                // A GitHub-wide grant is not consent to track a new repository in every workspace.
+                continue;
             } else {
                 repository.update(data, true, now);
             }

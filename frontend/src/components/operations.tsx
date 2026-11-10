@@ -31,6 +31,7 @@ const actionLabels: Record<string, string> = {
   KNOWLEDGE_ARCHIVED: "Lưu trữ tri thức",
   ANALYSIS_REQUESTED: "Yêu cầu phân tích",
   WORKFLOW_SYNC_REQUESTED: "Yêu cầu đồng bộ workflow",
+  GITHUB_CONNECTION_UPDATED: "Cập nhật liên kết GitHub và repository theo dõi",
   FEEDBACK_SAVED: "Lưu đánh giá",
   OUTBOX_REPLAYED: "Thử lại tác vụ",
 };

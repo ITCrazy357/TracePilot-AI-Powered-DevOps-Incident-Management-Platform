@@ -53,17 +53,14 @@ public class PipelineAccess {
             return Optional.empty();
         }
         var current = repository.orElseThrow();
-        if (!current.getWorkspaceId().equals(properties.workspaceId())) {
-            return Optional.empty();
-        }
         var installation = installationRepository.findById(current.getInstallationId());
         if (installation.isEmpty() || installation.orElseThrow().getStatus() != InstallationStatus.ACTIVE
-            || installation.orElseThrow().getGithubInstallationId() != properties.installationId()) {
+            || !installation.orElseThrow().getWorkspaceId().equals(current.getWorkspaceId())) {
             return Optional.empty();
         }
         return Optional.of(new PipelineDtos.RepositoryScope(current.getId(), current.getWorkspaceId(),
             current.getInstallationId(), current.getGithubRepositoryId(), current.getFullName(),
-            installation.orElseThrow().getVersion()));
+            installation.orElseThrow().getVersion(), installation.orElseThrow().getGithubInstallationId()));
     }
 
     private ResponseStatusException notFound() {

@@ -1,10 +1,174 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { memberId, mockSession, otherWorkspace, repositories, user, workspace } from "./fixtures";
 
 const evidenceDir = path.resolve(process.cwd(), "../.verification/frontend");
+
+async function mockGitHubConnection(
+  page: Page,
+  options: { noGrant?: boolean; conflict?: boolean } = {},
+) {
+  await mockSession(page);
+  let selected: number[] = [];
+  const writes: Record<string, unknown>[] = [];
+  let version: number | null = null;
+  await page.route(`**/workspaces/${otherWorkspace.id}/repositories?**`, (route) =>
+    route.fulfill({
+      json: {
+        items: selected.includes(10001)
+          ? [{ ...repositories[0], fullName: "acme/OfficeFlow" }]
+          : [],
+        page: 0,
+        size: 20,
+        totalElements: selected.length,
+      },
+    }),
+  );
+  await page.route("**/github/**", (route) => {
+    if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      writes.push(body);
+      if (options.conflict && writes.length === 1) {
+        version = 2;
+        return route.fulfill({ status: 409, json: {} });
+      }
+      selected = body.repositoryIds;
+      version = 3;
+      return route.fulfill({
+        json: {
+          id: "connection",
+          installationId: 501,
+          accountLogin: "acme",
+          status: "ACTIVE",
+          repositoryCount: selected.length,
+        },
+      });
+    }
+    if (route.request().url().includes("/installations/"))
+      return route.fulfill({
+        json: {
+          status: "ACTIVE",
+          repositories: [
+            { id: 10000, fullName: "acme/Roomora", defaultBranch: "main" },
+            { id: 10001, fullName: "acme/OfficeFlow", defaultBranch: "main" },
+          ],
+        },
+      });
+    return route.fulfill({
+      json: {
+        connection: {
+          installationId: version === null ? null : 501,
+          accountLogin: "acme",
+          version,
+          repositoryIds: selected,
+        },
+        installations: options.noGrant ? [] : [{ installationId: 501, accountLogin: "acme" }],
+      },
+    });
+  });
+  await page.goto("/repositories");
+  await expect(page.getByRole("button", { name: "Chọn repository", exact: true })).toBeVisible();
+  if (await page.getByRole("button", { name: "Mở điều hướng", exact: true }).isVisible()) {
+    await page.getByRole("button", { name: "Mở điều hướng", exact: true }).click();
+  }
+  await page.getByLabel("Workspace hiện tại", { exact: true }).selectOption(otherWorkspace.id);
+  if (await page.getByRole("button", { name: "Đóng điều hướng", exact: true }).isVisible()) {
+    await page.getByRole("button", { name: "Đóng điều hướng", exact: true }).click();
+  }
+  await page.getByRole("button", { name: "Chọn repository", exact: true }).click();
+  return { writes };
+}
+
+test("owner chooses a project for a new workspace without changing the previous workspace", async ({
+  page,
+}) => {
+  const state = await mockGitHubConnection(page);
+  await page.getByRole("checkbox", { name: "acme/OfficeFlow", exact: true }).check();
+  await page.getByRole("button", { name: "Lưu repository theo dõi" }).click();
+  await expect(page.getByRole("link", { name: /acme\/OfficeFlow/ })).toBeVisible();
+  expect(state.writes).toEqual([{ installationId: 501, version: null, repositoryIds: [10001] }]);
+  await page.getByLabel("Workspace hiện tại", { exact: true }).selectOption(workspace.id);
+  await expect(page.getByRole("link", { name: /tracepilot\/backend/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /acme\/OfficeFlow/ })).toHaveCount(0);
+});
+
+test("GitHub selection conflicts require reloading the captured version", async ({ page }) => {
+  const state = await mockGitHubConnection(page, { conflict: true });
+  await page.getByRole("checkbox", { name: "acme/OfficeFlow", exact: true }).check();
+  await page.getByRole("button", { name: "Lưu repository theo dõi" }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Liên kết hoặc quyền repository" }),
+  ).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "acme/OfficeFlow", exact: true })).toBeChecked();
+  await expect(page.getByRole("button", { name: "Lưu repository theo dõi" })).toBeDisabled();
+  await page.getByRole("button", { name: "Tải lại lựa chọn" }).click();
+  await expect(
+    page.getByRole("checkbox", { name: "acme/OfficeFlow", exact: true }),
+  ).not.toBeChecked();
+  await page.getByRole("checkbox", { name: "acme/OfficeFlow", exact: true }).check();
+  await page.getByRole("button", { name: "Lưu repository theo dõi" }).click();
+  await expect.poll(() => state.writes.length).toBe(2);
+  expect(state.writes[1].version).toBe(2);
+});
+
+test("a workspace owner with no approved GitHub grant gets a setup explanation", async ({
+  page,
+}) => {
+  await mockGitHubConnection(page, { noGrant: true });
+  await expect(page.getByRole("dialog")).toContainText("Chưa có GitHub App được cấp quyền cho bạn");
+  await expect(page.getByRole("button", { name: "Lưu repository theo dõi" })).toBeDisabled();
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+});
+
+for (const width of [1440, 390, 320]) {
+  test(`GitHub repository chooser is accessible and fits at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: width === 1440 ? 900 : width === 390 ? 844 : 812 });
+    await mockGitHubConnection(page);
+    await expect(
+      page.getByRole("checkbox", { name: "acme/OfficeFlow", exact: true }),
+    ).toBeVisible();
+    expect(
+      (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
+        .violations,
+    ).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await mkdir(evidenceDir, { recursive: true });
+    await page.screenshot({
+      path: path.join(evidenceDir, `github-selection-${width}.png`),
+      fullPage: true,
+    });
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("button", { name: "Chọn repository", exact: true })).toBeFocused();
+  });
+}
+
+test("GitHub connection BFF accepts only scoped paths and same-origin writes", async ({
+  request,
+}) => {
+  const base = `/api/backend/workspaces/${workspace.id}/github`;
+  const origin = process.env.FRONTEND_URL ?? "http://127.0.0.1:3000";
+  expect((await request.get(`${base}/connection`)).status()).toBe(401);
+  expect((await request.get(`${base}/installations/501/repositories`)).status()).toBe(401);
+  expect((await request.get(`${base}/installations/0/repositories`)).status()).toBe(404);
+  expect(
+    (
+      await request.post(`${base}/connection`, {
+        headers: { Origin: "https://foreign.invalid" },
+        data: {},
+      })
+    ).status(),
+  ).toBe(403);
+  expect(
+    (await request.post(`${base}/connection`, { headers: { Origin: origin }, data: {} })).status(),
+  ).toBe(401);
+  expect(
+    (await request.delete(`${base}/connection`, { headers: { Origin: origin } })).status(),
+  ).toBe(404);
+});
 
 test("unauthenticated visitor reaches login and receives a useful login error", async ({
   page,

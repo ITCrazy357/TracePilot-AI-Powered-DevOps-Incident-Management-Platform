@@ -489,6 +489,20 @@ summary:focus-visible {
 .knowledge-fields textarea:disabled {
   background: #edf3f8;
 }
+.github-selection-list {
+  max-height: 320px;
+  overflow-y: auto;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.github-selection-list label.verification-confirmation {
+  display: flex;
+  margin-block: 8px;
+}
+
 .report-checklist {
   padding-left: 1.4rem;
   margin-block: 0.8rem;

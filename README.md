@@ -8,6 +8,11 @@ Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backen
 
 ![Dashboard với dữ liệu browser fixture](docs/images/dashboard-fixture.png)
 
+**GitHub nhiều workspace — Phase 12:** trong mỗi workspace, OWNER dùng **Kho mã → Chọn repository**
+để phân bổ project từ installation đã được cấp quyền. Webhook/token theo liên kết từng workspace;
+không đổi workspace bootstrap trong `.env.shipping`. Cập nhật bằng shipping `-Task up`, migration V15
+giữ lịch sử hiện có. [Hướng dẫn và giới hạn quyền](docs/phase-12.md).
+
 **Cập nhật Phase 11:** chọn vùng log chẩn đoán, ngữ cảnh từng lần phân tích, tri thức có phạm vi/kiểm chứng,
 báo cáo nêu dữ kiện thiếu và bước kiểm tra. Nâng database bằng V12–V14 khi chạy lại shipping `-Task up`,
 giữ volume và cấu hình cũ. [Luồng sử dụng](docs/phase-11.md), [bộ 26 ca và công cụ đánh giá](docs/ai-evaluation.md).

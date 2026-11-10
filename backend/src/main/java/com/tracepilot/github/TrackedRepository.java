@@ -28,6 +28,8 @@ public class TrackedRepository {
     private String defaultBranch;
     @Column(name = "is_active", nullable = false)
     private boolean active;
+    @Column(name = "tracking_enabled", nullable = false)
+    private boolean trackingEnabled = true;
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
     @Column(name = "updated_at", nullable = false)
@@ -72,6 +74,17 @@ public class TrackedRepository {
         return active;
     }
 
+    public boolean isTrackingEnabled() {
+        return trackingEnabled;
+    }
+
+    public void setTrackingEnabled(boolean enabled, Instant now) {
+        trackingEnabled = enabled;
+        if (!enabled) {
+            setActive(false, now);
+        }
+    }
+
     public void update(GitHubDtos.RepositoryData data, boolean active, Instant now) {
         this.fullName = data.fullName();
         if (data.defaultBranch() != null) {
@@ -81,7 +94,7 @@ public class TrackedRepository {
     }
 
     public void setActive(boolean active, Instant now) {
-        this.active = active;
+        this.active = active && trackingEnabled;
         this.updatedAt = now;
     }
 }

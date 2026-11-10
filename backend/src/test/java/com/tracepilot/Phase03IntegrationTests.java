@@ -143,6 +143,52 @@ class Phase03IntegrationTests {
     }
 
     @Test
+    void workflowForAnotherApprovedInstallationUsesItsOwnTokenInsteadOfTheBootstrapToken() throws Exception {
+        jdbcTemplate.update("UPDATE workspace_members SET role = 'MEMBER' WHERE workspace_id = ? AND role = 'OWNER'", OTHER_WORKSPACE_ID);
+        insertMember(OTHER_WORKSPACE_ID, owner, "OWNER");
+        var connectionId = UUID.randomUUID();
+        var repositoryId = UUID.randomUUID();
+        // Operator-approved binding for another account; no client can create this grant by guessing its ID.
+        jdbcTemplate.update("""
+            INSERT INTO github_installations(id,workspace_id,github_installation_id,account_login,status,created_at,updated_at)
+            VALUES (?, ?, 502, 'another-account', 'ACTIVE', now(), now())
+            """, connectionId, OTHER_WORKSPACE_ID);
+        jdbcTemplate.update("""
+            INSERT INTO repositories(id,workspace_id,installation_id,github_repository_id,full_name,is_active,created_at,updated_at)
+            VALUES (?, ?, ?, 10000, 'acme/repo-0', true, now(), now())
+            """, repositoryId, OTHER_WORKSPACE_ID, connectionId);
+        var payload = (tools.jackson.databind.node.ObjectNode) objectMapper.readTree(workflowPayload(1));
+        ((tools.jackson.databind.node.ObjectNode) payload.path("installation")).put("id", 502);
+        var delivery = UUID.randomUUID().toString();
+        assertThat(webhook("workflow_run", delivery, json(payload)).statusCode()).isEqualTo(200);
+        waitFor(eventForDelivery(delivery), "SUCCEEDED");
+        assertThat(GITHUB.tokenInstallations).containsOnly(502L);
+        assertThat(jdbcTemplate.queryForObject("SELECT repository_id FROM workflow_runs", UUID.class)).isEqualTo(repositoryId);
+    }
+
+    @Test
+    void oneWebhookFansOutToSelectedWorkspacesWithoutDuplicateWorkOrCrossTenantReads() throws Exception {
+        jdbcTemplate.update("UPDATE workspace_members SET role = 'MEMBER' WHERE workspace_id = ? AND role = 'OWNER'", OTHER_WORKSPACE_ID);
+        insertMember(OTHER_WORKSPACE_ID, owner, "OWNER");
+        var selected = call("POST", "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/github/connection", owner.accessToken(),
+            Map.of("installationId", 501, "repositoryIds", List.of(10000)));
+        assertThat(selected.statusCode()).isEqualTo(200);
+        var payload = workflowPayload(1);
+        var delivery = UUID.randomUUID().toString();
+        assertThat(webhook("workflow_run", delivery, payload).statusCode()).isEqualTo(200);
+        assertThat(body(webhook("workflow_run", delivery, payload)).path("duplicate").asBoolean()).isTrue();
+        var events = jdbcTemplate.queryForList("SELECT id FROM outbox_events WHERE event_type = 'WORKFLOW_SYNC'", UUID.class);
+        assertThat(events).hasSize(2);
+        for (var id : events) waitFor(id, "SUCCEEDED");
+        assertThat(count("workflow_runs")).isEqualTo(2);
+        var targetRepo = jdbcTemplate.queryForObject("SELECT id FROM repositories WHERE workspace_id = ?", UUID.class, OTHER_WORKSPACE_ID);
+        var targetPath = "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/repositories/" + targetRepo + "/workflow-runs";
+        assertThat(body(call("GET", targetPath, owner.accessToken(), null)).path("totalElements").asLong()).isEqualTo(1);
+        assertThat(call("GET", targetPath, member.accessToken(), null).statusCode()).isEqualTo(404);
+        assertThat(call("POST", targetPath + "/sync", owner.accessToken(), Map.of("githubRunId", 7000, "runAttempt", 1)).statusCode()).isEqualTo(202);
+    }
+
+    @Test
     void workflowWebhookFetchesAllJobPagesAndServesWorkspaceScopedApis() throws Exception {
         GITHUB.workflows.jobCount = 101;
         var delivery = UUID.randomUUID().toString();

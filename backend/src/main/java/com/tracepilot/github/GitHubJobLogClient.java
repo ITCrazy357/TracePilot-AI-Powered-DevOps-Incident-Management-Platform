@@ -42,11 +42,11 @@ public class GitHubJobLogClient {
 
     public String fetchRedacted(PipelineDtos.RepositoryScope scope, long githubJobId) {
         try {
-            properties.requireWorkspace(scope.workspaceId());
+            properties.requireEnabled();
             if (!scope.fullName().matches("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+") || githubJobId <= 0) {
                 throw failure();
             }
-            var token = apiClient.createInstallationToken();
+            var token = apiClient.createInstallationToken(scope.githubInstallationId());
             var apiUrl = properties.apiBaseUrl().resolve(
                 "/repos/" + scope.fullName() + "/actions/jobs/" + githubJobId + "/logs");
             var redirect = send(HttpRequest.newBuilder(apiUrl).timeout(TIMEOUT)

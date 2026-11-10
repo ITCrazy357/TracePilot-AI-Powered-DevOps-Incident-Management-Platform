@@ -24,7 +24,10 @@ Base trong bảng: `/api/v1/workspaces/{workspaceId}`. `R` là `/repositories/{r
 
 | Method | Path sau base | Hợp đồng/quyền chính |
 |---|---|---|
-| POST | `/github/sync` | OWNER; đồng bộ danh sách repo của installation đã được operator bind |
+| POST | `/github/sync` | OWNER; đối soát liên kết của workspace, giữ repository đã chọn; environment là bootstrap |
+| GET | `/github/connection` | OWNER; version, repo đã chọn và installation được phép dùng |
+| GET | `/github/installations/{installationId}/repositories` | OWNER có quyền installation nguồn; catalog từ GitHub, chưa lưu liên kết |
+| POST | `/github/connection` | OWNER; `{installationId,version,repositoryIds}` tạo/sửa lựa chọn, version null khi mới; xem Phase 12 |
 | GET | `/repositories` | Phân trang repo của workspace |
 | GET | `R`, `R/{runId}`, `R/{runId}/jobs`, `R/sync-requests` | Run attempts, jobs và lịch sử xử lý |
 | POST | `R/sync` | OWNER; `{githubRunId,runAttempt}` → 202 ý định đã lưu, chưa phải worker thành công |

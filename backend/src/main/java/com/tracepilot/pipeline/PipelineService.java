@@ -45,7 +45,7 @@ public class PipelineService {
         workspaceRepository.findForUpdate(workspaceId).orElseThrow(this::notFound);
         access.requireOwner(actorId, workspaceId);
         access.requireRead(actorId, workspaceId, repositoryId);
-        gitHubProperties.requireWorkspace(workspaceId);
+        gitHubProperties.requireEnabled();
         if (access.currentScope(repositoryId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Repository is inactive or installation is unavailable.");

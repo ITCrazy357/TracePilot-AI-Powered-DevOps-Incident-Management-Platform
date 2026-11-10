@@ -98,6 +98,92 @@ class Phase02IntegrationTests {
     }
 
     @Test
+    void ownerSelectsRepositoriesIndependentlyInTwoWorkspacesAndPreservesHistory() throws Exception {
+        assertThat(synchronize(owner, WORKSPACE_ID).statusCode()).isEqualTo(200);
+        jdbcTemplate.update("UPDATE workspace_members SET role = 'MEMBER' WHERE workspace_id = ? AND role = 'OWNER'", OTHER_WORKSPACE_ID);
+        insertMember(OTHER_WORKSPACE_ID, owner, "OWNER");
+        var target = "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/github";
+        var originalId = jdbcTemplate.queryForObject("SELECT id FROM repositories WHERE workspace_id = ? AND github_repository_id = 10000",
+            UUID.class, WORKSPACE_ID);
+        assertThat(body(call("GET", target + "/connection", owner.accessToken(), null)).path("installations").size()).isEqualTo(1);
+        assertThat(call("GET", target + "/installations/501/repositories", owner.accessToken(), null).statusCode()).isEqualTo(200);
+        assertThat(count("repositories")).isEqualTo(2);
+        var created = call("POST", target + "/connection", owner.accessToken(),
+            Map.of("installationId", 501, "repositoryIds", List.of(10001)));
+        assertThat(created.statusCode()).isEqualTo(200);
+        assertThat(count("github_installations")).isEqualTo(2);
+        assertThat(synchronize(owner, OTHER_WORKSPACE_ID).statusCode()).isEqualTo(200);
+        assertThat(jdbcTemplate.queryForList("SELECT github_repository_id FROM repositories WHERE workspace_id = ?", Long.class,
+            OTHER_WORKSPACE_ID)).containsExactly(10001L);
+        var source = "/api/v1/workspaces/" + WORKSPACE_ID + "/github/connection";
+        long version = body(call("GET", source, owner.accessToken(), null)).path("connection").path("version").asLong();
+        var selected = Map.of("installationId", 501, "version", version, "repositoryIds", List.of(10000));
+        assertThat(call("POST", source, owner.accessToken(), selected).statusCode()).isEqualTo(200);
+        assertThat(call("POST", source, owner.accessToken(), selected).statusCode()).isEqualTo(409);
+        assertThat(jdbcTemplate.queryForObject("SELECT id FROM repositories WHERE workspace_id = ? AND github_repository_id = 10000",
+            UUID.class, WORKSPACE_ID)).isEqualTo(originalId);
+        var added = selectionPayload(List.of(Map.of("id", 10001, "full_name", "acme/repo-1")), List.of());
+        assertThat(deliver("installation_repositories", added).statusCode()).isEqualTo(200);
+        assertThat(jdbcTemplate.queryForObject("SELECT is_active FROM repositories WHERE workspace_id = ? AND github_repository_id = 10001",
+            Boolean.class, WORKSPACE_ID)).isFalse();
+        assertThat(jdbcTemplate.queryForObject("SELECT is_active FROM repositories WHERE workspace_id = ? AND github_repository_id = 10001",
+            Boolean.class, OTHER_WORKSPACE_ID)).isTrue();
+        assertThat(call("POST", target + "/connection", owner.accessToken(),
+            Map.of("installationId", 501, "version", 2, "repositoryIds", List.of(999999))).statusCode()).isEqualTo(409);
+        assertThat(deliver("installation", installationPayload("suspend")).statusCode()).isEqualTo(200);
+        assertThat(activeRepositoryCount()).isZero();
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM github_installations WHERE status = 'SUSPENDED'", Integer.class)).isEqualTo(2);
+    }
+
+    @Test
+    void knowingAnInstallationIdDoesNotGrantCatalogOrConnectionAccess() throws Exception {
+        var target = "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/github";
+        assertThat(body(call("GET", target + "/connection", outsider.accessToken(), null)).path("installations")).isEmpty();
+        assertThat(call("GET", target + "/installations/501/repositories", outsider.accessToken(), null).statusCode()).isEqualTo(404);
+        assertThat(call("POST", target + "/connection", outsider.accessToken(),
+            Map.of("installationId", 501, "repositoryIds", List.of(10000))).statusCode()).isEqualTo(404);
+        assertThat(call("GET", "/api/v1/workspaces/" + WORKSPACE_ID + "/github/connection", member.accessToken(), null).statusCode()).isEqualTo(403);
+        assertThat(GITHUB.metadataRequests).hasValue(0);
+    }
+
+    @Test
+    void sourcePermissionWebhookDuringFetchRejectsAStaleNewConnection() throws Exception {
+        assertThat(synchronize(owner, WORKSPACE_ID).statusCode()).isEqualTo(200);
+        jdbcTemplate.update("UPDATE workspace_members SET role = 'MEMBER' WHERE workspace_id = ? AND role = 'OWNER'", OTHER_WORKSPACE_ID);
+        insertMember(OTHER_WORKSPACE_ID, owner, "OWNER");
+        GITHUB.pauseRepositories = true;
+        try (var executor = Executors.newSingleThreadExecutor()) {
+            var pending = executor.submit(() -> call("POST", "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/github/connection",
+                owner.accessToken(), Map.of("installationId", 501, "repositoryIds", List.of(10001))));
+            try {
+                assertThat(GITHUB.snapshotRequested.await(5, TimeUnit.SECONDS)).isTrue();
+                assertThat(deliver("installation_repositories", selectionPayload(List.of(), List.of(Map.of("id", 10001))))
+                    .statusCode()).isEqualTo(200);
+            } finally { GITHUB.releaseSnapshot.countDown(); }
+            assertThat(pending.get(10, TimeUnit.SECONDS).statusCode()).isEqualTo(409);
+        }
+        assertThat(count("github_installations")).isEqualTo(1);
+    }
+
+    @Test
+    void revokingSourceOwnershipDuringTheRemoteFetchPreventsCreatingAConnection() throws Exception {
+        assertThat(synchronize(owner, WORKSPACE_ID).statusCode()).isEqualTo(200);
+        jdbcTemplate.update("UPDATE workspace_members SET role = 'MEMBER' WHERE workspace_id = ? AND role = 'OWNER'", OTHER_WORKSPACE_ID);
+        insertMember(OTHER_WORKSPACE_ID, owner, "OWNER");
+        GITHUB.pauseRepositories = true;
+        try (var executor = Executors.newSingleThreadExecutor()) {
+            var pending = executor.submit(() -> call("POST", "/api/v1/workspaces/" + OTHER_WORKSPACE_ID + "/github/connection",
+                owner.accessToken(), Map.of("installationId", 501, "repositoryIds", List.of(10001))));
+            try {
+                assertThat(GITHUB.snapshotRequested.await(5, TimeUnit.SECONDS)).isTrue();
+                jdbcTemplate.update("UPDATE workspace_members SET status = 'REMOVED' WHERE workspace_id = ? AND user_id = ?", WORKSPACE_ID, owner.id());
+            } finally { GITHUB.releaseSnapshot.countDown(); }
+            assertThat(pending.get(10, TimeUnit.SECONDS).statusCode()).isEqualTo(404);
+        }
+        assertThat(count("github_installations")).isEqualTo(1);
+    }
+
+    @Test
     void ownerSynchronizesPaginatedRepositoriesWithoutPersistingCredentials() throws Exception {
         GITHUB.repositoryCount = 101;
         var response = synchronize(owner, WORKSPACE_ID);
@@ -196,7 +282,7 @@ class Phase02IntegrationTests {
                 .containsExactlyInAnyOrder(false, true);
         }
         assertThat(count("webhook_deliveries")).isEqualTo(1);
-        assertThat(count("repositories")).isEqualTo(3);
+        assertThat(count("repositories")).isEqualTo(2);
     }
 
     @Test
@@ -205,12 +291,12 @@ class Phase02IntegrationTests {
         var selection = selectionPayload(List.of(Map.of("id", 20000, "full_name", "acme/added")),
             List.of(Map.of("id", 10000)));
         assertThat(deliver("installation_repositories", selection).statusCode()).isEqualTo(200);
-        assertThat(activeRepositoryCount()).isEqualTo(2);
-        assertThat(jdbcTemplate.queryForObject("SELECT default_branch FROM repositories WHERE github_repository_id = 20000",
-            String.class)).isNull();
+        assertThat(activeRepositoryCount()).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM repositories WHERE github_repository_id = 20000",
+            Integer.class)).isZero();
         var unknown = json(Map.of("action", "deleted", "installation", Map.of("id", 999999)));
         assertThat(body(deliver("installation", unknown)).path("status").asString()).isEqualTo("IGNORED");
-        assertThat(activeRepositoryCount()).isEqualTo(2);
+        assertThat(activeRepositoryCount()).isEqualTo(1);
 
         assertThat(deliver("installation", installationPayload("suspend")).statusCode()).isEqualTo(200);
         assertThat(installationStatus()).isEqualTo("SUSPENDED");
@@ -279,7 +365,7 @@ class Phase02IntegrationTests {
         assertThat(webhook("ping", UUID.randomUUID().toString(), oversized, signature(oversized)).statusCode())
             .isEqualTo(413);
         assertThat(count("webhook_deliveries")).isEqualTo(1);
-        assertThat(count("repositories")).isEqualTo(3);
+        assertThat(count("repositories")).isEqualTo(2);
     }
 
     @Test

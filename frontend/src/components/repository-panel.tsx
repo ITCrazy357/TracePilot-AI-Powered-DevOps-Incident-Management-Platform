@@ -12,7 +12,8 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
-import { api, errorMessage } from "@/lib/api";
+import { ApiError, api, errorMessage } from "@/lib/api";
+import { GitHubConnectionEditor } from "./github-connection";
 import type { GitHubConnection, RepositoryPage } from "@/lib/contracts";
 import { useWorkspace } from "./workspace-provider";
 import { Button } from "./ui/button";
@@ -57,6 +58,7 @@ function RepositoryList({
   const [syncError, setSyncError] = useState("");
   const [connection, setConnection] = useState<GitHubConnection | null>(null);
   const size = preview ? 5 : 20;
+  const [editingConnection, setEditingConnection] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -95,7 +97,11 @@ function RepositoryList({
       setPage(0);
       setVersion((value) => value + 1);
     } catch (failure) {
-      setSyncError(errorMessage(failure));
+      setSyncError(
+        failure instanceof ApiError && failure.status === 409
+          ? "Workspace chưa có liên kết hoặc liên kết vừa thay đổi. Chọn repository để thiết lập, rồi đồng bộ lại."
+          : errorMessage(failure),
+      );
     } finally {
       setSyncing(false);
     }
@@ -120,10 +126,19 @@ function RepositoryList({
           </Button>
         ) : (
           role === "OWNER" && (
-            <Button variant="outline" disabled={syncing} onClick={sync}>
-              <RefreshCw size={16} className={syncing ? "spin" : ""} />
-              {syncing ? "Đang đồng bộ…" : "Đồng bộ GitHub"}
-            </Button>
+            <div className="toolbar-actions">
+              <Button
+                variant="outline"
+                disabled={syncing}
+                onClick={() => setEditingConnection(true)}
+              >
+                Chọn repository
+              </Button>
+              <Button variant="outline" disabled={syncing} onClick={sync}>
+                <RefreshCw size={16} className={syncing ? "spin" : ""} />
+                {syncing ? "Đang đồng bộ…" : "Đồng bộ GitHub"}
+              </Button>
+            </div>
           )
         )}
       </div>
@@ -153,7 +168,7 @@ function RepositoryList({
           title="Chưa có kho mã"
           description={
             role === "OWNER"
-              ? "Sau khi người vận hành cấu hình GitHub App cho workspace, chọn Đồng bộ GitHub để tải danh sách kho mã."
+              ? "Chọn repository để dùng liên kết GitHub đã được cấp quyền và theo dõi project trong workspace này."
               : "OWNER cần kết nối và đồng bộ GitHub App cho workspace này."
           }
           action={
@@ -233,6 +248,19 @@ function RepositoryList({
             private key tại đây.
           </span>
         </div>
+      )}
+      {editingConnection && (
+        <GitHubConnectionEditor
+          workspaceId={workspaceId}
+          onClose={() => setEditingConnection(false)}
+          onSaved={(result) => {
+            setEditingConnection(false);
+            setConnection(result);
+            setSyncError("");
+            setPage(0);
+            setVersion((value) => value + 1);
+          }}
+        />
       )}
     </section>
   );

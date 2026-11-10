@@ -11,6 +11,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Map;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +30,7 @@ final class GitHubApiFixture implements AutoCloseable {
     static final long INSTALLATION_ID = 501;
     static final String INSTALLATION_TOKEN = "fixture-installation-token-never-store-this";
     final AtomicInteger metadataRequests = new AtomicInteger();
+    final List<Long> tokenInstallations = new CopyOnWriteArrayList<>();
     final AtomicInteger transientFailures = new AtomicInteger();
     final WorkflowApiFixture workflows = new WorkflowApiFixture();
     final JobLogApiFixture logs = new JobLogApiFixture();
@@ -74,6 +77,7 @@ final class GitHubApiFixture implements AutoCloseable {
         workflows.reset();
         logs.reset();
         metadataRequests.set(0);
+        tokenInstallations.clear();
         transientFailures.set(0);
         repositoryCount = 2;
         partialResponse = false;
@@ -114,19 +118,21 @@ final class GitHubApiFixture implements AutoCloseable {
                     respond(exchange, 401, Map.of("message", "Invalid app JWT"));
                     return;
                 }
-                if (path.equals("/app/installations/" + INSTALLATION_ID)) {
+                if (path.equals("/app/installations/" + INSTALLATION_ID) || path.equals("/app/installations/502")) {
                     metadataRequests.incrementAndGet();
                     if (transientFailures.getAndUpdate(count -> Math.max(0, count - 1)) > 0) {
                         respond(exchange, 503, Map.of("message", "Upstream private failure detail"));
                         return;
                     }
                     var suspendedAt = suspended ? "\"2026-11-08T00:00:00Z\"" : "null";
-                    var metadata = "{\"id\":501,\"app_id\":42,\"account\":{\"login\":\"acme\"},\"suspended_at\":"
+                    long installationId = path.endsWith("/502") ? 502 : INSTALLATION_ID;
+                    var metadata = "{\"id\":" + installationId + ",\"app_id\":42,\"account\":{\"login\":\"acme\"},\"suspended_at\":"
                         + suspendedAt + "}";
                     respondJson(exchange, 200, metadata);
                     return;
                 }
                 if (path.endsWith("/access_tokens") && "POST".equals(exchange.getRequestMethod())) {
+                    tokenInstallations.add(Long.parseLong(path.split("/")[3]));
                     var permissions = objectMapper.readTree(exchange.getRequestBody()).path("permissions");
                     if (permissions.size() != 2 || !"read".equals(permissions.path("metadata").asString())
                         || !"read".equals(permissions.path("actions").asString())) {

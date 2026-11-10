@@ -27,6 +27,7 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${knowledge}(?:/${uuid})?$`),
     new RegExp(`^${knowledge}/search-history(?:/${uuid})?$`),
     new RegExp(`^${workspace}/quality$`),
+    new RegExp(`^${workspace}/github/(?:connection|installations/[1-9][0-9]{0,18}/repositories)$`),
     new RegExp(`^${workspace}/dashboard$`),
     new RegExp(`^${workspace}/ai-usage$`),
     new RegExp(`^${workspace}/(?:audit-logs|operations(?:/outbox)?)$`),
@@ -35,6 +36,7 @@ const routes: Record<string, RegExp[]> = {
   POST: [
     /^workspaces$/,
     new RegExp(`^${workspace}/(members|github/sync)$`),
+    new RegExp(`^${workspace}/github/connection$`),
     new RegExp(`^${runs}/sync$`),
     new RegExp(`^${analyses}$`),
     new RegExp(`^${knowledge}(?:/search|/${uuid}/(?:approve|archive))?$`),
@@ -101,7 +103,8 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
     !path.endsWith("github/sync") &&
     !path.endsWith("/read")
   ) {
-    const payload = await readJson(request, path.includes("/knowledge-articles") ? 65_536 : 8192);
+    const largeBody = path.includes("/knowledge-articles") || path.endsWith("/github/connection");
+    const payload = await readJson(request, largeBody ? 65_536 : 8192);
     if (payload.error) return payload.error;
     body = JSON.stringify(payload.body);
   }

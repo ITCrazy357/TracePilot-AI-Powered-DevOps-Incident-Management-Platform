@@ -1,5 +1,8 @@
 # Phase 02 — GitHub App và webhook an toàn
 
+Ghi chú phiên bản: tài liệu này mô tả binding bootstrap ban đầu. [Phase 12](phase-12.md) mở rộng một
+installation cho nhiều workspace, lựa chọn repository riêng và webhook fan-out có kiểm quyền.
+
 Phase này kết nối repository với workspace, đồng bộ danh sách repo qua GitHub REST API và nhận sự kiện đổi quyền của GitHub App. Workflow run/job, queue và incident thuộc Phase 03–04.
 
 ## 1. Hai luồng riêng

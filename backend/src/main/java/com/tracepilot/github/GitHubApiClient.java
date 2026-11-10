@@ -40,9 +40,8 @@ public class GitHubApiClient {
         this.objectMapper = objectMapper;
     }
 
-    public GitHubDtos.InstallationSnapshot fetchInstallation() {
+    public GitHubDtos.InstallationSnapshot fetchInstallation(long installationId) {
         var appToken = tokenSigner.createToken();
-        long installationId = properties.installationId();
         var installation = request("GET", "/app/installations/" + installationId, appToken);
         try {
             if (GitHubPayloads.positiveId(installation.path("id")) != installationId
@@ -63,9 +62,9 @@ public class GitHubApiClient {
         }
     }
 
-    String createInstallationToken() {
+    String createInstallationToken(long installationId) {
         properties.requireEnabled();
-        var response = request("POST", "/app/installations/" + properties.installationId() + "/access_tokens",
+        var response = request("POST", "/app/installations/" + installationId + "/access_tokens",
             tokenSigner.createToken());
         try {
             return GitHubPayloads.text(response.path("token"), 8192);
