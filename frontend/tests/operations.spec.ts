@@ -113,6 +113,7 @@ test("AI evidence opens matching text across log chunks and never executes log H
 test("AI request requires confirmation and preserves requestId on HTTP retry", async ({ page }) => {
   await mockOperations(page);
   const sent: string[] = [];
+  const contexts: string[] = [];
   const pending = {
     ...analysis,
     id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
@@ -121,6 +122,7 @@ test("AI request requires confirmation and preserves requestId on HTTP retry", a
   };
   await page.route("**/analyses", (route) => {
     const id = route.request().postDataJSON().requestId;
+    contexts.push(route.request().postDataJSON().additionalContext);
     sent.push(id);
     return sent.length === 1
       ? route.fulfill({ status: 503, json: { detail: "AI integration is not configured." } })
@@ -132,6 +134,9 @@ test("AI request requires confirmation and preserves requestId on HTTP retry", a
   await page.getByRole("button", { name: "Yêu cầu phân tích", exact: true }).click();
   expect(sent).toHaveLength(0);
   await expect(page.getByRole("dialog")).toContainText("nhà cung cấp AI");
+  await page
+    .getByLabel("Ngữ cảnh bổ sung (không bắt buộc)")
+    .fill("./mvnw verify; Java 21; Ubuntu 24.04");
   await page.getByRole("button", { name: "Gửi yêu cầu phân tích", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "AI chưa được bật" })).toBeVisible();
   await page.getByRole("button", { name: "Gửi yêu cầu phân tích", exact: true }).click();
@@ -140,7 +145,24 @@ test("AI request requires confirmation and preserves requestId on HTTP retry", a
   ).toBeVisible();
   expect(sent).toHaveLength(2);
   expect(sent[0]).toBe(sent[1]);
+  expect(contexts).toEqual([
+    "./mvnw verify; Java 21; Ubuntu 24.04",
+    "./mvnw verify; Java 21; Ubuntu 24.04",
+  ]);
   await expect(page.getByRole("heading", { name: "Phân tích đang được xử lý" })).toBeVisible();
+});
+
+test("analysis shows the context snapshot belonging to the selected report", async ({ page }) => {
+  await mockOperations(page);
+  await page.route(`**/analyses/${analysis.id}`, (route) =>
+    route.fulfill({
+      json: { ...analysis, runContext: "Command: ./mvnw verify\nRuntime: Java 21 / Ubuntu 24.04" },
+    }),
+  );
+  await page.goto(`/incidents/${incidentId}`);
+  await page.getByRole("tab", { name: "Phân tích AI", exact: true }).click();
+  await page.getByText("Ngữ cảnh đã gửi cho lần phân tích này", { exact: true }).click();
+  await expect(page.locator("pre.report-copy")).toContainText("Java 21 / Ubuntu 24.04");
 });
 
 test("notification read action persists after reload", async ({ page }) => {

@@ -63,13 +63,31 @@ public class AnalysisRepository {
     }
 
     public void insert(UUID id, UUID workspaceId, UUID incidentId, UUID requestedBy, UUID requestId,
-                       String origin, String model, String inputSha256, Instant now) {
+                       String origin, String model, String inputSha256, String runContext, Instant now) {
         jdbcTemplate.update("""
             INSERT INTO ai_analyses (id, workspace_id, incident_id, requested_by, request_id, origin,
-                provider, model, prompt_version, input_sha256, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, 'OPENAI', ?, ?, ?, ?)
+                provider, model, prompt_version, input_sha256, run_context, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 'OPENAI', ?, ?, ?, ?, ?)
             """, id, workspaceId, incidentId, requestedBy, requestId, origin, model,
-            AnalysisPrompt.VERSION, inputSha256, Timestamp.from(now));
+            AnalysisPrompt.VERSION, inputSha256, runContext, Timestamp.from(now));
+    }
+
+    public String runContext(UUID incidentId) {
+        return jdbcTemplate.query("""
+            SELECT r.full_name, w.workflow_name, w.head_branch, w.head_sha, w.run_attempt,
+                j.name AS job_name, j.conclusion AS job_conclusion
+            FROM incidents i JOIN repositories r ON r.id = i.repository_id AND r.workspace_id = i.workspace_id
+            JOIN workflow_runs w ON w.id = i.workflow_run_id AND w.repository_id = r.id
+            LEFT JOIN workflow_jobs j ON j.id = i.failed_job_id AND j.workflow_run_id = w.id
+            WHERE i.id = ?
+            """, (row, number) -> objectMapper.writeValueAsString(new RunContext(row.getString("full_name"),
+            row.getString("workflow_name"), row.getString("head_branch"), row.getString("head_sha"),
+            row.getInt("run_attempt"), row.getString("job_name"), row.getString("job_conclusion"))), incidentId)
+            .stream().findFirst().orElseThrow(() -> new AnalysisFailure("LOGS_UNAVAILABLE", false));
+    }
+
+    private record RunContext(String repository, String workflow, String branch, String commit,
+                              int attempt, String failedJob, String conclusion) {
     }
 
     public List<String> logChunks(UUID incidentId) {
@@ -155,7 +173,7 @@ public class AnalysisRepository {
             row.getString("prompt_version"), row.getString("status"), row.getString("summary"),
             row.getString("suspected_root_cause"), row.getString("suggested_fix"), List.copyOf(quotes),
             row.getString("error_code"), instant(row, "started_at"), instant(row, "completed_at"),
-            row.getTimestamp("created_at").toInstant());
+            row.getTimestamp("created_at").toInstant(), row.getString("run_context"));
     }
 
     private Instant instant(ResultSet row, String column) throws SQLException {

@@ -48,7 +48,8 @@ public class AnalysisService {
     }
 
     @Transactional
-    public AnalysisDtos.AnalysisResponse request(UUID actorId, UUID workspaceId, UUID incidentId, UUID requestId) {
+    public AnalysisDtos.AnalysisResponse request(UUID actorId, UUID workspaceId, UUID incidentId, UUID requestId,
+                                                 String additionalContext) {
         workspaceRepository.findForUpdate(workspaceId).orElseThrow(this::notFound);
         var incident = access.requireAnalyze(actorId, workspaceId, incidentId);
         var existing = analysisRepository.findRequest(workspaceId, requestId);
@@ -61,10 +62,10 @@ public class AnalysisService {
         requireEnabled();
         requireCapacity(workspaceId, incidentId);
         try {
-            var prepared = input.load(incidentId);
+            var prepared = input.load(incidentId, additionalContext);
             var id = UUID.randomUUID();
             analysisRepository.insert(id, workspaceId, incidentId, actorId, requestId, "MANUAL",
-                properties.model(), prepared.sha256(), clock.instant());
+                properties.model(), prepared.sha256(), prepared.runContext(), clock.instant());
             outboxRepository.enqueueAnalysis(incident.repositoryId(), id);
             audit.record(workspaceId, actorId, AuditAction.ANALYSIS_REQUESTED, id, Map.of("incidentId", incidentId));
             return analysisRepository.find(id).orElseThrow().analysis();
@@ -88,7 +89,7 @@ public class AnalysisService {
         }
         var id = UUID.randomUUID();
         analysisRepository.insert(id, workspaceId, incidentId, null, UUID.randomUUID(), "AUTOMATIC",
-            properties.model(), prepared.sha256(), clock.instant());
+            properties.model(), prepared.sha256(), prepared.runContext(), clock.instant());
         outboxRepository.enqueueAnalysis(repositoryId, id);
     }
 

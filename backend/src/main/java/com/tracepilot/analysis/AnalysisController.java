@@ -33,7 +33,8 @@ public class AnalysisController {
     public AnalysisDtos.AnalysisResponse request(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
                                                  @PathVariable UUID incidentId,
                                                  @Valid @RequestBody AnalysisDtos.RequestAnalysis request) {
-        return analysisService.request(UUID.fromString(jwt.getSubject()), workspaceId, incidentId, request.requestId());
+        return analysisService.request(UUID.fromString(jwt.getSubject()), workspaceId, incidentId,
+            request.requestId(), request.additionalContext());
     }
 
     @GetMapping

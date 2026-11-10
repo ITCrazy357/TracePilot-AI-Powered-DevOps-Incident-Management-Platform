@@ -66,7 +66,7 @@ public class AnalysisStore {
             >= properties.maxCallsPerDay()) {
             throw new AnalysisFailure("AI_DAILY_LIMIT", false);
         }
-        var prepared = input.load(work.analysis().incidentId());
+        var prepared = input.restore(work.analysis().incidentId(), work.analysis().runContext());
         if (!prepared.sha256().equals(work.inputSha256()) || !work.analysis().model().equals(properties.model())
             || !AnalysisPrompt.VERSION.equals(work.analysis().promptVersion())) {
             throw new AnalysisFailure("AI_SOURCE_CHANGED", false);

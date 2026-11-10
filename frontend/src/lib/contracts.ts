@@ -146,6 +146,7 @@ export interface IncidentLogs {
 }
 
 export interface Analysis {
+  runContext?: string | null;
   id: string;
   incidentId: string;
   provider: string;

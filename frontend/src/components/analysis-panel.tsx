@@ -42,7 +42,8 @@ export function AnalysisPanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const requestId = useRef<string | null>(null);
+  const [additionalContext, setAdditionalContext] = useState("");
+  const requestBody = useRef<{ requestId: string; additionalContext: string } | null>(null);
   const pending =
     history.data?.items.some((item) => ["PENDING", "RUNNING"].includes(item.status)) ?? false;
   const logsReady =
@@ -56,13 +57,17 @@ export function AnalysisPanel({
     setBusy(true);
     setError("");
     setSuccess("");
-    requestId.current ??= crypto.randomUUID();
+    requestBody.current ??= {
+      requestId: crypto.randomUUID(),
+      additionalContext: additionalContext.trim(),
+    };
     try {
       const result = await api<Analysis>(`${base}/analyses`, {
         method: "POST",
-        body: JSON.stringify({ requestId: requestId.current }),
+        body: JSON.stringify(requestBody.current),
       });
-      requestId.current = null;
+      requestBody.current = null;
+      setAdditionalContext("");
       setAnalysisId(result.id);
       setOpen(false);
       setPage(0);
@@ -193,6 +198,21 @@ export function AnalysisPanel({
         }}
       >
         {error && <ErrorNotice message={error} />}
+        <label className="form-stack">
+          Ngữ cảnh bổ sung (không bắt buộc)
+          <textarea
+            value={additionalContext}
+            onChange={(event) => setAdditionalContext(event.target.value)}
+            disabled={busy || requestBody.current !== null}
+            maxLength={2000}
+            rows={5}
+            placeholder="Lệnh đã chạy; step thất bại; Java/Node và hệ điều hành; cấu hình liên quan đã che bí mật…"
+          />
+          <span className="field-hint">
+            Chỉ nhập dữ kiện bạn biết. Không nhập secret. Khi thử gửi lại, hệ thống giữ nguyên ngữ
+            cảnh và mã yêu cầu.
+          </span>
+        </label>
         <div className="notice notice-info">
           <ShieldCheck size={18} />
           <span>
@@ -278,6 +298,15 @@ function Report({
             </div>
           )}
         </section>
+        {analysis.runContext && (
+          <details className="panel contextual-help">
+            <summary>Ngữ cảnh đã gửi cho lần phân tích này</summary>
+            <p className="field-hint">
+              Bản chụp tại thời điểm yêu cầu; thông tin bổ sung chưa được hệ thống xác minh.
+            </p>
+            <pre className="report-copy">{analysis.runContext}</pre>
+          </details>
+        )}
         {completed && (
           <>
             <p className="analysis-caveat">

@@ -6,18 +6,19 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public final class AnalysisDtos {
     private AnalysisDtos() {
     }
 
-    public record RequestAnalysis(@NotNull UUID requestId) {
+    public record RequestAnalysis(@NotNull UUID requestId, @Size(max = 2000) String additionalContext) {
     }
 
     public record AnalysisResponse(UUID id, UUID incidentId, String provider, String model, String promptVersion,
                                    String status, String summary, String suspectedRootCause, String suggestedFix,
                                    List<String> evidence, String errorCode, Instant startedAt, Instant completedAt,
-                                   Instant createdAt) {
+                                   Instant createdAt, String runContext) {
     }
 
     public record AnalysisPage(List<AnalysisResponse> items, int page, int size, long total) {
