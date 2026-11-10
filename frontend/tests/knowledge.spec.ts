@@ -187,6 +187,130 @@ test("create a draft from human-verified text and show the stored response", asy
   });
 });
 
+async function notifyWorkspace(page: Page) {
+  await page.evaluate(async (workspaceId) => {
+    window.dispatchEvent(new CustomEvent("workspace-updated", { detail: workspaceId }));
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+  }, workspace.id);
+}
+
+test("an AI draft keeps unsaved input when realtime refresh of its source would fail", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  let unavailable = false;
+  await page.route(`**/incidents/${incidentId}`, (route) =>
+    unavailable
+      ? route.fulfill({ status: 503, json: { detail: "Unavailable" } })
+      : route.fulfill({ json: incident }),
+  );
+  await page.route(`**/analyses/${analysis.id}`, (route) => route.fulfill({ json: analysis }));
+  await page.goto(`/knowledge/new?incidentId=${incidentId}&analysisId=${analysis.id}`);
+  await page.getByLabel("Tiêu đề", { exact: true }).fill("Bản nháp đang viết");
+  unavailable = true;
+  await notifyWorkspace(page);
+  await expect(page.getByLabel("Tiêu đề", { exact: true })).toHaveValue("Bản nháp đang viết");
+  await page.getByRole("button", { name: "Lưu bản nháp" }).click();
+  await expect(page).toHaveURL(new RegExp(`/knowledge/${articleId}$`));
+  expect(state.writes[0].body.title).toBe("Bản nháp đang viết");
+});
+
+test("an article edit keeps its input and captured version during realtime refresh failure", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto(`/knowledge/${articleId}`);
+  await page.getByRole("button", { name: "Chỉnh sửa bài" }).click();
+  await page.getByLabel("Tiêu đề", { exact: true }).fill("Nội dung chưa lưu");
+  await page.route(`**/knowledge-articles/${articleId}`, (route) =>
+    route.request().method() === "GET"
+      ? route.fulfill({ status: 503, json: { detail: "Unavailable" } })
+      : route.fallback(),
+  );
+  await notifyWorkspace(page);
+  await expect(page.getByLabel("Tiêu đề", { exact: true })).toHaveValue("Nội dung chưa lưu");
+  await page.getByRole("button", { name: "Lưu bản nháp" }).click();
+  await expect.poll(() => state.writes.length).toBe(1);
+  expect(state.writes[0].body).toMatchObject({
+    title: "Nội dung chưa lưu",
+    version: article.version,
+  });
+});
+
+test("a source status conflict on draft creation remains editable and can be retried", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.route(`**/incidents/${incidentId}`, (route) =>
+    route.fulfill({ json: { ...incident, status: "RESOLVED" } }),
+  );
+  let conflict = true;
+  await page.route("**/knowledge-articles", (route) =>
+    route.request().method() === "POST" && conflict
+      ? route.fulfill({
+          status: 409,
+          json: { detail: "Confirm the incident as RESOLVED before recording its fix." },
+        })
+      : route.fallback(),
+  );
+  await page.goto(`/knowledge/new?incidentId=${incidentId}`);
+  await page.getByLabel("Tiêu đề", { exact: true }).fill("Fix vừa xác nhận");
+  await page.getByLabel("Nguyên nhân đã xác nhận", { exact: false }).fill("Cổng bị giữ");
+  await page.getByLabel("Cách khắc phục đã kiểm tra", { exact: false }).fill("Dừng tiến trình cũ");
+  await page.getByRole("button", { name: "Lưu bản nháp" }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("Sự cố cần");
+  await expect(page.getByRole("button", { name: "Lưu bản nháp" })).toBeEnabled();
+  conflict = false;
+  await page.getByRole("button", { name: "Lưu bản nháp" }).click();
+  await expect(page).toHaveURL(new RegExp(`/knowledge/${articleId}$`));
+});
+
+test("deleting the last search on a later page returns to the preceding history page", async ({
+  page,
+}) => {
+  await fixture(page);
+  const last = {
+    id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+    query: "Lần tra cuối",
+    mode: "EXACT",
+    topK: 3,
+    resultCount: 0,
+    createdAt: article.createdAt,
+  };
+  let deleted = false;
+  await page.route("**/search-history**", (route) => {
+    const url = new URL(route.request().url());
+    if (route.request().method() === "DELETE") {
+      deleted = true;
+      return route.fulfill({ status: 204 });
+    }
+    if (!url.pathname.endsWith("/search-history"))
+      return route.fulfill({
+        json: { search: last, result: { items: [], mode: "EXACT", embeddingModel: "fixture" } },
+      });
+    const pageNumber = Number(url.searchParams.get("page"));
+    const items =
+      pageNumber === 1
+        ? deleted
+          ? []
+          : [last]
+        : Array.from({ length: 10 }, (_, index) => ({
+            ...last,
+            id: `entry-${index}`,
+            query: `Lần tra ${index + 1}`,
+          }));
+    return route.fulfill({ json: { items, page: pageNumber, size: 10, total: deleted ? 10 : 11 } });
+  });
+  await page.goto("/knowledge/history");
+  await page.getByRole("button", { name: "Trang sau" }).click();
+  await page.getByRole("button", { name: "Lần tra cuối", exact: true }).click();
+  await page.getByRole("button", { name: "Xóa lần tra này" }).click();
+  await expect(page.getByRole("button", { name: "Lần tra 1", exact: true })).toBeVisible();
+  await expect(page.getByText("10 mục · Trang 1/1", { exact: true })).toBeVisible();
+});
+
 test("ordinary article filters are separate from vector lookup", async ({ page }) => {
   const state = await fixture(page);
   await page.goto("/knowledge");

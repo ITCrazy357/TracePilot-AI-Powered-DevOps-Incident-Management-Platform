@@ -57,22 +57,23 @@ function ArticleContent({
   const { selectedId, role } = useWorkspace();
   const { user } = useAuth();
   const base = `/api/backend/workspaces/${selectedId}/knowledge-articles/${articleId}`;
-  const resource = useResource<KnowledgeArticle>(base);
-  const [editing, setEditing] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<KnowledgeArticle | null>(null);
+  const resource = useResource<KnowledgeArticle>(editingArticle ? null : base);
+  const editing = editingArticle !== null;
   const [action, setAction] = useState<"approve" | "archive" | null>(null);
   const [actionVersion, setActionVersion] = useState(0);
   const [busy, setBusy] = useState(false);
   const [mustReload, setMustReload] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const article = resource.data;
+  const article = editingArticle ?? resource.data;
   const manager = role === "OWNER" || role === "ADMIN";
   const canEdit = manager || (article?.status === "DRAFT" && article.createdBy === user?.id);
   const canApprove =
     manager && article && article.status !== "ARCHIVED" && article.indexStatus !== "READY";
 
   function reload() {
-    setEditing(false);
+    setEditingArticle(null);
     setMustReload(false);
     setError("");
     setSuccess("");
@@ -159,10 +160,10 @@ function ArticleContent({
                 {editing ? (
                   <KnowledgeEditor
                     article={article}
-                    onCancel={() => setEditing(false)}
+                    onCancel={() => setEditingArticle(null)}
                     onReload={reload}
                     onSaved={() => {
-                      setEditing(false);
+                      setEditingArticle(null);
                       setSuccess("Đã lưu bản nháp. Kiểm tra nội dung đã được che trước khi duyệt.");
                       resource.reload();
                     }}
@@ -228,7 +229,7 @@ function ArticleContent({
                             disabled={busy || mustReload || resource.loading}
                             onClick={() => {
                               setSuccess("");
-                              setEditing(true);
+                              setEditingArticle(article);
                             }}
                           >
                             <Pencil size={15} />

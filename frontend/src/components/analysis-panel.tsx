@@ -27,10 +27,14 @@ export function AnalysisPanel({
   const { selectedId } = useWorkspace();
   const base = `/api/backend/workspaces/${selectedId}/incidents/${incident.id}`;
   const [page, setPage] = useState(0);
-  const history = useResource<DataPage<Analysis>>(`${base}/analyses?page=${page}&size=20`);
+  const history = useResource<DataPage<Analysis>>(`${base}/analyses?page=${page}&size=20`, {
+    retainOnError: true,
+  });
   const logs = useResource<IncidentLogs>(`${base}/logs`);
   const [analysisId, setAnalysisId] = useState("");
-  const report = useResource<Analysis>(analysisId ? `${base}/analyses/${analysisId}` : null);
+  const report = useResource<Analysis>(analysisId ? `${base}/analyses/${analysisId}` : null, {
+    retainOnError: true,
+  });
   const usage = useResource<AnalysisUsage[]>(
     analysisId ? `${base}/analyses/${analysisId}/usage` : null,
   );
@@ -105,6 +109,18 @@ export function AnalysisPanel({
         </div>
       </div>
       {success && <SuccessNotice>{success}</SuccessNotice>}
+      {history.error && history.data && (
+        <ErrorNotice
+          message={`Chưa cập nhật được lịch sử phân tích. ${history.error}`}
+          retry={history.reload}
+        />
+      )}
+      {report.error && report.data && (
+        <ErrorNotice
+          message={`Chưa cập nhật được báo cáo; đang hiển thị dữ liệu đã tải. ${report.error}`}
+          retry={report.reload}
+        />
+      )}
       {logs.error && (
         <ErrorNotice message={`Không xác nhận được log: ${logs.error}`} retry={logs.reload} />
       )}
@@ -113,7 +129,7 @@ export function AnalysisPanel({
       )}
       {history.loading && !history.data ? (
         <Loading label="Đang tải lịch sử phân tích…" />
-      ) : history.error ? (
+      ) : history.error && !history.data ? (
         <ErrorNotice message={history.error} retry={history.reload} />
       ) : !history.data?.items.length ? (
         <section className="panel analysis-result">
@@ -153,7 +169,7 @@ export function AnalysisPanel({
           </div>
           {report.loading && !report.data ? (
             <Loading label="Đang tải báo cáo…" />
-          ) : report.error ? (
+          ) : report.error && !report.data ? (
             <ErrorNotice message={report.error} retry={report.reload} />
           ) : (
             report.data && (

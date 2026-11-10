@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { ApiError, api, errorMessage } from "@/lib/api";
 import type { Analysis, Incident, KnowledgeArticle } from "@/lib/contracts";
@@ -33,20 +33,14 @@ export function KnowledgeCreate({
 }
 
 function CreateContent({ incidentId, analysisId }: { incidentId?: string; analysisId?: string }) {
-  const { selectedId } = useWorkspace();
   const router = useRouter();
+  const [draftSource, setDraftSource] = useState<DraftSource | null>(null);
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const validId =
     (!incidentId || uuid.test(incidentId)) &&
     (!analysisId || Boolean(incidentId && uuid.test(analysisId)));
-  const source = useResource<Incident>(
-    incidentId && validId ? `/api/backend/workspaces/${selectedId}/incidents/${incidentId}` : null,
-  );
-  const report = useResource<Analysis>(
-    analysisId && incidentId && validId
-      ? `/api/backend/workspaces/${selectedId}/incidents/${incidentId}/analyses/${analysisId}`
-      : null,
-  );
+  const source = draftSource?.incident;
+  const report = draftSource?.analysis;
   return (
     <>
       <Link href="/knowledge" className="back-link">
@@ -59,47 +53,41 @@ function CreateContent({ incidentId, analysisId }: { incidentId?: string; analys
       />
       {!validId ? (
         <ErrorNotice message="ID sự cố không hợp lệ. Quay lại kho kiến thức để tạo bài mới." />
-      ) : source.loading || report.loading ? (
-        <Loading label="Đang kiểm tra sự cố nguồn…" />
-      ) : source.error ? (
-        <ErrorNotice message={source.error} retry={source.reload} />
-      ) : report.error ? (
-        <ErrorNotice message={report.error} retry={report.reload} />
-      ) : analysisId && report.data?.status !== "SUCCEEDED" ? (
-        <ErrorNotice message="Chỉ báo cáo phân tích thành công mới có thể điền vào bản nháp." />
-      ) : incidentId && !analysisId && source.data?.status !== "RESOLVED" ? (
-        <ErrorNotice message="Sự cố phải được đánh dấu Đã giải quyết trước khi ghi lại cách khắc phục." />
+      ) : incidentId && !draftSource ? (
+        <CreateSourceLoader
+          incidentId={incidentId}
+          analysisId={analysisId}
+          onLoaded={setDraftSource}
+        />
       ) : (
         <div className="knowledge-editor-layout">
           <section className="panel knowledge-editor-panel">
-            {report.data && (
+            {report && (
               <p className="notice notice-info">
                 Đã điền từ đề xuất AI. Hãy kiểm tra và chỉnh sửa trước khi lưu. Lưu nháp chưa đưa
                 nội dung vào tra cứu.
               </p>
             )}
-            {source.data && (
+            {source && (
               <p className="knowledge-source">
                 Sự cố nguồn:{" "}
-                <Link className="text-link" href={`/incidents/${source.data.id}`}>
-                  {source.data.title}
+                <Link className="text-link" href={`/incidents/${source.id}`}>
+                  {source.title}
                 </Link>
               </p>
             )}
             <KnowledgeEditor
-              key={report.data?.id ?? "manual"}
               sourceIncidentId={incidentId}
               sourceAnalysisId={analysisId}
               initial={
-                report.data
+                report
                   ? {
-                      title: (
-                        source.data?.title ??
-                        report.data.summary ??
-                        "Bản nháp từ phân tích AI"
-                      ).slice(0, 160),
-                      rootCause: (report.data.suspectedRootCause ?? "").slice(0, 3000),
-                      resolution: (report.data.suggestedFix ?? "").slice(0, 6000),
+                      title: (source?.title ?? report.summary ?? "Bản nháp từ phân tích AI").slice(
+                        0,
+                        160,
+                      ),
+                      rootCause: (report.suspectedRootCause ?? "").slice(0, 3000),
+                      resolution: (report.suggestedFix ?? "").slice(0, 6000),
                     }
                   : undefined
               }
@@ -120,6 +108,48 @@ function CreateContent({ incidentId, analysisId }: { incidentId?: string; analys
       )}
     </>
   );
+}
+
+interface DraftSource {
+  incident: Incident;
+  analysis: Analysis | null;
+}
+
+function CreateSourceLoader({
+  incidentId,
+  analysisId,
+  onLoaded,
+}: {
+  incidentId: string;
+  analysisId?: string;
+  onLoaded: (source: DraftSource) => void;
+}) {
+  const { selectedId } = useWorkspace();
+  const base = `/api/backend/workspaces/${selectedId}/incidents/${incidentId}`;
+  const source = useResource<Incident>(base);
+  const report = useResource<Analysis>(analysisId ? `${base}/analyses/${analysisId}` : null);
+  useEffect(() => {
+    if (!source.data) return;
+    if (analysisId && report.data?.status === "SUCCEEDED") {
+      onLoaded({ incident: source.data, analysis: report.data });
+    } else if (!analysisId && source.data.status === "RESOLVED") {
+      onLoaded({ incident: source.data, analysis: null });
+    }
+  }, [source.data, report.data, analysisId, onLoaded]);
+
+  if (source.loading || report.loading) return <Loading label="Đang kiểm tra sự cố nguồn…" />;
+  if (source.error) return <ErrorNotice message={source.error} retry={source.reload} />;
+  if (report.error) return <ErrorNotice message={report.error} retry={report.reload} />;
+  if (analysisId && report.data?.status !== "SUCCEEDED") {
+    return <ErrorNotice message="Chỉ báo cáo phân tích thành công mới có thể điền vào bản nháp." />;
+  }
+  if (!analysisId && source.data?.status !== "RESOLVED") {
+    return (
+      <ErrorNotice message="Sự cố phải được đánh dấu Đã giải quyết trước khi ghi lại cách khắc phục." />
+    );
+  }
+  // Once the source is captured, this loader unmounts so realtime cannot replace unsaved input.
+  return <Loading label="Đang chuẩn bị bản nháp…" />;
 }
 
 export function KnowledgeEditor({
@@ -172,7 +202,7 @@ export function KnowledgeEditor({
       onSaved(saved);
     } catch (failure) {
       setError(errorMessage(failure));
-      setConflict(failure instanceof ApiError && failure.status === 409);
+      setConflict(Boolean(article) && failure instanceof ApiError && failure.status === 409);
     } finally {
       setBusy(false);
     }

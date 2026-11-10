@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api, errorMessage } from "./api";
+import { ApiError, api, errorMessage } from "./api";
 
-export function useResource<T>(path: string | null) {
+export function useResource<T>(
+  path: string | null,
+  { retainOnError = false }: { retainOnError?: boolean } = {},
+) {
   const [version, setVersion] = useState(0);
   const [state, setState] = useState<{
     path: string | null;
@@ -14,7 +17,12 @@ export function useResource<T>(path: string | null) {
   const reload = useCallback(() => setVersion((current) => current + 1), []);
 
   useEffect(() => {
-    if (!path) return;
+    if (!path) {
+      setState((current) =>
+        current.path === null ? current : { path: null, data: null, loading: false, error: "" },
+      );
+      return;
+    }
     const controller = new AbortController();
     setState((current) => ({
       path,
@@ -27,11 +35,19 @@ export function useResource<T>(path: string | null) {
         if (!controller.signal.aborted) setState({ path, data, loading: false, error: "" });
       })
       .catch((failure) => {
-        if (!controller.signal.aborted)
-          setState({ path, data: null, loading: false, error: errorMessage(failure) });
+        if (controller.signal.aborted) return;
+        // Authorization and missing-resource errors must clear even retained data.
+        const temporary =
+          !(failure instanceof ApiError) || failure.status === 429 || failure.status >= 500;
+        setState((current) => ({
+          path,
+          data: retainOnError && temporary && current.path === path ? current.data : null,
+          loading: false,
+          error: errorMessage(failure),
+        }));
       });
     return () => controller.abort();
-  }, [path, version]);
+  }, [path, version, retainOnError]);
 
   useEffect(() => {
     const updated = (event: Event) => {

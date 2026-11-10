@@ -39,12 +39,13 @@ function IncidentContent({ incidentId }: { incidentId: string }) {
   const { selectedId, role } = useWorkspace();
   const { user } = useAuth();
   const base = `/api/backend/workspaces/${selectedId}/incidents/${incidentId}`;
-  const resource = useResource<Incident>(base);
+  const resource = useResource<Incident>(base, { retainOnError: true });
   const [tab, setTab] = useState("overview");
   const [evidence, setEvidence] = useState("");
   const [notice, setNotice] = useState("");
   if (resource.loading && !resource.data) return <Loading label="Đang tải sự cố…" />;
-  if (resource.error) return <ErrorNotice message={resource.error} retry={resource.reload} />;
+  if (resource.error && !resource.data)
+    return <ErrorNotice message={resource.error} retry={resource.reload} />;
   if (!resource.data) return null;
   const incident = resource.data;
   const manager = role === "OWNER" || role === "ADMIN";
@@ -87,6 +88,12 @@ function IncidentContent({ incidentId }: { incidentId: string }) {
         }
       />
       {notice && <SuccessNotice>{notice}</SuccessNotice>}
+      {resource.error && (
+        <ErrorNotice
+          message={`Chưa cập nhật được sự cố; đang hiển thị dữ liệu đã tải. ${resource.error}`}
+          retry={resource.reload}
+        />
+      )}
       {incident.status === "RESOLVED" && (
         <p className="knowledge-incident-link">
           Cách khắc phục đã được kiểm tra?
@@ -165,7 +172,7 @@ function IncidentContent({ incidentId }: { incidentId: string }) {
                 incident={incident}
                 canChangeStatus={canAct}
                 canAssign={manager}
-                refreshing={resource.loading}
+                refreshing={resource.loading || Boolean(resource.error)}
                 onSaved={() => setNotice("Đã cập nhật sự cố.")}
               />
               <section className="investigation-guide">
@@ -189,7 +196,7 @@ function IncidentContent({ incidentId }: { incidentId: string }) {
         <Tabs.Content value="analysis" className="tab-content">
           <AnalysisPanel
             incident={incident}
-            canAnalyze={canAct}
+            canAnalyze={canAct && !resource.loading && !resource.error}
             onEvidence={(quote) => {
               setEvidence(quote);
               setTab("logs");

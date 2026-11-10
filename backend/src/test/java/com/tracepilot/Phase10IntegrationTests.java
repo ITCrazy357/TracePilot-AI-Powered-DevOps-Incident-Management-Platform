@@ -10,18 +10,23 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -29,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "PIPELINE_ENABLED=false", "POSTGRES_PASSWORD=test-only", "RABBITMQ_PASSWORD=test-only",
         "AUTH_SIGNING_SECRET=phase10-test-only-secret-with-at-least-sixty-four-characters-1234567890"})
 class Phase10IntegrationTests {
-    @Autowired
+    @MockitoSpyBean
     JdbcTemplate jdbc;
     @Value("${local.server.port}")
     int port;
@@ -59,6 +64,45 @@ class Phase10IntegrationTests {
             INSERT INTO repositories(id, workspace_id, installation_id, github_repository_id, full_name, is_active, created_at, updated_at)
             VALUES (?, ?, ?, 1, 'fixture/repo', true, now(), now())
             """, repositoryId, workspaceId, installationId);
+    }
+
+    @Test
+    void listCountAndItemsUseOneSnapshotDuringConcurrentInsert() throws Exception {
+        insertDraft("Initial article");
+        var counted = new CountDownLatch(1);
+        var inserted = new CountDownLatch(1);
+        doAnswer(invocation -> {
+            var total = invocation.callRealMethod();
+            counted.countDown();
+            if (!inserted.await(10, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Concurrent insert did not complete.");
+            }
+            return total;
+        }).when(jdbc).queryForObject(eq("SELECT count(*) FROM knowledge_articles WHERE workspace_id = ?"),
+            eq(Long.class), eq(workspaceId));
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var pending = executor.submit(() -> call("GET", base() + "/knowledge-articles", null));
+            try {
+                assertThat(counted.await(10, TimeUnit.SECONDS)).isTrue();
+                insertDraft("Concurrent article");
+            } finally {
+                inserted.countDown();
+            }
+            var response = pending.get(10, TimeUnit.SECONDS);
+            assertThat(response.statusCode()).isEqualTo(200);
+            var data = body(response);
+            assertThat(data.path("total").asLong()).isEqualTo(1);
+            assertThat(data.path("items").size()).isEqualTo(1);
+        }
+        assertThat(body(call("GET", base() + "/knowledge-articles", null)).path("total").asLong()).isEqualTo(2);
+    }
+
+    private void insertDraft(String title) {
+        jdbc.update("""
+            INSERT INTO knowledge_articles(id, workspace_id, title, root_cause, resolution,
+                created_by, created_at, updated_at)
+            VALUES (?, ?, ?, 'Reviewed cause', 'Reviewed resolution', ?, now(), now())
+            """, UUID.randomUUID(), workspaceId, title, actorId);
     }
 
     @Test

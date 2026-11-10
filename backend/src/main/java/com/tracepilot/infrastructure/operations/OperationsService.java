@@ -13,6 +13,7 @@ import com.tracepilot.pipeline.PipelineProperties;
 import com.tracepilot.workspace.WorkspaceRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,6 +45,7 @@ public class OperationsService {
         return repository.backlog(workspaceId, clock.instant());
     }
 
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public OperationsDtos.EventPage events(UUID actorId, UUID workspaceId, int page, int size) {
         access.require(actorId, workspaceId);
         return repository.list(workspaceId, page, size);

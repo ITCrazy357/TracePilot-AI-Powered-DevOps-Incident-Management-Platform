@@ -1,14 +1,13 @@
 package com.tracepilot.incident;
 
-import com.tracepilot.audit.AuditAction;
-import com.tracepilot.audit.AuditLog;
-import java.util.Map;
-import java.util.HashMap;
-
 import java.time.Clock;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.tracepilot.audit.AuditAction;
+import com.tracepilot.audit.AuditLog;
 import com.tracepilot.notification.NotificationRepository;
 import com.tracepilot.workspace.MembershipStatus;
 import com.tracepilot.workspace.WorkspaceMember;
@@ -17,6 +16,7 @@ import com.tracepilot.workspace.WorkspaceRepository;
 import com.tracepilot.workspace.WorkspaceRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -41,6 +41,7 @@ public class IncidentService {
         this.audit = audit;
     }
 
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public IncidentDtos.IncidentPage list(UUID actorId, UUID workspaceId, int page, int size, IncidentFilters filters) {
         requireMember(actorId, workspaceId);
         return incidentRepository.list(workspaceId, page, size, filters);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api, errorMessage } from "@/lib/api";
 import type { DataPage, KnowledgeSearchMode, KnowledgeSearchResult } from "@/lib/contracts";
@@ -20,19 +20,27 @@ interface Entry {
   createdAt: string;
 }
 
-export function SearchHistory({ refresh }: { refresh: number }) {
+const PAGE_SIZE = 10;
+
+export function SearchHistory() {
   const { selectedId } = useWorkspace();
   const [page, setPage] = useState(0);
   const [id, setId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const base = `/api/backend/workspaces/${selectedId}/knowledge-articles/search-history`;
-  const history = useResource<DataPage<Entry>>(`${base}?page=${page}&size=10&refresh=${refresh}`);
+  const history = useResource<DataPage<Entry>>(`${base}?page=${page}&size=${PAGE_SIZE}`);
   const detail = useResource<{ search: Entry; result: KnowledgeSearchResult }>(
     id ? `${base}/${id}` : null,
   );
+  useEffect(() => {
+    if (history.loading || !history.data) return;
+    const lastPage = Math.max(0, Math.ceil(history.data.total / PAGE_SIZE) - 1);
+    if (page > lastPage) setPage(lastPage);
+  }, [history.data, history.loading, page]);
 
   async function remove() {
+    if (!id || busy) return;
     setBusy(true);
     setError("");
     try {
@@ -50,7 +58,7 @@ export function SearchHistory({ refresh }: { refresh: number }) {
     <section className="panel" aria-label="Lịch sử tra cứu của bạn">
       <div className="panel-heading">
         <h2>Lịch sử tra cứu của bạn</h2>
-        <Button variant="ghost" onClick={history.reload}>
+        <Button variant="ghost" disabled={busy} onClick={history.reload}>
           Làm mới lịch sử
         </Button>
       </div>
@@ -72,6 +80,7 @@ export function SearchHistory({ refresh }: { refresh: number }) {
                 <Button
                   variant="ghost"
                   aria-pressed={id === item.id}
+                  disabled={busy}
                   onClick={() => {
                     setId(item.id);
                     setError("");
@@ -87,9 +96,9 @@ export function SearchHistory({ refresh }: { refresh: number }) {
           </ul>
           <Pagination
             page={page}
-            size={10}
+            size={PAGE_SIZE}
             total={history.data.total}
-            loading={history.loading}
+            loading={history.loading || busy}
             onPage={setPage}
           />
         </>

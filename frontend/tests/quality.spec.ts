@@ -149,6 +149,48 @@ test("feedback conflict blocks submission until the newer vote is loaded", async
   expect(state.writes[1]).toMatchObject({ version: 2 });
 });
 
+test("unsaved feedback survives temporary realtime read errors but is hidden after access denial", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await openFeedback(page);
+  await page.getByRole("radio", { name: "Hữu ích", exact: true }).check();
+  await page.getByLabel("Nhận xét (không bắt buộc)", { exact: true }).fill("Nhận xét chưa lưu");
+  let readStatus = 503;
+  await page.route("**/api/backend/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (
+      readStatus &&
+      route.request().method() === "GET" &&
+      path.includes(`/incidents/${incidentId}`)
+    ) {
+      return route.fulfill({ status: readStatus, json: { detail: "Unavailable" } });
+    }
+    return route.fallback();
+  });
+  await page.evaluate(async (workspaceId) => {
+    window.dispatchEvent(new CustomEvent("workspace-updated", { detail: workspaceId }));
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+  }, workspace.id);
+  await expect(page.getByLabel("Nhận xét (không bắt buộc)", { exact: true })).toHaveValue(
+    "Nhận xét chưa lưu",
+  );
+  readStatus = 0;
+  await page.getByRole("button", { name: "Lưu đánh giá" }).click();
+  await expect.poll(() => state.writes.length).toBe(1);
+  expect(state.writes[0]).toMatchObject({ comment: "Nhận xét chưa lưu", version: 0 });
+  readStatus = 403;
+  await page.evaluate(
+    (workspaceId) =>
+      window.dispatchEvent(new CustomEvent("workspace-updated", { detail: workspaceId })),
+    workspace.id,
+  );
+  await expect(page.getByLabel("Nhận xét (không bắt buộc)", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("Bạn không có quyền");
+});
+
 test("quality dashboard keeps success, helpfulness and missing cost coverage separate", async ({
   page,
 }) => {

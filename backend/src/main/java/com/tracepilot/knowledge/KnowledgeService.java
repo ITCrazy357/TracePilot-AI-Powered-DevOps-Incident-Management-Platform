@@ -1,14 +1,13 @@
 package com.tracepilot.knowledge;
 
-import com.tracepilot.audit.AuditAction;
-import com.tracepilot.audit.AuditLog;
-import java.util.Map;
-
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.tracepilot.analysis.AiProperties;
+import com.tracepilot.audit.AuditAction;
+import com.tracepilot.audit.AuditLog;
 import com.tracepilot.incident.IncidentRepository;
 import com.tracepilot.incident.IncidentStatus;
 import com.tracepilot.workspace.MembershipStatus;
@@ -18,6 +17,7 @@ import com.tracepilot.workspace.WorkspaceRepository;
 import com.tracepilot.workspace.WorkspaceRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -48,6 +48,8 @@ public class KnowledgeService {
         this.audit = audit;
     }
 
+    // Count and items must describe the same snapshot during concurrent changes.
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public KnowledgeDtos.ArticlePage list(UUID actorId, UUID workspaceId, int page, int size, KnowledgeFilters filters) {
         requireMember(actorId, workspaceId);
         return repository.list(workspaceId, page, size, filters);

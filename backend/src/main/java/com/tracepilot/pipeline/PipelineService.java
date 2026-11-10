@@ -12,6 +12,7 @@ import com.tracepilot.workspace.WorkspaceRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -57,6 +58,7 @@ public class PipelineService {
         return outboxRepository.find(id);
     }
 
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public PipelineDtos.RunPage runs(UUID actorId, UUID workspaceId, UUID repositoryId, int page, int size) {
         access.requireRead(actorId, workspaceId, repositoryId);
         var result = runRepository.findByRepositoryIdOrderByCreatedAtDescIdAsc(
@@ -77,6 +79,7 @@ public class PipelineService {
             .map(PipelineDtos.JobResponse::from).toList();
     }
 
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public PipelineDtos.SyncPage requests(UUID actorId, UUID workspaceId, UUID repositoryId, int page, int size) {
         access.requireRead(actorId, workspaceId, repositoryId);
         return outboxRepository.list(repositoryId, page, size);

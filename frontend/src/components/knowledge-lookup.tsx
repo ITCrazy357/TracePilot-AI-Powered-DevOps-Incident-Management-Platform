@@ -21,7 +21,7 @@ export function KnowledgeLookup({ history = false }: { history?: boolean }) {
       />
       <KnowledgeNavigation />
       <div className="lookup-layout" key={selectedId}>
-        {history ? <SearchHistory refresh={0} /> : <KnowledgeSearch />}
+        {history ? <SearchHistory /> : <KnowledgeSearch />}
       </div>
     </WorkspaceBoundary>
   );

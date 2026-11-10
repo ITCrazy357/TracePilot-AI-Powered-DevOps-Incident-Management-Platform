@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, CircleAlert, RefreshCw } from "lucide-react";
-import type { DataPage, Incident, IncidentStatus, RepositoryPage } from "@/lib/contracts";
+import type { DataPage, Incident, RepositoryPage } from "@/lib/contracts";
 import { useResource } from "@/lib/use-resource";
 import { dateTime, incidentLabels, shortId } from "@/lib/presentation";
 import { useAuth } from "./auth-provider";

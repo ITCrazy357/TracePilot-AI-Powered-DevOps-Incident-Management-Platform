@@ -2,6 +2,8 @@
 
 Sáu phần theo yêu cầu: (1) nháp từ báo cáo AI; (2) tự lưu lịch sử và kết quả tra cứu riêng cho người dùng/workspace; (3) tách bộ lọc nghiệp vụ và tra vector; (4) làm rõ bố cục/màu sắc; (5) biểu đồ dữ liệu vận hành; (6) phân tích token AI.
 
+Đợt rà soát tiếp theo theo ECC, các lỗi đã tái hiện và cách sửa: [ECC review](ecc-review.md).
+
 ## 1. Nháp từ báo cáo AI
 
 Trong báo cáo SUCCEEDED, chọn **Thêm vào bản nháp tri thức**. Biểu mẫu tải báo cáo trong workspace hiện tại, điền tiêu đề sự cố, nguyên nhân nghi ngờ và đề xuất khắc phục. Chỉnh sửa rồi chọn **Lưu bản nháp**. Không gọi AI, embedding hoặc tự duyệt khi mở/lưu nháp.

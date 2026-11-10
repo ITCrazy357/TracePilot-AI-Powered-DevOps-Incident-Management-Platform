@@ -1,8 +1,9 @@
 package com.tracepilot.knowledge;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,15 +13,6 @@ import tools.jackson.databind.ObjectMapper;
 
 @Repository
 public class SearchHistoryRepository {
-    public record Entry(UUID id, String query, KnowledgeDtos.SearchMode mode, int topK, int resultCount, Instant createdAt) {
-    }
-
-    public record Detail(Entry search, KnowledgeDtos.SearchResponse result) {
-    }
-
-    public record Page(List<Entry> items, int page, int size, long total) {
-    }
-
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
 
@@ -38,24 +30,20 @@ public class SearchHistoryRepository {
             mapper.writeValueAsString(result), Timestamp.from(now));
     }
 
-    public Page list(UUID workspaceId, UUID userId, int page, int size) {
+    public SearchHistoryDtos.Page list(UUID workspaceId, UUID userId, int page, int size) {
         var items = jdbc.query("""
             SELECT id, query, mode, top_k, result_count, created_at FROM knowledge_search_history
             WHERE workspace_id = ? AND user_id = ? ORDER BY created_at DESC, id LIMIT ? OFFSET ?
-            """, (row, index) -> new Entry(row.getObject("id", UUID.class), row.getString("query"),
-            KnowledgeDtos.SearchMode.valueOf(row.getString("mode")), row.getInt("top_k"),
-            row.getInt("result_count"), row.getTimestamp("created_at").toInstant()), workspaceId, userId, size, (long) page * size);
+            """, (row, index) -> entry(row), workspaceId, userId, size, (long) page * size);
         long total = jdbc.queryForObject("SELECT count(*) FROM knowledge_search_history WHERE workspace_id = ? AND user_id = ?",
             Long.class, workspaceId, userId);
-        return new Page(items, page, size, total);
+        return new SearchHistoryDtos.Page(items, page, size, total);
     }
 
-    public Optional<Detail> find(UUID workspaceId, UUID userId, UUID id) {
+    public Optional<SearchHistoryDtos.Detail> find(UUID workspaceId, UUID userId, UUID id) {
         return jdbc.query("""
             SELECT * FROM knowledge_search_history WHERE workspace_id = ? AND user_id = ? AND id = ?
-            """, (row, index) -> new Detail(new Entry(id, row.getString("query"),
-            KnowledgeDtos.SearchMode.valueOf(row.getString("mode")), row.getInt("top_k"),
-            row.getInt("result_count"), row.getTimestamp("created_at").toInstant()),
+            """, (row, index) -> new SearchHistoryDtos.Detail(entry(row),
             mapper.readValue(row.getString("result"), KnowledgeDtos.SearchResponse.class)), workspaceId, userId, id)
             .stream().findFirst();
     }
@@ -63,5 +51,11 @@ public class SearchHistoryRepository {
     public int delete(UUID workspaceId, UUID userId, UUID id) {
         return jdbc.update("DELETE FROM knowledge_search_history WHERE workspace_id = ? AND user_id = ? AND id = ?",
             workspaceId, userId, id);
+    }
+
+    private SearchHistoryDtos.Entry entry(ResultSet row) throws SQLException {
+        return new SearchHistoryDtos.Entry(row.getObject("id", UUID.class), row.getString("query"),
+            KnowledgeDtos.SearchMode.valueOf(row.getString("mode")), row.getInt("top_k"),
+            row.getInt("result_count"), row.getTimestamp("created_at").toInstant());
     }
 }

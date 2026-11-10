@@ -9,6 +9,7 @@ import com.tracepilot.workspace.WorkspaceRole;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -45,7 +46,7 @@ public class GitHubService {
         return connectionStore.applySnapshot(actorId, workspaceId, snapshot, version);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public GitHubDtos.RepositoryPage repositories(UUID actorId, UUID workspaceId, int page, int size) {
         requireMembership(actorId, workspaceId);
         var result = repositoryRepository.findByWorkspaceIdOrderByFullNameAscIdAsc(

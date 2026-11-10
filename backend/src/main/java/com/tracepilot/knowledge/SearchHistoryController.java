@@ -25,14 +25,15 @@ public class SearchHistoryController {
     }
 
     @GetMapping
-    public SearchHistoryRepository.Page list(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
+    public SearchHistoryDtos.Page list(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
                                              @RequestParam(defaultValue = "0") @Min(0) @Max(10000) int page,
                                              @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         return service.list(UUID.fromString(jwt.getSubject()), workspaceId, page, size);
     }
 
     @GetMapping("/{id}")
-    public SearchHistoryRepository.Detail get(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId, @PathVariable UUID id) {
+    public SearchHistoryDtos.Detail get(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID workspaceId,
+                                        @PathVariable UUID id) {
         return service.get(UUID.fromString(jwt.getSubject()), workspaceId, id);
     }
 

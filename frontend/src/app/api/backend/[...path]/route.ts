@@ -14,6 +14,8 @@ const runs = `${workspace}/repositories/${uuid}/workflow-runs`;
 const incidents = `${workspace}/incidents`;
 const analyses = `${incidents}/${uuid}/analyses`;
 const knowledge = `${workspace}/knowledge-articles`;
+const incidentList = new RegExp(`^${incidents}$`);
+const knowledgeList = new RegExp(`^${knowledge}$`);
 const routes: Record<string, RegExp[]> = {
   GET: [
     /^workspaces$/,
@@ -50,6 +52,16 @@ const routes: Record<string, RegExp[]> = {
     new RegExp(`^${knowledge}/search-history/${uuid}$`),
   ],
 };
+
+function allowedQueryKeys(path: string): string[] {
+  if (path.endsWith("/ai-usage")) return ["days", "operation", "model"];
+  if (path.endsWith("/quality") || path.endsWith("/dashboard")) return ["days"];
+  if (incidentList.test(path)) {
+    return ["page", "size", "q", "status", "repositoryId", "assignedTo", "severity"];
+  }
+  if (knowledgeList.test(path)) return ["page", "size", "q", "status"];
+  return ["page", "size"];
+}
 
 async function handle(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   if (request.method !== "GET") {
@@ -95,16 +107,7 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   }
   const query = new URLSearchParams();
   if (request.method === "GET") {
-    const keys = path.endsWith("/ai-usage")
-      ? ["days", "operation", "model"]
-      : path.endsWith("/quality") || path.endsWith("/dashboard")
-        ? ["days"]
-        : new RegExp(`^${incidents}$`).test(path)
-          ? ["page", "size", "q", "status", "repositoryId", "assignedTo", "severity"]
-          : new RegExp(`^${knowledge}$`).test(path)
-            ? ["page", "size", "q", "status"]
-            : ["page", "size"];
-    for (const key of keys) {
+    for (const key of allowedQueryKeys(path)) {
       const value = request.nextUrl.searchParams.get(key);
       if (value !== null) query.set(key, value);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import type { Analysis, AnalysisFeedback, FeedbackReason } from "@/lib/contracts";
 import { ApiError, api, errorMessage } from "@/lib/api";
 import { feedbackReasons, reasonsFor } from "@/lib/feedback";
@@ -12,8 +12,17 @@ import { ErrorNotice, Loading, SuccessNotice } from "./ui/states";
 export function FeedbackPanel({ analysis }: { analysis: Analysis }) {
   const { selectedId } = useWorkspace();
   const path = `/api/backend/workspaces/${selectedId}/incidents/${analysis.incidentId}/analyses/${analysis.id}/feedback`;
-  const resource = useResource<{ feedback: AnalysisFeedback | null }>(path);
+  const [snapshot, setSnapshot] = useState<{ feedback: AnalysisFeedback | null } | null>(null);
+  const resource = useResource<{ feedback: AnalysisFeedback | null }>(snapshot ? null : path);
   const [success, setSuccess] = useState("");
+  useEffect(() => {
+    if (resource.data) setSnapshot(resource.data);
+  }, [resource.data]);
+  function reload() {
+    setSnapshot(null);
+    setSuccess("");
+    resource.reload();
+  }
   return (
     <section className="panel feedback-panel" aria-label="Đánh giá báo cáo">
       <div className="panel-heading">
@@ -24,18 +33,18 @@ export function FeedbackPanel({ analysis }: { analysis: Analysis }) {
       </div>
       {success && <SuccessNotice>{success}</SuccessNotice>}
       {resource.error ? (
-        <ErrorNotice message={resource.error} retry={resource.reload} />
-      ) : !resource.data ? (
+        <ErrorNotice message={resource.error} retry={reload} />
+      ) : !snapshot ? (
         <Loading label="Đang tải đánh giá…" />
       ) : (
         <FeedbackEditor
-          key={`${path}:${resource.data.feedback?.version ?? 0}`}
+          key={`${path}:${snapshot.feedback?.version ?? 0}`}
           path={path}
-          feedback={resource.data.feedback}
-          reload={resource.reload}
-          onSaved={() => {
+          feedback={snapshot.feedback}
+          reload={reload}
+          onSaved={(feedback) => {
+            setSnapshot({ feedback });
             setSuccess("Đã lưu đánh giá của bạn.");
-            resource.reload();
           }}
         />
       )}
@@ -52,7 +61,7 @@ function FeedbackEditor({
   path: string;
   feedback: AnalysisFeedback | null;
   reload: () => void;
-  onSaved: () => void;
+  onSaved: (feedback: AnalysisFeedback) => void;
 }) {
   const [helpful, setHelpful] = useState<boolean | null>(feedback?.helpful ?? null);
   const fieldId = useId();
@@ -68,11 +77,11 @@ function FeedbackEditor({
     setBusy(true);
     setError("");
     try {
-      await api<AnalysisFeedback>(path, {
+      const saved = await api<AnalysisFeedback>(path, {
         method: "PUT",
         body: JSON.stringify({ helpful, reason, comment, version: feedback?.version ?? 0 }),
       });
-      onSaved();
+      onSaved(saved);
     } catch (failure) {
       setError(errorMessage(failure));
       if (failure instanceof ApiError && failure.status === 409) setConflict(true);

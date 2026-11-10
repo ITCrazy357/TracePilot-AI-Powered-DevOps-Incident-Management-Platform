@@ -15,6 +15,7 @@ import com.tracepilot.knowledge.EvidenceRepository;
 import com.tracepilot.knowledge.KnowledgeDtos;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -91,6 +92,7 @@ public class AnalysisService {
         outboxRepository.enqueueAnalysis(repositoryId, id);
     }
 
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public AnalysisDtos.AnalysisPage list(UUID actorId, UUID workspaceId, UUID incidentId, int page, int size) {
         access.requireRead(actorId, workspaceId, incidentId);
         return analysisRepository.list(workspaceId, incidentId, page, size);
