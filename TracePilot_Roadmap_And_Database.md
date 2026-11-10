@@ -284,6 +284,12 @@ LIMIT 5;
 5. Để tránh lưu quá nhiều dữ liệu, chỉ embedding các knowledge article đã được phê duyệt; nếu sửa, phải regenerate chunks và cập nhật vector atomically.
 6. Luôn có bước human review trước khi thực thi command/patch/deploy do AI đề xuất.
 
+## 11. Cải thiện dữ kiện và đánh giá AI
+
+Năm phần nâng chất lượng phân tích được mô tả tại [Phase 11](docs/phase-11.md).
+Giữ cách ly workspace, che bí mật và người dùng duyệt tri thức. Đo trên bộ tham chiếu trước khi
+tuyên bố tăng độ chính xác; test fixture không thay cho đánh giá model thật.
+
 ## 10. Mở rộng trải nghiệm tra cứu và số liệu
 
 Theo yêu cầu bổ sung: nháp từ báo cáo AI, lịch sử tra cứu cá nhân tự lưu, bộ lọc nghiệp vụ tách tra vector, cải thiện bố cục/màu, biểu đồ hoạt động và phân tích token/chi phí. Xem [Phase 10](docs/phase-10.md) cho hợp đồng và cách chạy.

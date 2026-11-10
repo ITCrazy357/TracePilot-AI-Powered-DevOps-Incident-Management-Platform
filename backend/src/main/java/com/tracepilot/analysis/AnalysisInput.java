@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.tracepilot.incident.LogRedactor;
+import com.tracepilot.incident.DiagnosticLogSelector;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,11 +16,14 @@ public class AnalysisInput {
     private final AnalysisRepository analysisRepository;
     private final LogRedactor redactor;
     private final AiProperties properties;
+    private final DiagnosticLogSelector selector;
 
-    public AnalysisInput(AnalysisRepository analysisRepository, LogRedactor redactor, AiProperties properties) {
+    public AnalysisInput(AnalysisRepository analysisRepository, LogRedactor redactor, AiProperties properties,
+                         DiagnosticLogSelector selector) {
         this.analysisRepository = analysisRepository;
         this.redactor = redactor;
         this.properties = properties;
+        this.selector = selector;
     }
 
     public PreparedInput load(UUID incidentId) {
@@ -30,11 +34,7 @@ public class AnalysisInput {
         }
         // Join before redacting again: a newly configured secret may span two persisted snippets.
         var safe = redactor.redact(combined, List.of(properties.apiKey()));
-        int start = Math.max(0, safe.length() - properties.maxInputCharacters());
-        if (start > 0 && Character.isLowSurrogate(safe.charAt(start))) {
-            start++;
-        }
-        safe = safe.substring(start);
+        safe = selector.select(safe, properties.maxInputCharacters());
         return new PreparedInput(safe, sha256(safe));
     }
 

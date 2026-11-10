@@ -11,6 +11,7 @@ import com.tracepilot.analysis.AnalysisDtos;
 import com.tracepilot.analysis.AnalysisInput;
 import com.tracepilot.analysis.AnalysisRepository;
 import com.tracepilot.incident.LogRedactor;
+import com.tracepilot.incident.DiagnosticLogSelector;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
@@ -36,7 +37,7 @@ class RagContextTests {
             new KnowledgeDtos.Chunk(UUID.randomUUID(), UUID.randomUUID(), 0, "A reviewed fix", "a".repeat(64), 1)));
         var text = new KnowledgeText(new LogRedactor(new MockEnvironment()), ai);
         var service = new RagService(repository, search, mock(KnowledgeRepository.class), text,
-            new RagProperties(true, RagProperties.MODEL, 1536, 3, 0.35, null), ai);
+            new RagProperties(true, RagProperties.MODEL, 1536, 3, 0.35, null), ai, new DiagnosticLogSelector());
         var prepared = new AnalysisInput.PreparedInput("Useful log content", "b".repeat(64));
         var context = service.prepare(analysisId, 1, prepared);
         assertThat(context.input()).isEqualTo(prepared.content()).hasSizeLessThanOrEqualTo(100);

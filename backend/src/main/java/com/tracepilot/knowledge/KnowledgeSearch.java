@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.tracepilot.analysis.AnalysisFailure;
+import com.tracepilot.incident.DiagnosticLogSelector;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,15 +18,18 @@ public class KnowledgeSearch {
     private final EmbeddingClient embeddings;
     private final RagProperties properties;
     private final SearchHistoryService history;
+    private final DiagnosticLogSelector selector;
 
     public KnowledgeSearch(KnowledgeService service, KnowledgeRepository repository, KnowledgeText text,
-                           EmbeddingClient embeddings, RagProperties properties, SearchHistoryService history) {
+                           EmbeddingClient embeddings, RagProperties properties, SearchHistoryService history,
+                           DiagnosticLogSelector selector) {
         this.service = service;
         this.repository = repository;
         this.text = text;
         this.embeddings = embeddings;
         this.properties = properties;
         this.history = history;
+        this.selector = selector;
     }
 
     public KnowledgeDtos.SearchResponse search(UUID actorId, UUID workspaceId, KnowledgeDtos.SearchRequest request) {
@@ -53,11 +57,7 @@ public class KnowledgeSearch {
             return List.of();
         }
         // At most 2,000 UTF-16 units stay below the provider's 8,192-token limit even for UTF-8 worst cases.
-        int start = Math.max(0, query.length() - 2000);
-        if (start > 0 && Character.isLowSurrogate(query.charAt(start))) {
-            start++;
-        }
-        var safeQuery = text.sanitize(query.substring(start));
+        var safeQuery = selector.select(text.sanitize(query), 2000);
         var vector = embeddings.embed(workspaceId, analysisId, Optional.empty(), attempt, List.of(safeQuery)).getFirst();
         return repository.search(workspaceId, vector, safeQuery, topK, mode, properties.minimumSimilarity());
     }

@@ -9,6 +9,7 @@ import com.tracepilot.analysis.AiProperties;
 import com.tracepilot.analysis.AnalysisFailure;
 import com.tracepilot.analysis.AnalysisInput;
 import com.tracepilot.analysis.AnalysisRepository;
+import com.tracepilot.incident.DiagnosticLogSelector;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,15 +20,18 @@ public class RagService {
     private final KnowledgeText text;
     private final RagProperties properties;
     private final AiProperties aiProperties;
+    private final DiagnosticLogSelector selector;
 
     public RagService(AnalysisRepository analysisRepository, KnowledgeSearch search, KnowledgeRepository repository,
-                      KnowledgeText text, RagProperties properties, AiProperties aiProperties) {
+                      KnowledgeText text, RagProperties properties, AiProperties aiProperties,
+                      DiagnosticLogSelector selector) {
         this.analysisRepository = analysisRepository;
         this.search = search;
         this.repository = repository;
         this.text = text;
         this.properties = properties;
         this.aiProperties = aiProperties;
+        this.selector = selector;
     }
 
     public RagContext prepare(UUID analysisId, int attempt, AnalysisInput.PreparedInput log) {
@@ -57,11 +61,7 @@ public class RagService {
             return new RagContext(work.workspaceId(), log.content(), log.content(), List.of());
         }
         int logBudget = aiProperties.maxInputCharacters() - prefix.length() - separator.length() - section.length();
-        int start = Math.max(0, log.content().length() - logBudget);
-        if (start > 0 && Character.isLowSurrogate(log.content().charAt(start))) {
-            start++;
-        }
-        var visibleLog = log.content().substring(start);
+        var visibleLog = selector.select(log.content(), logBudget);
         return new RagContext(work.workspaceId(), visibleLog,
             prefix + visibleLog + separator + section, List.copyOf(knowledge));
     }

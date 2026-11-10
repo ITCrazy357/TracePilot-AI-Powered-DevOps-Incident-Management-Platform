@@ -28,10 +28,12 @@ public class IncidentLogStore {
     private final NotificationRepository notificationRepository;
     private final Clock clock;
     private final AnalysisService analysisService;
+    private final DiagnosticLogSelector selector;
 
     public IncidentLogStore(WorkspaceRepository workspaceRepository, PipelineAccess access,
                             OutboxRepository outboxRepository, IncidentRepository incidentRepository,
-                            NotificationRepository notificationRepository, Clock clock, AnalysisService analysisService) {
+                            NotificationRepository notificationRepository, Clock clock, AnalysisService analysisService,
+                            DiagnosticLogSelector selector) {
         this.workspaceRepository = workspaceRepository;
         this.access = access;
         this.outboxRepository = outboxRepository;
@@ -39,6 +41,7 @@ public class IncidentLogStore {
         this.notificationRepository = notificationRepository;
         this.clock = clock;
         this.analysisService = analysisService;
+        this.selector = selector;
     }
 
     @Transactional
@@ -58,10 +61,8 @@ public class IncidentLogStore {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Log source changed during capture.");
         }
         // Redaction must finish before truncating/chunking, so a secret split across chunks cannot escape detection.
-        int start = Math.max(0, redactedLog.length() - MAX_SNIPPET_CHARACTERS);
-        if (start > 0 && Character.isLowSurrogate(redactedLog.charAt(start))) {
-            start++;
-        }
+        redactedLog = selector.select(redactedLog, MAX_SNIPPET_CHARACTERS);
+        int start = 0;
         int index = 0;
         do {
             int end = Math.min(redactedLog.length(), start + CHUNK_CHARACTERS);
