@@ -45,17 +45,43 @@ class AnalysisOutputTests {
     }
 
     @Test
+    void insufficientEvidenceRequiresMissingFactsAndConcreteVerificationSteps() {
+        var value = (tools.jackson.databind.node.ObjectNode) mapper.readTree(json("summary", List.of(INPUT)));
+        value.put("assessmentStatus", "INSUFFICIENT_EVIDENCE");
+        assertInvalid(value.toString());
+        value.set("missingInformation", mapper.valueToTree(List.of("The original server stack trace")));
+        var result = output.parse(value.toString(), INPUT);
+        assertThat(result.assessmentStatus()).isEqualTo("INSUFFICIENT_EVIDENCE");
+        assertThat(result.missingInformation()).containsExactly("The original server stack trace");
+        value.set("verificationSteps", mapper.valueToTree(List.of()));
+        assertInvalid(value.toString());
+    }
+
+    @Test
+    void rejectsInventedAssessmentStatusesAndUnboundedOrRepeatedChecks() {
+        var value = (tools.jackson.databind.node.ObjectNode) mapper.readTree(json("summary", List.of(INPUT)));
+        value.put("assessmentStatus", "VERIFIED_100_PERCENT");
+        assertInvalid(value.toString());
+        value.put("assessmentStatus", "NO_FAILURE_INDICATED");
+        value.set("verificationSteps", mapper.valueToTree(List.of("x".repeat(501))));
+        assertInvalid(value.toString());
+        value.set("verificationSteps", mapper.valueToTree(List.of("Check the failing step", "Check the failing step")));
+        assertInvalid(value.toString());
+    }
+
+    @Test
     void rejectsBlankOversizedOrUnboundedEvidence() {
         assertInvalid(json(" ", List.of(INPUT)));
         assertInvalid(json("x".repeat(2001), List.of(INPUT)));
         assertInvalid(json("summary", List.of()));
         assertInvalid(json("summary", List.of(INPUT, INPUT)));
-        assertInvalid("x".repeat(16001));
+        assertInvalid("x".repeat(24001));
     }
 
     private String json(String summary, List<String> evidence) {
         return mapper.writeValueAsString(Map.of("summary", summary, "suspectedRootCause", "Uncertain root cause",
-            "suggestedFix", "Human review required", "evidence", evidence));
+            "suggestedFix", "Human review required", "evidence", evidence, "assessmentStatus", "HYPOTHESIS",
+            "missingInformation", List.of(), "verificationSteps", List.of("Reproduce the failing step and compare its actual result")));
     }
 
     private void assertInvalid(String content) {

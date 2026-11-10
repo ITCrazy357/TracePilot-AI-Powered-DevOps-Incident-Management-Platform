@@ -117,9 +117,13 @@ public class AnalysisRepository {
     public void succeed(UUID id, AnalysisDtos.Report report, Instant now) {
         jdbcTemplate.update("""
             UPDATE ai_analyses SET status = 'SUCCEEDED', summary = ?, suspected_root_cause = ?,
-                suggested_fix = ?, evidence = CAST(? AS jsonb), error_code = NULL, completed_at = ? WHERE id = ?
+                suggested_fix = ?, evidence = CAST(? AS jsonb), assessment_status = ?,
+                missing_information = CAST(? AS jsonb), verification_steps = CAST(? AS jsonb),
+                error_code = NULL, completed_at = ? WHERE id = ?
             """, report.summary(), report.suspectedRootCause(), report.suggestedFix(),
-            objectMapper.writeValueAsString(report.evidence()), Timestamp.from(now), id);
+            objectMapper.writeValueAsString(report.evidence()), report.assessmentStatus(),
+            objectMapper.writeValueAsString(report.missingInformation()), objectMapper.writeValueAsString(report.verificationSteps()),
+            Timestamp.from(now), id);
     }
 
     public void fail(UUID id, String code, boolean exhausted, Instant now) {
@@ -173,7 +177,16 @@ public class AnalysisRepository {
             row.getString("prompt_version"), row.getString("status"), row.getString("summary"),
             row.getString("suspected_root_cause"), row.getString("suggested_fix"), List.copyOf(quotes),
             row.getString("error_code"), instant(row, "started_at"), instant(row, "completed_at"),
-            row.getTimestamp("created_at").toInstant(), row.getString("run_context"));
+            row.getTimestamp("created_at").toInstant(), row.getString("run_context"), row.getString("assessment_status"),
+            strings(row.getString("missing_information")), strings(row.getString("verification_steps")));
+    }
+
+    private List<String> strings(String json) {
+        var result = new ArrayList<String>();
+        for (var item : objectMapper.readTree(json)) {
+            result.add(item.asString());
+        }
+        return List.copyOf(result);
     }
 
     private Instant instant(ResultSet row, String column) throws SQLException {

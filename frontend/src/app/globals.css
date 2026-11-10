@@ -489,6 +489,21 @@ summary:focus-visible {
 .knowledge-fields textarea:disabled {
   background: #edf3f8;
 }
+.report-checklist {
+  padding-left: 1.4rem;
+  margin-block: 0.8rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  list-style-type: disc;
+}
+
+ol.report-checklist {
+  list-style-type: decimal;
+}
+.report-checklist li + li {
+  margin-top: 0.5rem;
+}
+
 .verification-confirmation {
   display: flex;
   align-items: flex-start;

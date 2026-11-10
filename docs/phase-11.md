@@ -56,3 +56,24 @@ Như trước, sửa bài đã duyệt đưa về DRAFT và loại revision cũ 
 Kiểm chứng phần 3: Maven verify 149/149 đạt sau khi sửa DTO cho request không có verified;
 knowledge UI 23/23 và hồi quy knowledge/operations/quality 45/45 đạt, production build đạt.
 Đã xem ảnh editor 320px; axe và kiểm tra tràn ngang ở 1440/390/320px đạt.
+
+## 4. Báo cáo nêu giả thuyết và bước kiểm chứng
+
+Prompt v4 và schema yêu cầu `assessmentStatus`: HYPOTHESIS, INSUFFICIENT_EVIDENCE hoặc
+NO_FAILURE_INDICATED. Có `missingInformation` (0–5 mục, phải có khi thiếu bằng chứng),
+`verificationSteps` (1–5 mục); mỗi mục 8–500 ký tự, không trùng. V14 lưu các trường này;
+báo cáo cũ giữ phân loại null và danh sách rỗng. UI hiển thị rõ báo cáo cũ thay vì tự gán nhãn.
+
+SUCCEEDED chỉ có nghĩa xử lý/kiểm tra cấu trúc thành công, không phải đã chẩn đoán chính xác.
+Không có phần trăm tin cậy tự đặt; mọi hướng sửa/bước kiểm tra đều là đề xuất chưa chạy.
+Prompt yêu cầu phân biệt negative test, exit code thiếu dữ kiện và nguyên nhân nghi ngờ, không
+bỏ TLS/auth/test, xóa dữ liệu hoặc in secret để làm CI xanh. Đây là ràng buộc hướng dẫn model,
+không phải chứng minh tự động rằng mọi câu trả lời đều an toàn/đúng. Quote vẫn phải có nguồn thật.
+
+Khi đổi prompt/ngân sách, yêu cầu đang chờ của phiên bản cũ có thể kết thúc AI_SOURCE_CHANGED;
+tạo yêu cầu mới sau khi xem trạng thái. Không sửa/ghi đè báo cáo lịch sử hoặc tự chạy lại có tính phí.
+
+Kiểm chứng phần 4: Maven verify 152/152 đạt, gồm parser và persistence của nhận định/dữ kiện thiếu;
+45 ca UI knowledge/quality/operations khác đạt, ca UI mới chọn lại đúng nút refresh trong tab AI
+và chạy lại operations 13/13 đạt. Production build, axe/overflow báo cáo mới ở 1440/390/320px đạt;
+đã xem ảnh render 320px. Không gọi model thật để suy ra mức chính xác.

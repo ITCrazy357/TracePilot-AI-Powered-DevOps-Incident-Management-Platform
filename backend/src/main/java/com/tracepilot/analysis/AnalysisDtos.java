@@ -18,7 +18,8 @@ public final class AnalysisDtos {
     public record AnalysisResponse(UUID id, UUID incidentId, String provider, String model, String promptVersion,
                                    String status, String summary, String suspectedRootCause, String suggestedFix,
                                    List<String> evidence, String errorCode, Instant startedAt, Instant completedAt,
-                                   Instant createdAt, String runContext) {
+                                   Instant createdAt, String runContext, String assessmentStatus,
+                                   List<String> missingInformation, List<String> verificationSteps) {
     }
 
     public record AnalysisPage(List<AnalysisResponse> items, int page, int size, long total) {
@@ -37,6 +38,7 @@ public final class AnalysisDtos {
     public record ProviderResult(String content, Long inputTokens, Long outputTokens, String finishReason) {
     }
 
-    public record Report(String summary, String suspectedRootCause, String suggestedFix, List<String> evidence) {
+    public record Report(String summary, String suspectedRootCause, String suggestedFix, List<String> evidence,
+                         String assessmentStatus, List<String> missingInformation, List<String> verificationSteps) {
     }
 }

@@ -146,6 +146,9 @@ export interface IncidentLogs {
 }
 
 export interface Analysis {
+  assessmentStatus?: "HYPOTHESIS" | "INSUFFICIENT_EVIDENCE" | "NO_FAILURE_INDICATED" | null;
+  missingInformation?: string[];
+  verificationSteps?: string[];
   runContext?: string | null;
   id: string;
   incidentId: string;

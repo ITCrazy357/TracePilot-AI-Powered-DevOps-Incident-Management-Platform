@@ -165,6 +165,58 @@ test("analysis shows the context snapshot belonging to the selected report", asy
   await expect(page.locator("pre.report-copy")).toContainText("Java 21 / Ubuntu 24.04");
 });
 
+test("analysis distinguishes missing evidence and proposed checks while keeping legacy reports readable", async ({
+  page,
+}) => {
+  await mockOperations(page);
+  let legacy = false;
+  await page.route(`**/analyses/${analysis.id}`, (route) =>
+    route.fulfill({
+      json: legacy
+        ? analysis
+        : {
+            ...analysis,
+            assessmentStatus: "INSUFFICIENT_EVIDENCE",
+            missingInformation: ["Stack trace server của request thất bại"],
+            verificationSteps: ["Đối chiếu timestamp của test với log server rồi tái hiện lỗi"],
+          },
+    }),
+  );
+  await page.goto(`/incidents/${incidentId}`);
+  await page.getByRole("tab", { name: "Phân tích AI", exact: true }).click();
+  await expect(
+    page.getByText("Chưa đủ dữ kiện để xác định nguyên nhân", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("listitem").filter({ hasText: "Stack trace server của request thất bại" }),
+  ).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Đối chiếu timestamp" })).toBeVisible();
+  for (const width of [1440, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
+        .violations,
+    ).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  }
+  await mkdir(path.resolve(process.cwd(), "../.verification/phase11"), { recursive: true });
+  await page.screenshot({
+    path: path.resolve(process.cwd(), "../.verification/phase11/report-320.png"),
+    fullPage: true,
+  });
+  legacy = true;
+  await page
+    .getByRole("tabpanel", { name: "Phân tích AI" })
+    .getByRole("button", { name: "Làm mới", exact: true })
+    .click();
+  await expect(
+    page.getByText("Báo cáo cũ chưa có phân loại và bước kiểm chứng có cấu trúc.", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText(analysis.summary!, { exact: true })).toBeVisible();
+});
+
 test("notification read action persists after reload", async ({ page }) => {
   await mockOperations(page);
   await page.goto("/notifications");

@@ -247,6 +247,11 @@ function Report({
   onEvidence: (quote: string) => void;
 }) {
   const completed = analysis.status === "SUCCEEDED";
+  const assessment = {
+    HYPOTHESIS: "Giả thuyết cần kiểm chứng",
+    INSUFFICIENT_EVIDENCE: "Chưa đủ dữ kiện để xác định nguyên nhân",
+    NO_FAILURE_INDICATED: "Chưa thấy lỗi cần khắc phục trong đoạn log được cung cấp",
+  };
   return (
     <div className="analysis-report-grid">
       <div className="report-main">
@@ -269,6 +274,14 @@ function Report({
           {completed ? (
             <div className="report-sections">
               <section>
+                <h3>Nhận định và giới hạn</h3>
+                <p className="notice notice-info">
+                  {analysis.assessmentStatus
+                    ? assessment[analysis.assessmentStatus]
+                    : "Báo cáo cũ chưa có phân loại và bước kiểm chứng có cấu trúc."}
+                </p>
+              </section>
+              <section>
                 <h3>Tóm tắt</h3>
                 <p className="report-copy">{analysis.summary}</p>
               </section>
@@ -280,6 +293,35 @@ function Report({
                 <h3>Hướng khắc phục đề xuất</h3>
                 <p className="report-copy">{analysis.suggestedFix}</p>
               </section>
+              {analysis.assessmentStatus && (
+                <>
+                  <section>
+                    <h3>Thông tin còn thiếu</h3>
+                    {analysis.missingInformation?.length ? (
+                      <ul className="report-checklist">
+                        {analysis.missingInformation.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="muted">
+                        AI không liệt kê thêm; điều này không xác nhận kết luận đã đúng.
+                      </p>
+                    )}
+                  </section>
+                  <section>
+                    <h3>Bước kiểm tra tiếp theo</h3>
+                    <p className="field-hint">
+                      Các bước đề xuất chưa được TracePilot thực hiện. Kiểm tra trước khi áp dụng.
+                    </p>
+                    <ol className="report-checklist">
+                      {analysis.verificationSteps?.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ol>
+                  </section>
+                </>
+              )}
             </div>
           ) : (
             <div className="analysis-pending">

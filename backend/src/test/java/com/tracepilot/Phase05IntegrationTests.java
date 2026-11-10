@@ -146,6 +146,29 @@ class Phase05IntegrationTests {
     }
 
     @Test
+    void storesUncertaintyAndChecksWithoutMarkingTheIncidentResolvedOrReclassifyingOldReports() throws Exception {
+        var incidentId = incident();
+        AI.content = mapper.writeValueAsString(Map.of("summary", "Thiếu dữ kiện để kết luận",
+            "suspectedRootCause", "Chưa xác định được vì thiếu stack trace server", "suggestedFix", "Thu thập log liên quan trước khi sửa",
+            "evidence", List.of(AiApiFixture.QUOTE), "assessmentStatus", "INSUFFICIENT_EVIDENCE",
+            "missingInformation", List.of("Stack trace server cho request thất bại"),
+            "verificationSteps", List.of("Đối chiếu log server với thời điểm test thất bại rồi tái hiện lỗi")));
+        var analysisId = request(owner, incidentId, UUID.randomUUID());
+        waitFor(analysisId, "SUCCEEDED");
+        var response = body(call("GET", path(incidentId) + "/" + analysisId, owner.accessToken(), null));
+        assertThat(response.path("assessmentStatus").asString()).isEqualTo("INSUFFICIENT_EVIDENCE");
+        assertThat(response.path("missingInformation").size()).isEqualTo(1);
+        assertThat(response.path("verificationSteps").get(0).asString()).contains("tái hiện lỗi");
+        assertThat(jdbcTemplate.queryForObject("SELECT status FROM incidents WHERE id = ?", String.class, incidentId))
+            .isEqualTo("OPEN");
+        jdbcTemplate.update("UPDATE ai_analyses SET assessment_status = NULL, missing_information = '[]', verification_steps = '[]' WHERE id = ?", analysisId);
+        var legacy = body(call("GET", path(incidentId) + "/" + analysisId, owner.accessToken(), null));
+        assertThat(legacy.path("assessmentStatus").isNull()).isTrue();
+        assertThat(legacy.path("verificationSteps")).isEmpty();
+        assertThat(legacy.path("summary").asString()).isEqualTo("Thiếu dữ kiện để kết luận");
+    }
+
+    @Test
     void analysisKeepsRedactedRunContextSnapshotAndReplaysWithoutReplacingIt() throws Exception {
         var incidentId = incident();
         var requestId = UUID.randomUUID();
@@ -275,7 +298,9 @@ class Phase05IntegrationTests {
             assertThat(usage.status()).isEqualTo("FAILED");
         });
         AI.content = mapper.writeValueAsString(Map.of("summary", "Invented", "suspectedRootCause", "Uncertain",
-            "suggestedFix", "Review first", "evidence", List.of("This quotation is absent from the log")));
+            "suggestedFix", "Review first", "evidence", List.of("This quotation is absent from the log"),
+            "assessmentStatus", "HYPOTHESIS", "missingInformation", List.of(),
+            "verificationSteps", List.of("Review the original failing-step log before changing anything")));
         var fabricated = request(owner, id, UUID.randomUUID());
         waitFor(fabricated, "FAILED");
         assertThat(analysisRepository.find(fabricated).orElseThrow().analysis().summary()).isNull();

@@ -551,7 +551,9 @@ class Phase06IntegrationTests {
 
     private String report(String... quotes) {
         return mapper.writeValueAsString(Map.of("summary", "Investigated failure", "suspectedRootCause", "A possible cause requires confirmation",
-            "suggestedFix", "Review the matching fix before applying it", "evidence", List.of(quotes)));
+            "suggestedFix", "Review the matching fix before applying it", "evidence", List.of(quotes),
+            "assessmentStatus", "HYPOTHESIS", "missingInformation", List.of("The actual runtime configuration"),
+            "verificationSteps", List.of("Reproduce the failure and compare the actual runtime configuration")));
     }
 
     private UUID incident() throws Exception {

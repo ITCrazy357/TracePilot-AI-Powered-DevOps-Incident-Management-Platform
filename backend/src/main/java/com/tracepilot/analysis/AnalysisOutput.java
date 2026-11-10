@@ -14,7 +14,9 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class AnalysisOutput {
-    private static final Set<String> FIELDS = Set.of("summary", "suspectedRootCause", "suggestedFix", "evidence");
+    private static final Set<String> FIELDS = Set.of("summary", "suspectedRootCause", "suggestedFix", "evidence",
+        "assessmentStatus", "missingInformation", "verificationSteps");
+    private static final Set<String> ASSESSMENTS = Set.of("HYPOTHESIS", "INSUFFICIENT_EVIDENCE", "NO_FAILURE_INDICATED");
     private final JsonMapper mapper = JsonMapper.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
         .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();
     private final LogRedactor redactor;
@@ -26,7 +28,7 @@ public class AnalysisOutput {
     }
 
     public AnalysisDtos.Report parse(String content, String input) {
-        if (content == null || content.isBlank() || content.length() > 16000) {
+        if (content == null || content.isBlank() || content.length() > 24000) {
             throw invalid();
         }
         try {
@@ -47,11 +49,36 @@ public class AnalysisOutput {
                 }
                 quotes.add(value);
             }
+            var assessment = text(root.path("assessmentStatus"), 32);
+            if (!ASSESSMENTS.contains(assessment)) {
+                throw invalid();
+            }
+            var missing = items(root.path("missingInformation"), 0);
+            var steps = items(root.path("verificationSteps"), 1);
+            if ("INSUFFICIENT_EVIDENCE".equals(assessment) && missing.isEmpty()) {
+                throw invalid();
+            }
             return new AnalysisDtos.Report(text(root.path("summary"), 2000),
-                text(root.path("suspectedRootCause"), 4000), text(root.path("suggestedFix"), 4000), List.copyOf(quotes));
+                text(root.path("suspectedRootCause"), 4000), text(root.path("suggestedFix"), 4000), List.copyOf(quotes),
+                assessment, missing, steps);
         } catch (tools.jackson.core.JacksonException exception) {
             throw invalid();
         }
+    }
+
+    private List<String> items(JsonNode node, int minimum) {
+        if (!node.isArray() || node.size() < minimum || node.size() > 5) {
+            throw invalid();
+        }
+        var result = new ArrayList<String>();
+        for (var item : node) {
+            var value = text(item, 500);
+            if (value.length() < 8 || result.contains(value)) {
+                throw invalid();
+            }
+            result.add(value);
+        }
+        return List.copyOf(result);
     }
 
     private String text(JsonNode node, int maximum) {

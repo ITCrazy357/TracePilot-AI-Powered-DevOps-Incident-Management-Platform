@@ -66,7 +66,9 @@ final class AiApiFixture implements AutoCloseable {
         content = mapper.writeValueAsString(Map.of("summary", "Job kiểm thử thất bại",
             "suspectedRootCause", "Có thể ứng dụng trả HTTP 500; cần kiểm tra server.",
             "suggestedFix", "Kiểm tra lỗi server rồi chạy lại test; cần con người xác nhận.",
-            "evidence", List.of(QUOTE)));
+            "evidence", List.of(QUOTE), "assessmentStatus", "HYPOTHESIS",
+            "missingInformation", List.of("Cần log server của request thất bại."),
+            "verificationSteps", List.of("Đối chiếu stack trace server rồi chạy lại test để kiểm tra HTTP 200.")));
     }
 
     private void handle(HttpExchange exchange) throws IOException {
