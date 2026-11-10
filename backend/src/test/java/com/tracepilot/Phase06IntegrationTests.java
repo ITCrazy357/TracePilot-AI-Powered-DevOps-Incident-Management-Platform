@@ -449,6 +449,35 @@ class Phase06IntegrationTests {
     }
 
     @Test
+    void ragQueryRetainsTheEarlyFailureAheadOfLongCleanupOutput() throws Exception {
+        var articleId = create(owner, WORKSPACE_ID, "Database endpoint fix", "Database connection refused",
+            "Check the database endpoint and service health before restarting");
+        approve(owner, WORKSPACE_ID, articleId, 0);
+        var incidentId = incident();
+        var jobId = jdbcTemplate.queryForObject("SELECT workflow_job_id FROM incident_log_snippets WHERE incident_id = ?",
+            UUID.class, incidentId);
+        jdbcTemplate.update("DELETE FROM incident_log_snippets WHERE incident_id = ?", incidentId);
+        var quote = "Error: database connection refused at localhost:5432";
+        var log = quote + "\nCaused by: java.net.ConnectException: Connection refused\n"
+            + "    at example.Database.connect(Database.java:42)\n" + "[INFO] Uploading artifacts\n".repeat(900)
+            + "Process exited with code 1\n";
+        int chunk = 0;
+        for (int start = 0; start < log.length(); start += 4096) {
+            var content = log.substring(start, Math.min(log.length(), start + 4096));
+            jdbcTemplate.update("""
+                INSERT INTO incident_log_snippets(id, incident_id, workflow_job_id, chunk_index, content, content_sha256, captured_at)
+                VALUES (?, ?, ?, ?, ?, ?, now())
+                """, UUID.randomUUID(), incidentId, jobId, chunk++, content, knowledgeText.sha256(content));
+        }
+        AI.content = report(quote);
+        var analysisId = request(owner, incidentId, UUID.randomUUID());
+        waitFor(analysisId, "SUCCEEDED");
+        assertThat(AI.embeddings.inputs.getLast()).contains("database connection refused", "Database.java:42")
+            .hasSizeLessThanOrEqualTo(2000);
+        assertThat(AI.inputs.getLast()).contains(quote).hasSizeLessThanOrEqualTo(16000);
+    }
+
+    @Test
     void retrievalEvaluationMeasuresRecallAgainstTheTrackedParaphraseDataset() throws Exception {
         var resource = getClass().getResourceAsStream("/evaluation/rag-retrieval.json");
         assertThat(resource).isNotNull();

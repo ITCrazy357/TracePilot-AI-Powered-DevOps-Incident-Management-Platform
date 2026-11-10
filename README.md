@@ -8,6 +8,11 @@ Nền tảng theo dõi GitHub Actions và phân tích incident bằng AI. Backen
 
 ![Dashboard với dữ liệu browser fixture](docs/images/dashboard-fixture.png)
 
+**Cập nhật Phase 11:** chọn vùng log chẩn đoán, ngữ cảnh từng lần phân tích, tri thức có phạm vi/kiểm chứng,
+báo cáo nêu dữ kiện thiếu và bước kiểm tra. Nâng database bằng V12–V14 khi chạy lại shipping `-Task up`,
+giữ volume và cấu hình cũ. [Luồng sử dụng](docs/phase-11.md), [bộ 26 ca và công cụ đánh giá](docs/ai-evaluation.md).
+Chưa có số đo độ chính xác của model thật; fixture không thay cho đánh giá độc lập.
+
 Ảnh dùng dữ liệu synthetic. Phạm vi kiểm chứng local và provider được ghi riêng trong [Phase 05](docs/phase-05.md) và [Phase 10](docs/phase-10.md); chưa có demo URL public.
 
 Hướng dẫn học, API và chạy thử: [Phase 01 — Identity & Workspace](docs/phase-01.md).

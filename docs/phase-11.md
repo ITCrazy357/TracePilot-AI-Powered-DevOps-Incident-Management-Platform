@@ -74,6 +74,40 @@ Khi đổi prompt/ngân sách, yêu cầu đang chờ của phiên bản cũ có
 tạo yêu cầu mới sau khi xem trạng thái. Không sửa/ghi đè báo cáo lịch sử hoặc tự chạy lại có tính phí.
 
 Kiểm chứng phần 4: Maven verify 152/152 đạt, gồm parser và persistence của nhận định/dữ kiện thiếu;
-45 ca UI knowledge/quality/operations khác đạt, ca UI mới chọn lại đúng nút refresh trong tab AI
+Lượt UI đầu đạt 45/46; ca mới chọn nhầm nút refresh trùng tên, đã sửa locator trong tab AI
 và chạy lại operations 13/13 đạt. Production build, axe/overflow báo cáo mới ở 1440/390/320px đạt;
 đã xem ảnh render 320px. Không gọi model thật để suy ra mức chính xác.
+
+## 5. Bộ tham chiếu và công cụ so sánh
+
+Bộ `analysis-quality-v2.json` có 26 tình huống synthetic, đáp án đề xuất cần reviewer xác nhận.
+Java kiểm tra giữ tín hiệu và xuất input qua redaction/selector thật; artifact có hash dataset/source,
+không kèm đáp án. CLI đóng băng prompt/schema, chuẩn bị bảng chấm độc lập, gọi provider chỉ khi có
+`--allow-provider`, ghi token/output từng ca và so sánh các run có cùng dữ kiện/ngân sách.
+
+Chưa có run model thật được chấm trong lần triển khai này. Xem [hướng dẫn đánh giá](ai-evaluation.md)
+để chuẩn bị/chạy/chấm và hiểu phạm vi LOG_ONLY_NO_RAG, rubric, token/chi phí và vòng cải tiến từ feedback.
+Kiểm thử RAG HTTP mới bảo vệ lỗi đầu log trước cleanup dài; dấu lược bỏ không được dùng làm evidence.
+
+## Cập nhật ứng dụng local
+
+```powershell
+.\scripts\shipping.ps1 -Task up
+.\scripts\shipping.ps1 -Task status
+```
+
+Flyway áp dụng V12–V14 khi backend mới khởi động. Giữ `.env.shipping`, override và volume hiện có;
+không repair migration cũ hoặc reset dữ liệu. Bài đã duyệt/báo cáo cũ vẫn còn; lần sửa/duyệt mới
+phải theo tiêu chí mới. Stack shipping không được tự rebuild trong đợt kiểm chứng này.
+
+## Kết quả kiểm chứng local ngày 10/11/2026
+
+- Maven verify: **156/156**, không lỗi/skipped, gồm nâng schema V11 → V14 với analysis/bài APPROVED/vector cũ.
+- Frontend: **80/80 UI fixture**, build production, TypeScript và format đạt.
+- Live Next production → Spring → PostgreSQL/RabbitMQ tạm: **10/10**, gồm lưu/sửa tri thức mới, quyền và tenant.
+- Công cụ đánh giá: **10/10 test fixture**, đã chạy prepare đủ 26 ca với prompt v4; không gọi provider thật.
+- Preview và container tạm đã thu hồi; không sửa `.env.shipping`, volume hoặc dữ liệu shipping.
+
+Các mức bằng chứng này không chứng minh độ chính xác model, chất lượng embedding thật, trạng thái IntelliJ,
+triển khai production hay kết quả CI remote. Cần chạy model/chấm độc lập theo hướng dẫn đánh giá trước khi
+tuyên bố có cải thiện định lượng.

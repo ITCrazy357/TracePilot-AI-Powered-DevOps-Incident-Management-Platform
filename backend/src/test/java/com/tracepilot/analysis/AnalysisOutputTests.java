@@ -45,6 +45,12 @@ class AnalysisOutputTests {
     }
 
     @Test
+    void rejectsSelectionMarkersAsEvidenceEvenWhenTheyAppearInTheInput() {
+        assertThatThrownBy(() -> output.parse(json("summary", List.of("[... omitted ...]")),
+            INPUT + "\n[... omitted ...]\ncleanup")).isInstanceOf(AnalysisFailure.class).hasMessage("INVALID_AI_OUTPUT");
+    }
+
+    @Test
     void insufficientEvidenceRequiresMissingFactsAndConcreteVerificationSteps() {
         var value = (tools.jackson.databind.node.ObjectNode) mapper.readTree(json("summary", List.of(INPUT)));
         value.put("assessmentStatus", "INSUFFICIENT_EVIDENCE");

@@ -44,7 +44,7 @@ public class AnalysisOutput {
             var seen = new HashSet<String>();
             for (var quote : evidence) {
                 var value = text(quote, 500);
-                if (value.length() < 8 || !input.contains(value) || !seen.add(value)) {
+                if (value.length() < 8 || value.contains("[... omitted ...]") || !input.contains(value) || !seen.add(value)) {
                     throw invalid();
                 }
                 quotes.add(value);

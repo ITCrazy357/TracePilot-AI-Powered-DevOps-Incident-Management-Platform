@@ -2,7 +2,7 @@
 
 Backend local shipping: `http://127.0.0.1:18081/api/v1`. JSON UTF-8, UUID cho ID nội bộ. API bảo vệ dùng `Authorization: Bearer <access-token>`. Browser dùng Next tại `http://127.0.0.1:13000`: `/api/auth/*` đổi token thành cookie HttpOnly, `/api/backend/*` chỉ proxy allowlist hiện có; không phải toàn bộ API Spring đều đi qua BFF.
 
-Request mutation qua Next cần `Origin` đúng `APP_ORIGIN`, content-type JSON khi có body, body tối đa 8 KiB. Không gửi token trong URL hoặc lưu vào localStorage. Spring dùng Bearer trực tiếp; webhook nằm ngoài `/api/v1`.
+Request mutation qua Next cần `Origin` đúng `APP_ORIGIN`, content-type JSON khi có body, body tối đa 8 KiB; riêng knowledge tối đa 64 KiB. Không gửi token trong URL hoặc lưu vào localStorage. Spring dùng Bearer trực tiếp; webhook nằm ngoài `/api/v1`.
 
 ## Xác thực và workspace
 
@@ -31,8 +31,8 @@ Base trong bảng: `/api/v1/workspaces/{workspaceId}`. `R` là `/repositories/{r
 | GET | `/incidents`, `I`, `I/logs` | Lifecycle và log đã redacted; trạng thái log có thể chưa READY |
 | PATCH | `I/status` | `{status,version}`; quyền theo role/assignee, stale version trả 409 |
 | PATCH | `I/assignee` | `{assignedTo,version}`; `assignedTo:null` để bỏ phân công |
-| GET / POST | `I/analyses` | Lịch sử / `{requestId}` yêu cầu phân tích; cần quyền và AI được bật |
-| GET | `A`, `A/usage`, `A/evidence` | Báo cáo, usage từng attempt và dẫn chứng; `/evidence` dùng backend trực tiếp |
+| GET / POST | `I/analyses` | Lịch sử / `{requestId,additionalContext?}` yêu cầu phân tích (ngữ cảnh tối đa 2.000 ký tự); cần quyền và AI được bật |
+| GET | `A`, `A/usage`, `A/evidence` | Báo cáo, usage từng attempt và dẫn chứng; `/evidence` giữ source/hash/revision |
 | GET / PUT | `A/feedback` | Đánh giá của chính user / `{helpful,reason,comment,version}`; xem enum và version ở Phase 07 |
 | GET | `/quality?days=30` | Tổng hợp 1–90 ngày; không đồng nhất helpfulness với accuracy |
 | GET | `/notifications` | Chỉ notification của user hiện tại |
@@ -43,7 +43,7 @@ Base trong bảng: `/api/v1/workspaces/{workspaceId}`. `R` là `/repositories/{r
 
 Phân trang mặc định `page=0&size=20`, page 0–10.000 và size 1–100. DTO page có thể dùng `total` hoặc `totalElements` tùy endpoint; xem `frontend/src/lib/contracts.ts` và DTO backend, không tự đổi tên field khi viết client.
 
-Knowledge API chỉ qua backend trực tiếp trong UI hiện tại: `/knowledge-articles` (GET/POST), `/{articleId}` (GET/PATCH), `/{articleId}/approve` (POST `{version}`), `/{articleId}/archive` (POST `{version}`), `/search` (POST `{query,topK,mode}`). Create/edit cần nội dung `title`, `rootCause`, `resolution`; edit thêm `version`. Approve/index/search cần provider được bật và quyền theo [Phase 06](phase-06.md).
+Knowledge API có giao diện và BFF Next; đường dẫn backend: `/knowledge-articles` (GET/POST), `/{articleId}` (GET/PATCH), `/{articleId}/approve` (POST `{version,verified:true}`), `/{articleId}/archive` (POST `{version}`), `/search` (POST `{query,topK,mode}`). Create/edit cần `title`, `rootCause`, `resolution`; edit thêm `version`. Có thêm `symptoms` (1.000), `applicability` (1.000), `verification` (1.500 ký tự). Draft cho phép thiếu, duyệt yêu cầu đủ ba trường và verified=true. Xem [Phase 11](phase-11.md). Approve/index/search cần provider được bật và quyền theo [Phase 06](phase-06.md).
 
 ## HTTP webhook, health và lỗi
 
@@ -61,3 +61,5 @@ Knowledge API chỉ qua backend trực tiếp trong UI hiện tại: `/knowledge
 | 502 / 503 | Kết nối BFF/backend, provider/cấu hình hoặc storage chưa sẵn sàng; kiểm tra health và mã request |
 
 Backend sinh `X-Request-ID`; BFF chuyển tiếp ID hợp lệ. Error body dùng Problem Detail hoặc dạng BFF `{status,detail}`; không kỳ vọng stack trace/SQL. Tài liệu này đối chiếu controller/DTO hiện có, **chưa phải OpenAPI/Swagger tự sinh**. Các phase 01–08 chứa ví dụ PowerShell chi tiết; bộ `scripts/shipping-smoke.mjs` là client chạy được cho auth/workspace/audit/rate limit.
+
+Báo cáo Phase 11 có thêm runContext, assessmentStatus, missingInformation và verificationSteps; báo cáo cũ giữ null/danh sách rỗng. Xem docs/phase-11.md và docs/ai-evaluation.md.

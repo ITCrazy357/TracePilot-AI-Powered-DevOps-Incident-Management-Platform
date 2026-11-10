@@ -39,6 +39,7 @@ jobs:
           path: |
             backend/target/surefire-reports/TEST-*.xml
             backend/target/phase06-recall.json
+            backend/target/phase11-evaluation-inputs.json
           retention-days: 7
 
   frontend:
@@ -57,6 +58,7 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
+          node --test ../scripts/ai-evaluation.test.mjs
           npm run format:check
           npm run build
           npm run typecheck
